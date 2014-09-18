@@ -1,0 +1,13 @@
+python3 ep.py $1 < $2 | sort > ./.ep_out
+if [ $? == 0 ]; then
+    sort $3 > ./.ep_exp
+    diff -q ./.ep_out ./.ep_exp
+    if [ $? == 0 ]; then
+        echo "O teste passou com sucesso! =D"
+    else
+        echo "O teste falhou! =("
+    fi
+    rm -f ./.ep_out ./.ep_exp
+else
+    echo "Falha ao executar o script ep.py"
+fi
