@@ -1,0 +1,9 @@
+<usuário>:x:<UID>:<GID>:<Nome do usuário>:<home>:<shell>
+gustavoem:x:123:2:Gustavo Estrela de Matos:/bin:/bin/sh
+glablaem:x:321:3:Gustavo bla a Matos:/dev:/bin/sh
+gustavoem2:x:4:65534:Gustavo damn Matos:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/bin/sh
+man:x:123:123:man:/var/cache/man:/bin/sh
+lp:x:7:7:lp:/var/spool/lpd:/bin/sh
+mail:x:123:8:mail:/var/mail:/bin/sh
+news:x:9:123:news:/var/spool/news:/bin/sh

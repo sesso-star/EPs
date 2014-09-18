@@ -1,0 +1,57 @@
+<usuário>:x:<UID>:<GID>:<Nome do usuário>:<home>:<shell>
+root:x:0:0:gustavo estrela de matos:/root:/bin/bash
+root:x:0:0:gustavo joao de matos:/root:/bin/bash
+daemon:x:1:1:gustavo jaquim de matos:/usr/sbin:/bin/sh
+bin:x:2:2:bin:/bin:/bin/sh
+sys:x:3:3:sys:/dev:/bin/sh
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/bin/sh
+man:x:6:12:man:/var/cache/man:/bin/sh
+lp:x:7:7:lp:/var/spool/lpd:/bin/sh
+mail:x:8:8:mail:/var/mail:/bin/sh
+news:x:9:9:news:/var/spool/news:/bin/sh
+uucp:x:10:10:uucp:/var/spool/uucp:/bin/sh
+proxy:x:13:13:proxy:/bin:/bin/sh
+www-data:x:33:33:www-data:/var/www:/bin/sh
+backup:x:34:34:backup:/var/backups:/bin/sh
+list:x:38:38:Mailing List Manager:/var/list:/bin/sh
+irc:x:39:39:ircd:/var/run/ircd:/bin/sh
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/bin/sh
+nobody:x:65534:65534:nobody:/nonexistent:/bin/sh
+libuuid:x:100:101::/var/lib/libuuid:/bin/sh
+dhcp:x:101:102::/nonexistent:/bin/false
+hplip:x:104:7:HPLIP system user,,,:/var/run/hplip:/bin/false
+avahi-autoipd:x:105:113:Avahi autoip daemon,,,:/var/lib/avahi-autoipd:/bin/false
+gdm:x:106:114:Gnome Display Manager:/var/lib/gdm:/bin/false
+messagebus:x:108:119::/var/run/dbus:/bin/false
+avahi:x:109:120:Avahi mDNS daemon,,,:/var/run/avahi-daemon:/bin/false
+polkituser:x:110:122:PolicyKit,,,:/var/run/PolicyKit:/bin/false
+haldaemon:x:111:123:Hardware abstraction layer,,,:/var/run/hald:/bin/false
+clamav:x:113:126::/var/lib/clamav:/bin/false
+Debian-exim:x:116:130::/var/spool/exim4:/bin/false
+ntp:x:117:131::/home/ntp:/bin/false
+pulse:x:107:116:PulseAudio daemon,,,:/var/run/pulse:/bin/false
+festival:x:114:29::/home/festival:/bin/false
+sshd:x:118:65534::/var/run/sshd:/usr/sbin/nologin
+saned:x:112:125::/home/saned:/bin/false
+syslog:x:102:103::/home/syslog:/bin/false
+yanine:x:1000:1000:Yanine,,,:/home/yanine:/bin/bash
+odis:x:1001:1001:Odis,,,:/home/odis:/bin/bash
+ubergod:x:1002:1002:Ubergod,,,:/home/ubergod:/bin/bash
+mission:x:1003:1003:,,,:/home/mission:/bin/bash
+unlimited:x:1004:1004:Unlimited,,,:/home/unlimited:/bin/bash
+simone:x:1005:1005:,,,:/home/simone:/bin/bash
+terry:x:1006:1006:Terry,,,:/home/terry:/bin/bash
+timo:x:1007:1007:Timo,,,:/home/timo:/bin/bash
+hendrik:x:1008:1008:,,,:/home/hendrik:/bin/bash
+isolde:x:1009:1009:,,,:/home/isolde:/bin/bash
+nina:x:1010:1010:,,,:/home/nina:/bin/bash
+kumar:x:1011:1011:,,,:/home/kumar:/bin/bash
+Isolated:x:1012:1012:Isolated,,,:/home/Isolated:/bin/bash
+master:x:1013:1013:Master,,,:/home/master:/bin/bash
+simon:x:1014:1014:Simon,,,:/home/simon:/bin/bash
+theo:x:1015:1015:,,,:/home/theo:/bin/bash
+underpaid:x:1016:1016:,,,:/home/underpaid:/bin/bash
+pickme:x:1017:1017:,,,:/home/pickme:/bin/bash
+indoor:x:1018:1018:Indoor,,,:/home/indoor:/bin/bash
+damn:x:1019:1019:Damn,,,:/home/damn:/bin/bash
