@@ -1,0 +1,19 @@
+Nome: Bruno Sesso              NUSP: 8536002
+Nome: Gustavo Estrela de Matos NUSP: 8536051
+
+EP escolhido:
+Escolhemos fazer o primeiro ep. Como o ep não era muito grande, cada um fez uma versão e depois comparamos as duas, que ficaram bem parecidas.
+
+Usando o tester
+Utilizamos dois arquivos de teste e para cada um deles é possível testar o programa para as flags "-a" e "-u".
+Os possíveis testes foram colocados em diretorios de nome "testei". Em cada um desses diretorios existem 3 arquivos: 
+a_out: arquivo com resposta esperada quando se roda o programa para entrada in e opção "-a"
+u_out: arquivo com resposta esperada quando se roda o programa para entrada in e opção "-u"
+n: arquivo com a entrada para se fazer o teste
+Para se rodar o script
+tester <-a ou -u> <arquivo de entrada> <arquivo de saida esperado>
+
+Modulos externos utilizados
+Apesar de termos utilizado o pip e o virtualenv, não foi utilizado nenhum modulo externo no desenvolvimento desse mini-ep.
+Saída do comando "pip freeze"
+wsgiref==0.1.2
