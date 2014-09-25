@@ -1,0 +1,20 @@
+@ IN SOA ns.dominio.exemplo. admin.dominio.exemplo (
+2014090601 ; Serial
+604800 ; Refresh
+86400 ; Retry
+2419200 ; Expire
+604800 ) ; Negative Cache TTL
+
+        NS ns.dominio.exemplo.lololol.
+gateway A  192.168.240.2
+mail    A  192.168.240.13
+ns      A  192.168.240.4
+shell   A  192.168.240.3
+www     A  192.168.240.9
+
+        NS ns.domain.exemple.
+portaocaminho A  192.168.240.2
+correio       A  192.168.240.13
+ns            A  192.168.240.4
+concha        A  192.168.240.3
+www           A  192.168.240.9
