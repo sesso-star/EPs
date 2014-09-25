@@ -1,0 +1,23 @@
+Nome: Bruno Sesso              NUSP: 8536002
+Nome: Gustavo Estrela de Matos NUSP: 8536051
+
+EP escolhido:
+Escolhemos fazer o primeiro ep. Como o ep não era muito grande, cada um fez uma versão e depois comparamos as duas, que ficaram bem parecidas. A parte mais trabalhosa foi criar um testador. Na nossa primeira tentativa, fizemos um script em bash que verificava se a saida do programa era igual a um arquivo com uma "saida esperada", porém, chegamos a conclusão de que esse teste não fazia sentido, pois nos dava o trabalho de criar esse arquivo com uma "saida esperada". Depois disso, criamos um arquivo em python que de fato automatiza o teste e só necessitava da entrada dada ao programa e sua resposta, como será explicado abaixo.
+
+Usando o tester
+Foi criado um programa em python (tester.py) que checa se a resposta produzida por ep.py é válida.
+O tester recebe como entrada o modo de operação (-a ou -u), o arquivo x.txt produzido por ep.py quando sua entrada é in.txt, e o arquivo in.txt
+
+Como funciona o tester
+Seja a saida de ep.py:
+"User one:user1,user41,user51"
+<Nome>:<Lista de usuarios de nome "Nome">
+O programa tester.py, rodado com a flag -a, verifica se todos os usuários da lista possuem o nome "User one", e se todos os usuários que tem nome "User one" estão nessa lista de usuarios. O mesmo vale para flag -u, porém é verificado a lista de usuarios e id.
+
+Como chamar tester.py
+tester.py (-a ou -u) 'nome do arquivo com a saida produzida por ep.py' < 'entrada utilizada para tal saida'
+
+Modulos externos utilizados
+Apesar de termos utilizado o pip e o virtualenv, não foi utilizado nenhum módulo externo no desenvolvimento desse mini-ep.
+Saída do comando "pip freeze":
+wsgiref==0.1.2

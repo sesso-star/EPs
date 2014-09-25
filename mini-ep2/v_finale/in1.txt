@@ -1,0 +1,7 @@
+nobody:*:-2:-2:Unprivileged User:/var/empty:/usr/bin/false
+root:*:0:0:System Administrator:/var/root:/bin/sh
+user1:*:10:0:User number one:/none:/none
+user2:*:20:0:User number two:/none/none
+user3:*:20:0:User number three:/none:/none
+user41:*:30:0:User four one:/none:/none
+user51:*:30:0:User five one:/none:/none
