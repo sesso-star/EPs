@@ -13,12 +13,7 @@ state = "onNS"
 state = "offNS"
 
 for line in sys.stdin.readlines():
-	spline = line.split()
-	if ";" in spline:
-		idx = index(";")
-		for i in range(idx, len(spline)):
-			spline.pop(i)
-	line = " ".join(spline)
+    re.sub(';.*', '', line);
 
 	if state == "onNS":
 		matchObj = re.match(r"([^ ]+)\s+A\s+([0-9]+\.)+([0-9]+)", line, re.I)
