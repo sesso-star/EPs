@@ -13,7 +13,7 @@ state = "onNS"
 state = "offNS"
 
 for line in sys.stdin.readlines():
-    re.sub(';.*', '', line);
+	re.sub(';.*', '', line);
 
 	if state == "onNS":
 		matchObj = re.match(r"([^ ]+)\s+A\s+([0-9]+\.)+([0-9]+)", line, re.I)
@@ -26,7 +26,7 @@ for line in sys.stdin.readlines():
 			dumpIps(ipDomain)
 			ipDomain = []
 
-	if state == "offNS" and "NS" in spline:
+	if state == "offNS":
 		matchObj = re.match(r"NS\s*(.+\.)+", line, re.I)
 		if matchObj:
 			actualDomain = matchObj.group(1)
