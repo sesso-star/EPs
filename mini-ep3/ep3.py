@@ -13,28 +13,30 @@ state = "onNS"
 state = "offNS"
 
 for line in sys.stdin.readlines():
-	re.sub(';.*', '', line);
+	line = re.sub('[;;].*', '', line);
+	# print(line)
 
 	if state == "onNS":
 		matchObj = re.match(r"([^ ]+)\s+A\s+([0-9]+\.)+([0-9]+)", line, re.I)
 		if matchObj:
+			print(line)
 			name = matchObj.group(1)
 			ip = int(matchObj.group(3))
 			ipDomain.append([ip, name + "." + actualDomain])
 		else:
 			state = "offNS"
-			dumpIps(ipDomain)
+			# dumpIps(ipDomain)
 			ipDomain = []
 
 	if state == "offNS":
 		matchObj = re.match(r"NS\s*(.+\.)+", line, re.I)
 		if matchObj:
 			actualDomain = matchObj.group(1)
-			print("\tNS\t" + actualDomain)
+			# print("\tNS\t" + actualDomain)
 			spl = actualDomain.split(".")
 			spl.pop(0)
 			actualDomain = ".".join(spl)
 			state = "onNS"
 
-if ipDomain != []:
-	dumpIps(ipDomain)
+# if ipDomain != []:
+	# dumpIps(ipDomain)
