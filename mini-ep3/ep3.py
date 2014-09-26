@@ -1,8 +1,14 @@
 import sys
 import re
+from operator import itemgetter
 
-nsDict = dict()
-actualDomain = ""
+def dumpIps(lst):
+	lst.sort(key=lambda lst_entry: lst_entry[0]) 
+	for i in range(1, len(lst)):
+		print(str(lst[i][0]) + "\tPTR\t" + lst[i][1])
+	
+
+ipDomain = []
 state = "onNS"
 state = "offNS"
 
@@ -15,28 +21,25 @@ for line in sys.stdin.readlines():
 	line = " ".join(spline)
 
 	if state == "onNS":
-		#print(line)
 		matchObj = re.match(r"([^ ]+)\s+A\s+([0-9]+\.)+([0-9]+)", line, re.I)
 		if matchObj:
 			name = matchObj.group(1)
-			ip = matchObj.group(3)
-			#print(name + " " + ip)
-			dictEntry = [name, ip]
-			nsDict[actualDomain].append(dictEntry)
+			ip = int(matchObj.group(3))
+			ipDomain.append([ip, name + "." + actualDomain])
 		else:
 			state = "offNS"
+			dumpIps(ipDomain)
+			ipDomain = []
 
 	if state == "offNS" and "NS" in spline:
-		print(line)
-		matchObj = re.match(r"NS\s*[^.]+\.(.+\.)+", line, re.I)
+		matchObj = re.match(r"NS\s*(.+\.)+", line, re.I)
 		if matchObj:
-			print(matchObj.group(1))
 			actualDomain = matchObj.group(1)
-			nsDict[actualDomain] = []
+			print("\tNS\t" + actualDomain)
+			spl = actualDomain.split(".")
+			spl.pop(0)
+			actualDomain = ".".join(spl)
 			state = "onNS"
-	else:
-		pass
-for domain in nsDict:
-	#print("\tNS ns.")
-	#print(domain + " " + " ".join(nsDict[domain][0]))
 
+if ipDomain != []:
+	dumpIps(ipDomain)
