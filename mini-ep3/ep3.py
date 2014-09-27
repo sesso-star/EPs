@@ -4,7 +4,7 @@ from operator import itemgetter
 
 def dumpIps(lst):
 	lst.sort(key=lambda lst_entry: lst_entry[0]) 
-	for i in range(1, len(lst)):
+	for i in range(0, len(lst)):
 		print(str(lst[i][0]) + "\tPTR\t" + lst[i][1])
 	
 
