@@ -9,34 +9,32 @@ def dumpIps(lst):
 	
 
 ipDomain = []
-state = "onNS"
-state = "offNS"
+onNS = False
 
 for line in sys.stdin.readlines():
-	line = re.sub('[;;].*', '', line);
-	# print(line)
+	line = re.sub('[;;].*', '', line)
+	line = re.sub('\s+', ' ', line)
 
-	if state == "onNS":
+	if onNS:
 		matchObj = re.match(r"([^ ]+)\s+A\s+([0-9]+\.)+([0-9]+)", line, re.I)
 		if matchObj:
-			print(line)
 			name = matchObj.group(1)
 			ip = int(matchObj.group(3))
 			ipDomain.append([ip, name + "." + actualDomain])
 		else:
-			state = "offNS"
-			# dumpIps(ipDomain)
+			onNS = False
+			dumpIps(ipDomain)
 			ipDomain = []
 
-	if state == "offNS":
-		matchObj = re.match(r"NS\s*(.+\.)+", line, re.I)
+	if not onNS:
+		matchObj = re.match(r".*NS\s*(.+\.)+", line)
 		if matchObj:
 			actualDomain = matchObj.group(1)
-			# print("\tNS\t" + actualDomain)
+			print("\tNS\t" + actualDomain)
 			spl = actualDomain.split(".")
 			spl.pop(0)
 			actualDomain = ".".join(spl)
-			state = "onNS"
+			onNS = True
 
-# if ipDomain != []:
-	# dumpIps(ipDomain)
+if ipDomain != []:
+	dumpIps(ipDomain)
