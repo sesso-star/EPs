@@ -29,8 +29,11 @@ for line in f.readlines():
 
 	matchObj = re.match(r"([^ ]+)\s+A\s+([0-9]+\.)+([0-9]+)", line, re.I)
 	if matchObj:
-		if not dns[current_ns][matchObj.group(1)]:
+		try:
+			if dns[current_ns][matchObj.group(1)]:
+				dns[current_ns][matchObj.group(1)] = None
+			break
+		except KeyError:
 			sys.exit("O programa não passou no teste :(")
-		dns[current_ns][matchObj.group(1)] = None
 
 print("O programa passou no teste! :)")
