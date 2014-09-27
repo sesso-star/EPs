@@ -1,0 +1,18 @@
+Nome: Bruno Sesso              NUSP: 8536002
+Nome: Gustavo Estrela de Matos NUSP: 8536051
+
+EP escolhido:
+Escolhemos fazer o primeiro EP, o do DNS.
+
+Usando o tester:
+Criamos um arquivo em python para testar o mini-ep3. Esse programa em python recebe somente a entrada a ser testada. Existe um arquivo de entrada para testes.
+
+Como funciona o tester:
+O tester roda o programa em python para uma entrada determinada e diz se a resposta dada pelo programa está certa, isto é, se todo "NS" foi mostrado e se todo "PTR" foi mostrado em seu devido domínio.
+
+Modulos externos utilizados:
+Apesar de termos utilizado o pip e o virtualenv, não foi utilizado nenhum módulo externo no desenvolvimento desse mini-ep.
+Saída do comando "pip freeze":
+wsgiref==0.1.2
+
+
