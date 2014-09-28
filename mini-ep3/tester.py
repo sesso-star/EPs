@@ -18,8 +18,6 @@ for line in out:
 			dns[cols[2]] = dict()
 			current_ns = cols[2]
 
-print(dns)
-
 current_ns = None
 f.seek(0)
 for line in f.readlines():
@@ -31,9 +29,11 @@ for line in f.readlines():
 
 	matchObj = re.match(r"([^ ]+)\s+A\s+([0-9]+\.)+([0-9]+)", line, re.I)
 	if matchObj:
-		print("tentando chave: \"" + matchObj.group(1) + "\"")
-		if not dns[current_ns][matchObj.group(1)]:
+		try:
+			if dns[current_ns][matchObj.group(1)]:
+				dns[current_ns][matchObj.group(1)] = None
+			break
+		except KeyError:
 			sys.exit("O programa não passou no teste :(")
-		dns[current_ns][matchObj.group(1)] = None
 
-printf("O programa passou no teste! :)")
+print("O programa passou no teste! :)")
