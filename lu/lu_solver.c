@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define NMAX 3
+#define NMAX 1000
 #define abs(x) (((x) < 0) ? -(x) : (x))
 #define eps 1e-16
 
@@ -18,14 +18,7 @@ int main(int argc, char **argv) {
     double A[NMAX][NMAX];
 
     n = leMatriz(A, b);
-    for (i = 0; i < n; i++) {
-        printf("%3.2f\t%d\n", b[i], i);
-    }
-    printf("WTF IS HAPPENING IN THIS SHIT\n");
     lucol(n, A, p);
-    for (i = 0; i < n; i++) {
-        printf("%3.2f\t%d\n", b[i], i);
-    }
     sscol(n, A, p, b);
     return 0;
 }
@@ -73,18 +66,15 @@ int lucol(int n, double A[][NMAX], int p[]) {
 int sscol(int n, double A[][NMAX], int p[], double b[]) {
     int i, j;
     double temp;
+
     for (i = 0; i < n; i++) {
-        /*printf("p[%d] = %d | temp = %lf, b[%d] = %lf, b[p[%d]] = %lf\n", i, p[i], temp, i, b[i], i, b[p[i]]);*/
-        temp = b[i];
-        b[i] = b[p[i]];
-        b[p[i]] = temp;
+        swap(&b[i], &b[p[i]]);
     }
 
     /*Ly = b*/
-    for (j = 0; j < n; j++) {
+    for (j = 0; j < n; j++) 
         for (i = j + 1; i < n; i++)
-            b[j] -= A[i][j] * b[i];
-    }
+            b[i] -= A[i][j] * b[j];
 
     /*Ux = y*/
     for (j = n - 1; j >= 0; j--) {
@@ -96,6 +86,9 @@ int sscol(int n, double A[][NMAX], int p[], double b[]) {
         for (i = 0; i < j; i++) {
             b[i] -= b[j] * A[i][j];
         }
+    }
+    for (i = 0; i < n; i++) {
+        printf("%3.2lf\t%d\n", b[i], i);
     }
     return 1;
 }
