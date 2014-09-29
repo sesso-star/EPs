@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define NMAX 3
+#define NMAX 1000
 #define abs(x) (((x) < 0) ? -(x) : (x))
 #define eps 1e-16
 
@@ -8,32 +8,47 @@ int lucol(int n, double A[][NMAX], int p[]);
 int sscol(int n, double A[][NMAX], int p[], double b[]);
 int lurow(int n, double A[][NMAX], int p[]);
 int ssrow(int n, double A[][NMAX], int p[], double b[]);
+
+int leMatriz(double A[][NMAX], double b[NMAX]);
 void swap(double *a, double *b);
+void printMatrix(double A[][NMAX], int n);
+void printVector(double v[], int n);
 
 int main(int argc, char **argv) {
-    int p[3];
-    int n = 3;
+    printf("\n\nLalala\n\n");
     
-    double A[3][3] = {
-         {1.0, 2.0, 3.0},
-         {1.0, 5.0, 6.0},
-         {1.0, 0.0, 9.0}};
-
-    lurow(n, A, p);
-
-    printf("\n\nA:\n");
-    int i, j;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++)
-            printf("%3.2f ", A[i][j]);
-        printf("\n");
-    }
-    printf("\n\nP:\n");
-    for (i = 0; i < n; i++)
-        printf("%d\n", p[i]);
-
+    int n = 0;
+    int i;
+    int p[NMAX];
     
+    double b[NMAX];
+    double A[NMAX][NMAX];
+    
+    n = leMatriz(A, b);
+
+    lucol(n, A, p);
+    printf("\nLU:");
+    printMatrix(A, n);
+    sscol(n, A, p, b);
+    printf("\nx:");
+    printVector(b, n);
+    
+
     return 0;
+}
+
+int leMatriz(double A[][NMAX], double b[NMAX]) {
+    int n, k, i, j;
+    scanf("%d", &n);
+    for (k = 0; k < n * n; k++) {
+        scanf("%d %d", &i, &j);
+        scanf("%lf", &A[i][j]);
+    }
+    for (k = 0; k < n; k++) {
+        scanf("%d", &i);
+        scanf("%lf", &b[i]);
+    }
+    return n;
 }
 
 int lurow(int n, double A[][NMAX], int p[]) {
@@ -44,14 +59,12 @@ int lurow(int n, double A[][NMAX], int p[]) {
         for (i = k + 1; i < n; i++) 
             if (abs(A[i][k]) > abs(A[imax][k])) 
                 imax = i;
-
         if (abs(A[imax][k]) < eps) 
             return -1;
         if (imax != k)
             for (j = 0; j < n; j++)
                 swap(&A[imax][j], &A[k][j]);
         p[k] = imax;
-
         for (i = k + 1; i < n; i++) {
             A[i][k] = A[i][k] / A[k][k];
             for (j = k + 1; j < n; j++)
@@ -75,10 +88,11 @@ int ssrow(int n, double A[][NMAX], int p[], double b[]) {
     for (i = n - 1; i >= 0; i--) {
         for (k = n - 1; k > i; k--)
             b[i] = b[i] - b[k] * A[i][k];
-        if (A[i][i] < eps)
+        if (abs(A[i][i]) < eps)
             return -1;
         b[i] = b[i] / A[i][i];
     }
+
     return 0;
 }
 
@@ -92,7 +106,7 @@ int lucol(int n, double A[][NMAX], int p[]) {
                 imax = i;
 
         if (abs(A[imax][k]) < eps) 
-            return -1;
+            return -1; 
         if (imax != k)
             for (j = 0; j < n; j++)
                 swap(&A[imax][j], &A[k][j]);
@@ -117,11 +131,11 @@ int sscol(int n, double A[][NMAX], int p[], double b[]) {
             swap(&b[p[i]], &b[i]);
 
     for (k = 0; k < n; k++)
-        for (i = k + 1; k < n; k++)
+        for (i = k + 1; i < n; i++)
             b[i] = b[i] - b[k] * A[i][k];
 
     for (k = n - 1; k >= 0; k--) {
-        if (A[k][k] < eps)
+        if (abs(A[k][k]) < eps)
             return -1;
         b[k] = b[k] / A[k][k];
         for (i = k - 1; i >= 0; i--)
@@ -135,4 +149,21 @@ void swap(double *a, double *b) {
     double temp = *a;
     *a = *b;
     *b = temp;
+}
+
+void printMatrix(double A[][NMAX], int n) {
+    int i, j;
+    printf("\n");
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++)
+            printf("% 3.2f ", A[i][j]);
+        printf("\n");
+    }
+}
+
+void printVector(double v[], int n) {
+    int i;
+    printf("\n");
+    for (i = 0; i < n; i++)
+        printf("% 3.2f\n", v[i]);
 }
