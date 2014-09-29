@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #define NMAX 1000
 #define abs(x) (((x) < 0) ? -(x) : (x))
@@ -15,8 +16,6 @@ void printMatrix(double A[][NMAX], int n);
 void printVector(double v[], int n);
 
 int main(int argc, char **argv) {
-    printf("\n\nLalala\n\n");
-    
     int n = 0;
     int i;
     int p[NMAX];
@@ -25,13 +24,24 @@ int main(int argc, char **argv) {
     double A[NMAX][NMAX];
     
     n = leMatriz(A, b);
-
-    lucol(n, A, p);
-    printf("\nLU:");
-    printMatrix(A, n);
-    sscol(n, A, p, b);
-    printf("\nx:");
-    printVector(b, n);
+    if (argc > 1 && strcmp("-c", argv[1]) == 0) {
+        printf("\nCalculando orientado a colunas");
+        lucol(n, A, p);
+        printf("\nLU:");
+        printMatrix(A, n);
+        sscol(n, A, p, b);
+        printf("\nx:");
+        printVector(b, n);
+    }
+    else {
+        printf("\nCalculando orientado a linhas");
+        lurow(n, A, p);
+        printf("\nLU:");
+        printMatrix(A, n);
+        ssrow(n, A, p, b);
+        printf("\nx:");
+        printVector(b, n);
+    }
     
 
     return 0;
