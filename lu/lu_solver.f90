@@ -1,52 +1,53 @@
 module constants
     double precision, parameter :: eps = epsilon(0d0)
+    integer, parameter :: NMAX = 1000
 end module
 
 program lu_solver
-    !use constant
+    use constants
 
     implicit none
     integer, external :: lurow, ssrow, lucol, sscol
-    integer :: x, i, j
+    integer :: res, i, j
 
-    double precision, dimension(3, 3) :: A
-    double precision, dimension(3) :: b
+    double precision, dimension(NMAX, NMAX) :: A
+    double precision, dimension(NMAX) :: b
+    integer, dimension(NMAX) :: p 
     integer :: n = 3
     integer :: lda = 1
-    integer, dimension(3) :: p, b
 
-    A = reshape((/ 1, 2, 3, 4, 8, 1, 7, 8, 9 /), shape(A))
-    b = reshape((/7, 7, 7/), shape(b))
-    
+    call readMatrix(A, b, n)   
+ 
     print *, "A before:"
     call printMatrix(A, n)
     print *,"p before:"
-    call printVector(p, n)
+    call printiVector(p, n)
+    print *,"b before:"
+    call printdVector(b, n)
 
-    x = lucol(n, lda, A, p)
+    res = lucol(n, lda, A, p)
 
     print "(/,a)", "A after:"
     call printMatrix(A, n)
     print *, "p after:"
-    call printVector(p, n)
-    print *, "x: ", x
+    call printiVector(p, n)
+    print *, "res: ", res
 
-    x = sscol(n, lda, A, p, b)
+    res = sscol(n, lda, A, p, b)
 
     print "(/,a)", "A final:"
     call printMatrix(A, n)
     print *, "b final:"
-    print *, b
-    !call printVector(p, n)
-    print *, "x: ", x
+    call printdVector(b, n)
+    print *, "res: ", res
     
 end program
 
 integer function lurow(n, lda, A, p)
     use constants
     integer, intent(in) :: n, lda
-    integer, intent(inout) :: p(n)
-    double precision, intent(inout) :: A(lda:n, lda:n)
+    integer, intent(inout) :: p(NMAX)
+    double precision, intent(inout) :: A(lda:NMAX, lda:NMAX)
 
     integer :: k, i, j, imax
 
@@ -82,9 +83,9 @@ integer function ssrow(n, lda, A, p, b)
     use constants
     implicit none
     integer, intent(in) :: n, lda
-    integer, intent(inout) :: p(n)
-    double precision, intent(inout) :: A(lda:n, lda:n)
-    double precision, intent(inout) :: b(lda:n)
+    integer, intent(inout) :: p(NMAX)
+    double precision, intent(inout) :: A(lda:NMAX, lda:NMAX)
+    double precision, intent(inout) :: b(lda:NMAX)
 
     integer :: k, i
 
@@ -115,8 +116,8 @@ integer function lucol(n, lda, A, p)
     use constants
     implicit none
     integer, intent(inout) :: n, lda
-    integer, intent(inout) :: p(n)
-    double precision, intent(inout) :: A(lda:n, lda:n)
+    integer, intent(inout) :: p(NMAX)
+    double precision, intent(inout) :: A(lda:NMAX, lda:NMAX)
 
     integer :: k, i, j, imax
 
@@ -155,9 +156,9 @@ integer function sscol(n, lda, A, p, b)
     use constants
     implicit none
     integer, intent(in) :: n, lda
-    integer, intent(inout) :: p(n)
-    double precision, intent(inout) :: A(lda:n, lda:n)
-    double precision, intent(inout) :: b(lda:n)
+    integer, intent(inout) :: p(NMAX)
+    double precision, intent(inout) :: A(lda:NMAX, lda:NMAX)
+    double precision, intent(inout) :: b(lda:NMAX)
 
     integer :: k, i
 
@@ -186,10 +187,11 @@ end function
 
 
 subroutine printMatrix(A, n)
+    use constants
     implicit none
     
     integer, intent(in) :: n
-    double precision, intent(in) :: A(n, n)
+    double precision, intent(in) :: A(NMAX, NMAX)
 
     integer :: i, j
 
@@ -201,20 +203,31 @@ subroutine printMatrix(A, n)
     end do
 end subroutine
 
-subroutine printVector(v, n)
+subroutine printdVector(v, n)
+    use constants
     implicit none
-
     integer, intent(in) :: n
-    integer, intent(in) :: v(n)
-
+    double precision, intent(in) :: v(NMAX)
     integer :: i
-
     do i = 1, n
-        print "(i7)", v(i)
+        print "(f7.3$)", v(i)
     end do
 end subroutine
 
+subroutine printiVector(v, n)
+    use constants
+    implicit none
+    integer, intent(in) :: n
+    integer, intent(in) :: v(NMAX)
+    integer :: i
+    do i = 1, n
+        print "(i3)", v(i)
+    end do
+end subroutine
+
+
 subroutine swap(a, b)
+    implicit none
     double precision, intent(inout) :: a, b
     double precision :: temp
 
@@ -223,11 +236,13 @@ subroutine swap(a, b)
     b = temp
 end subroutine
 
-subroutine readMatrix(A, b)
-    double precision, dimension(1000, 1000), intent(out) :: A
-    double precision, dimension(1000), intent(out) :: b
+subroutine readMatrix(A, b, n)
+    use constants
+    implicit none
+    double precision, dimension(NMAX, NMAX), intent(out) :: A
+    double precision, dimension(NMAX), intent(out) :: b
     integer, intent(out) :: n
-    integer :: i, j
+    integer :: i, j, k
     integer :: nsquare
     read *, n
     nsquare = n ** 2
