@@ -6,15 +6,17 @@ program lu_solver
     !use constant
 
     implicit none
-    integer, external :: lurow
+    integer, external :: lurow, ssrow
     integer :: x, i, j
 
     double precision, dimension(3, 3) :: A
+    double precision, dimension(3) :: b
     integer :: n = 3
     integer :: lda = 1
     integer, dimension(3) :: p
 
     A = reshape((/ 1, 2, 3, 4, 8, 1, 7, 8, 9 /), shape(A))
+    b = reshape((/7, 7, 7/), shape(b))
     
     print *, "A before:"
     call printMatrix(A, n)
@@ -27,7 +29,17 @@ program lu_solver
     call printMatrix(A, n)
     print *, "p after:"
     call printVector(p, n)
+    print *, "x: ", x
 
+    x = ssrow(n, lda, A, p, b)
+
+    print "(/,a)", "A final:"
+    call printMatrix(A, n)
+    print *, "b final:"
+    print *, b
+    !call printVector(p, n)
+    print *, "x: ", x
+    
 end program
 
 integer function lurow(n, lda, A, p)
@@ -37,7 +49,6 @@ integer function lurow(n, lda, A, p)
     double precision, intent(inout) :: A(lda:n, lda:n)
 
     integer :: k, i, j, imax
-    real :: temp
 
     do k = 1, n
         imax = k
@@ -65,6 +76,39 @@ integer function lurow(n, lda, A, p)
         end do
     end do
     lurow = 0
+end function
+
+integer function ssrow(n, lda, A, p, b)
+    use constants
+    implicit none
+    integer, intent(in) :: n, lda
+    integer, intent(inout) :: p(n)
+    double precision, intent(inout) :: A(lda:n, lda:n)
+    double precision, intent(inout) :: b(lda:n)
+
+    integer :: k, i
+
+    do i = 1, n
+        if (p(i) /= i) call swap(b(p(i)), b(i))
+    end do
+
+    do i = 1, n
+        do k = 1, i - 1
+            b(i) = b(i) - b(k) * A(i, k)
+        end do
+    end do
+
+    do i = n, 1, -1
+        do k = n, i + 1, -1
+            b(i) = b(i) - b(k) * A(i, k)
+        end do
+        if (abs(A(i,i)) < eps) then
+            ssrow = -1
+            return
+        end if
+        b(i) = b(i) / A(i, i)
+    end do
+    ssrow = 0
 end function
 
 subroutine printMatrix(A, n)
