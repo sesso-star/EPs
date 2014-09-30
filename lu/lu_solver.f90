@@ -17,8 +17,10 @@ program lu_solver
 
     x = lurow(n, lda, A, p)
 
-    print *, "[r]/]", "A after:"
+    print "(/,a)", "A after:"
     call printMatrix(A, n)
+    print *, "p after:"
+    call printVector(p, n)
 
 end program
 
