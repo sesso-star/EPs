@@ -1,4 +1,10 @@
+module constants
+    double precision, parameter :: eps = epsilon(0d0)
+end module
+
 program lu_solver
+    !use constant
+
     implicit none
     integer, external :: lurow
     integer :: x, i, j
@@ -6,7 +12,7 @@ program lu_solver
     double precision, dimension(3, 3) :: A
     integer :: n = 3
     integer :: lda = 1
-    integer, dimension(3) :: p
+    integer, dimension(3) :: p, b
 
     A = reshape((/ 1, 2, 3, 4, 8, 1, 7, 8, 9 /), shape(A))
     
@@ -25,6 +31,7 @@ program lu_solver
 end program
 
 integer function lurow(n, lda, A, p)
+    use constants
     integer, intent(in) :: n, lda
     integer, intent(inout) :: p(n)
     double precision, intent(inout) :: A(lda:n, lda:n)
@@ -38,16 +45,14 @@ integer function lurow(n, lda, A, p)
             if (abs(A(i, k)) > abs(A(imax, k))) imax = i
         end do
 
-        if (abs(A(imax,k)) < 1e-16) lurow = -1
+        if (abs(A(imax,k)) < eps) then
+            lurow = -1 
+            return
+        end if
     
         if (imax /= k) then
             do j = 1, n
-                print *,A(imax, j),A(k, j)
                 call swap(A(imax, j), A(k, j))
-                print *,A(imax, j),A(k, j)
-!                temp = A(imax, j)
-!                A(imax, j) = A(k, j)
-!                A(k, j) = temp
             end do
         end if
         p(k) = imax
@@ -58,9 +63,8 @@ integer function lurow(n, lda, A, p)
                 A(i, j) = A(i, j) - A(k, j) * A(i, k)
             end do
         end do
-
-        lurow = 0
     end do
+    lurow = 0
 end function
 
 subroutine printMatrix(A, n)
@@ -92,11 +96,27 @@ subroutine printVector(v, n)
     end do
 end subroutine
 
-subroutine swap(x, y)
-    implicit none
-    real, intent(out) :: x, y
-    real :: temp
-    temp = x
-    y = temp
-    x = y
+subroutine swap(a, b)
+    double precision, intent(inout) :: a, b
+    double precision :: temp
+
+    temp = a
+    a = b
+    b = temp
+end subroutine
+
+subroutine readMatrix(A, b)
+    double precision, dimension(1000, 1000), intent(out) :: A
+    double precision, dimension(1000), intent(out) :: b
+    integer, intent(out) :: n
+    integer :: i, j
+    integer :: nsquare
+    read *, n
+    nsquare = n ** 2
+    do k = 1, nsquare
+        read *, i, j, A(i, j)
+    end do
+    do k = 1, n
+        read *, i, b(i)
+    end do
 end subroutine
