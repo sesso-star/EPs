@@ -42,9 +42,12 @@ integer function lurow(n, lda, A, p)
     
         if (imax /= k) then
             do j = 1, n
-                temp = A(imax, j)
-                A(imax, j) = A(k, j)
-                A(k, j) = temp
+                print *,A(imax, j),A(k, j)
+                call swap(A(imax, j), A(k, j))
+                print *,A(imax, j),A(k, j)
+!                temp = A(imax, j)
+!                A(imax, j) = A(k, j)
+!                A(k, j) = temp
             end do
         end if
         p(k) = imax
@@ -87,4 +90,13 @@ subroutine printVector(v, n)
     do i = 1, n
         print "(i7)", v(i)
     end do
+end subroutine
+
+subroutine swap(x, y)
+    implicit none
+    real, intent(out) :: x, y
+    real :: temp
+    temp = x
+    y = temp
+    x = y
 end subroutine
