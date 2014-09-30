@@ -35,12 +35,22 @@ int main(int argc, char **argv) {
     }
     else {
         printf("\nCalculando orientado a linhas");
-        lurow(n, A, p);
-        printf("\nLU:");
-        printMatrix(A, n);
-        ssrow(n, A, p, b);
-        printf("\nx:");
-        printVector(b, n);
+        if (!lurow(n, A, p)) {
+            printf("\nLU:");
+            printMatrix(A, n);
+        }
+        else {
+            printf("\n\nDeu pau\n");
+            return -1;
+        }
+        if (!ssrow(n, A, p, b)) {
+            printf("\nx:");
+            printVector(b, n);
+        }
+        else {
+            printf("\n\nDeu pau\n");
+            return -1;
+        }
     }
     
 
@@ -48,9 +58,10 @@ int main(int argc, char **argv) {
 }
 
 int leMatriz(double A[][NMAX], double b[NMAX]) {
-    int n, k, i, j;
+    int n, k, i, j, nsquare;
     scanf("%d", &n);
-    for (k = 0; k < n * n; k++) {
+    nsquare = n * n;
+    for (k = 0; k < nsquare; k++) {
         scanf("%d %d", &i, &j);
         scanf("%lf", &A[i][j]);
     }

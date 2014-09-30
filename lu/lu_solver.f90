@@ -9,19 +9,23 @@ program lu_solver
     integer, dimension(3) :: p
 
     A = reshape((/ 1, 2, 3, 4, 8, 1, 7, 8, 9 /), shape(A))
-
-    !print *, (A(1, i), i=1,3)
+    
+    print *, "A before:"
+    call printMatrix(A, n)
+    print *,"p before:"
+    call printVector(p, n)
 
     x = lurow(n, lda, A, p)
-    
-    call printMatrix(A, 3)
+
+    print *, "[r]/]", "A after:"
+    call printMatrix(A, n)
 
 end program
 
 integer function lurow(n, lda, A, p)
-    integer :: n
-    integer :: p(n)
-    double precision :: A(lda, n)
+    integer, intent(in) :: n, lda
+    integer, intent(inout) :: p(n)
+    double precision, intent(inout) :: A(lda:n, lda:n)
 
     integer :: k, i, j, imax
     real :: temp
@@ -32,7 +36,7 @@ integer function lurow(n, lda, A, p)
             if (abs(A(i, k)) > abs(A(imax, k))) imax = i
         end do
 
-        if (abs(A(i,k)) < 1e-16) lurow = -1
+        if (abs(A(imax,k)) < 1e-16) lurow = -1
     
         if (imax /= k) then
             do j = 1, n
@@ -67,5 +71,18 @@ subroutine printMatrix(A, n)
             print "(f7.3$)", A(i, j)
         end do
         print *,""
+    end do
+end subroutine
+
+subroutine printVector(v, n)
+    implicit none
+
+    integer, intent(in) :: n
+    integer, intent(in) :: v(n)
+
+    integer :: i
+
+    do i = 1, n
+        print "(i7)", v(i)
     end do
 end subroutine
