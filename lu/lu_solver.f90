@@ -6,7 +6,7 @@ program lu_solver
     !use constant
 
     implicit none
-    integer, external :: lurow, ssrow
+    integer, external :: lurow, ssrow, lucol, sscol
     integer :: x, i, j
 
     double precision, dimension(3, 3) :: A
@@ -23,7 +23,7 @@ program lu_solver
     print *,"p before:"
     call printVector(p, n)
 
-    x = lurow(n, lda, A, p)
+    x = lucol(n, lda, A, p)
 
     print "(/,a)", "A after:"
     call printMatrix(A, n)
@@ -31,7 +31,7 @@ program lu_solver
     call printVector(p, n)
     print *, "x: ", x
 
-    x = ssrow(n, lda, A, p, b)
+    x = sscol(n, lda, A, p, b)
 
     print "(/,a)", "A final:"
     call printMatrix(A, n)
@@ -110,6 +110,80 @@ integer function ssrow(n, lda, A, p, b)
     end do
     ssrow = 0
 end function
+
+integer function lucol(n, lda, A, p)
+    use constants
+    implicit none
+    integer, intent(inout) :: n, lda
+    integer, intent(inout) :: p(n)
+    double precision, intent(inout) :: A(lda:n, lda:n)
+
+    integer :: k, i, j, imax
+
+    do k = 1, n
+        imax = k
+        do i = k + 1, n
+            if (abs(A(i, k)) > abs(A(imax, k))) imax = i
+        end do
+        
+        if (abs(A(imax, k)) < eps) then
+            lucol = -1
+            return
+        end if
+
+        if (imax /= k) then
+            do j = 1, n
+                call swap(A(imax, j), A(k, j))
+            end do
+        end if
+        p(k) = imax
+
+        do i = k + 1, n
+            A(i, k) = A(i, k) / A(k, k)
+        end do
+
+        do j = k + 1, n
+            do i = k + 1, n
+                A(i, j) = A(i, j) - A(k, j) * A(i, k)
+            end do
+        end do
+    end do
+    lucol = 0
+end function
+
+integer function sscol(n, lda, A, p, b)
+    use constants
+    implicit none
+    integer, intent(in) :: n, lda
+    integer, intent(inout) :: p(n)
+    double precision, intent(inout) :: A(lda:n, lda:n)
+    double precision, intent(inout) :: b(lda:n)
+
+    integer :: k, i
+
+    do i = 1, n
+        if (p(i) /= i) call swap(b(p(i)), b(i))
+    end do
+
+    do k = 1, n
+        do i = k + 1, n
+            b(i) = b(i) - b(k) * A(i, k)
+        end do
+    end do
+    
+    do k = n, 1, -1
+        if (abs(A(k, k)) < eps) then
+            sscol = -1
+            return
+        end if
+        b(k) = b(k) / A(k, k)
+        do i = k - 1, 1, -1
+            b(i) = b(i) - b(k) * A(i, k)
+        end do
+    end do
+    sscol = 0
+end function
+
 
 subroutine printMatrix(A, n)
     implicit none
