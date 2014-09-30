@@ -1,4 +1,10 @@
+module constants
+    double precision, parameter :: eps = epsilon(0d0)
+end module
+
 program lu_solver
+    !use constant
+
     implicit none
     integer, external :: lurow
     integer :: x, i, j
@@ -25,6 +31,7 @@ program lu_solver
 end program
 
 integer function lurow(n, lda, A, p)
+    use constants
     integer, intent(in) :: n, lda
     integer, intent(inout) :: p(n)
     double precision, intent(inout) :: A(lda:n, lda:n)
@@ -38,13 +45,14 @@ integer function lurow(n, lda, A, p)
             if (abs(A(i, k)) > abs(A(imax, k))) imax = i
         end do
 
-        if (abs(A(imax,k)) < 1e-16) lurow = -1
+        if (abs(A(imax,k)) < eps) then
+            lurow = -1 
+            return
+        end if
     
         if (imax /= k) then
             do j = 1, n
-                temp = A(imax, j)
-                A(imax, j) = A(k, j)
-                A(k, j) = temp
+                call swap(A(imax, j), A(k, j))
             end do
         end if
         p(k) = imax
@@ -55,9 +63,8 @@ integer function lurow(n, lda, A, p)
                 A(i, j) = A(i, j) - A(k, j) * A(i, k)
             end do
         end do
-
-        lurow = 0
     end do
+    lurow = 0
 end function
 
 subroutine printMatrix(A, n)
@@ -87,4 +94,13 @@ subroutine printVector(v, n)
     do i = 1, n
         print "(i7)", v(i)
     end do
+end subroutine
+
+subroutine swap(a, b)
+    double precision, intent(inout) :: a, b
+    double precision :: temp
+
+    temp = a
+    a = b
+    b = temp
 end subroutine
