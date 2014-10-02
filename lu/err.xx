@@ -1,0 +1,13 @@
+lu_solver.f:
+   MAIN lu_solver:
+Warning on line 30 of lu_solver.f: local variable lucol never used
+Warning on line 30 of lu_solver.f: local variable sscol never used
+   lurow:
+   ssrow:
+   lucol:
+   sscol:
+   printmatrix:
+   printdvector:
+   printivector:
+   swap:
+   readmatrix:

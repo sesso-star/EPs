@@ -1,190 +1,447 @@
-#include <stdio.h>
-#include <string.h>
+/* lu_solver.f -- translated by f2c (version 20090411).
+   You must link the resulting object file with libf2c:
+	on Microsoft Windows system, link with libf2c.lib;
+	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
+	or, if you install libf2c.a in a standard place, with -lf2c -lm
+	-- in that order, at the end of the command line, as in
+		cc *.o -lf2c -lm
+	Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
 
-#define NMAX 1000
-#define abs(x) (((x) < 0) ? -(x) : (x))
-#define eps 1e-16
+		http://www.netlib.org/f2c/libf2c.zip
+*/
 
-int lucol(int n, double A[][NMAX], int p[]);
-int sscol(int n, double A[][NMAX], int p[], double b[]);
-int lurow(int n, double A[][NMAX], int p[]);
-int ssrow(int n, double A[][NMAX], int p[], double b[]);
+#include "f2c.h"
 
-int leMatriz(double A[][NMAX], double b[NMAX]);
-void swap(double *a, double *b);
-void printMatrix(double A[][NMAX], int n);
-void printVector(double v[], int n);
+/* Common Block Declarations */
 
-int main(int argc, char **argv) {
-    int n = 0;
-    int i;
-    int p[NMAX];
-    
-    double b[NMAX];
-    double A[NMAX][NMAX];
-    
-    n = leMatriz(A, b);
-    if (argc > 1 && strcmp("-c", argv[1]) == 0) {
-        printf("\nCalculando orientado a colunas");
-        lucol(n, A, p);
-        printf("\nLU:");
-        printMatrix(A, n);
-        sscol(n, A, p, b);
-        printf("\nx:");
-        printVector(b, n);
+struct {
+    doublereal eps;
+} const_;
+
+#define const_1 const_
+
+/* Table of constant values */
+
+static integer c__9 = 9;
+static integer c__1 = 1;
+static integer c__3 = 3;
+static integer c__5 = 5;
+
+/* Main program */ int MAIN__(void)
+{
+    /* Builtin functions */
+    integer s_wsle(cilist *), do_lio(integer *, integer *, char *, ftnlen), 
+	    e_wsle(void);
+
+    /* Local variables */
+    static doublereal a[1000000]	/* was [1000][1000] */, b[1000];
+    static integer n, p[1000];
+    extern /* Subroutine */ int readmatrix_(doublereal *, doublereal *, 
+	    integer *, integer *);
+    static integer lda, res;
+    extern /* Subroutine */ int printdvector_(doublereal *, integer *);
+    extern integer lurow_(integer *, integer *, doublereal *, integer *), 
+	    ssrow_(integer *, integer *, doublereal *, integer *, doublereal *
+	    );
+
+    /* Fortran I/O blocks */
+    static cilist io___7 = { 0, 6, 0, 0, 0 };
+    static cilist io___8 = { 0, 6, 0, 0, 0 };
+
+
+    lda = 1000;
+    const_1.eps = 1e-16f;
+    readmatrix_(a, b, &lda, &n);
+    res = lurow_(&n, &lda, a, p);
+    if (res == 0) {
+	res = ssrow_(&n, &lda, a, p, b);
+	if (res == 0) {
+	    printdvector_(b, &n);
+	} else {
+	    s_wsle(&io___7);
+	    do_lio(&c__9, &c__1, "CAGOU", (ftnlen)5);
+	    e_wsle();
+	}
+    } else {
+	s_wsle(&io___8);
+	do_lio(&c__9, &c__1, "CAGOU1", (ftnlen)6);
+	e_wsle();
     }
-    else {
-        printf("\nCalculando orientado a linhas");
-        if (!lurow(n, A, p)) {
-            printf("\nLU:");
-            printMatrix(A, n);
-        }
-        else {
-            printf("\n\nDeu pau\n");
-            return -1;
-        }
-        if (!ssrow(n, A, p, b)) {
-            printf("\nx:");
-            printVector(b, n);
-        }
-        else {
-            printf("\n\nDeu pau\n");
-            return -1;
-        }
-    }
-    
-
     return 0;
-}
+} /* MAIN__ */
 
-int leMatriz(double A[][NMAX], double b[NMAX]) {
-    int n, k, i, j, nsquare;
-    scanf("%d", &n);
-    nsquare = n * n;
-    for (k = 0; k < nsquare; k++) {
-        scanf("%d %d", &i, &j);
-        scanf("%lf", &A[i][j]);
+integer lurow_(integer *n, integer *lda, doublereal *a, integer *p)
+{
+    /* System generated locals */
+    integer a_dim1, a_offset, ret_val, i__1, i__2, i__3;
+    doublereal d__1, d__2;
+
+    /* Local variables */
+    static integer i__, j, k, imax;
+    extern /* Subroutine */ int swap_(doublereal *, doublereal *);
+
+/*   SCALAR ARGUMENTS */
+/*   ARRAY ARGUMENTS */
+/*   GLOBAL SCALARS */
+/*   LOCAL SCALARS */
+    /* Parameter adjustments */
+    --p;
+    a_dim1 = *lda;
+    a_offset = 1 + a_dim1;
+    a -= a_offset;
+
+    /* Function Body */
+    i__1 = *n;
+    for (k = 1; k <= i__1; ++k) {
+	imax = k;
+	i__2 = *n;
+	for (i__ = k + 1; i__ <= i__2; ++i__) {
+	    if ((d__1 = a[i__ + k * a_dim1], abs(d__1)) > (d__2 = a[imax + k *
+		     a_dim1], abs(d__2))) {
+		imax = i__;
+	    }
+	}
+	if ((d__1 = a[imax + k * a_dim1], abs(d__1)) < const_1.eps) {
+	    ret_val = -1;
+	    return ret_val;
+	}
+	if (imax != k) {
+	    i__2 = *n;
+	    for (j = 1; j <= i__2; ++j) {
+		swap_(&a[imax + j * a_dim1], &a[k + j * a_dim1]);
+	    }
+	}
+	p[k] = imax;
+	i__2 = *n;
+	for (i__ = k + 1; i__ <= i__2; ++i__) {
+	    a[i__ + k * a_dim1] /= a[k + k * a_dim1];
+	    i__3 = *n;
+	    for (j = k + 1; j <= i__3; ++j) {
+		a[i__ + j * a_dim1] -= a[k + j * a_dim1] * a[i__ + k * a_dim1]
+			;
+	    }
+	}
     }
-    for (k = 0; k < n; k++) {
-        scanf("%d", &i);
-        scanf("%lf", &b[i]);
+    ret_val = 0;
+    return ret_val;
+} /* lurow_ */
+
+integer ssrow_(integer *n, integer *lda, doublereal *a, integer *p, 
+	doublereal *b)
+{
+    /* System generated locals */
+    integer a_dim1, a_offset, ret_val, i__1, i__2;
+    doublereal d__1;
+
+    /* Local variables */
+    static integer i__, k;
+    extern /* Subroutine */ int swap_(doublereal *, doublereal *);
+
+/*   SCALAR ARGUMENTS */
+/*   ARRAY ARGUMENTS */
+/*   GLOBAL SCALARS */
+/*   LOCAL SCALARS */
+    /* Parameter adjustments */
+    --b;
+    --p;
+    a_dim1 = *lda;
+    a_offset = 1 + a_dim1;
+    a -= a_offset;
+
+    /* Function Body */
+    i__1 = *n;
+    for (i__ = 1; i__ <= i__1; ++i__) {
+	if (p[i__] != i__) {
+	    swap_(&b[p[i__]], &b[i__]);
+	}
     }
-    return n;
-}
-
-int lurow(int n, double A[][NMAX], int p[]) {
-    int k, i, j, imax;
-
-    for (k = 0; k < n; k++) {
-        imax = k;
-        for (i = k + 1; i < n; i++) 
-            if (abs(A[i][k]) > abs(A[imax][k])) 
-                imax = i;
-        if (abs(A[imax][k]) < eps) 
-            return -1;
-        if (imax != k)
-            for (j = 0; j < n; j++)
-                swap(&A[imax][j], &A[k][j]);
-        p[k] = imax;
-        for (i = k + 1; i < n; i++) {
-            A[i][k] = A[i][k] / A[k][k];
-            for (j = k + 1; j < n; j++)
-                A[i][j] = A[i][j] - A[k][j] * A[i][k];
-        }
-    }     
-    return 0;
-}
-
-int ssrow(int n, double A[][NMAX], int p[], double b[]) {
-    int i, k;
-
-    for (i = 0; i < n; i++) 
-        if (p[i] != i)
-            swap(&b[p[i]], &b[i]);
-
-    for (i = 0; i < n; i++)
-        for (k = 0; k < i; k++)
-            b[i] = b[i] - b[k] * A[i][k];
-
-    for (i = n - 1; i >= 0; i--) {
-        for (k = n - 1; k > i; k--)
-            b[i] = b[i] - b[k] * A[i][k];
-        if (abs(A[i][i]) < eps)
-            return -1;
-        b[i] = b[i] / A[i][i];
+    i__1 = *n;
+    for (i__ = 1; i__ <= i__1; ++i__) {
+	i__2 = i__ - 1;
+	for (k = 1; k <= i__2; ++k) {
+	    b[i__] -= b[k] * a[i__ + k * a_dim1];
+	}
     }
-
-    return 0;
-}
-
-int lucol(int n, double A[][NMAX], int p[]) {
-    int k, i, j, imax;
-
-    for (k = 0; k < n; k++) {
-        imax = k;
-        for (i = k + 1; i < n; i++) 
-            if (abs(A[i][k]) > abs(A[imax][k])) 
-                imax = i;
-
-        if (abs(A[imax][k]) < eps) 
-            return -1; 
-        if (imax != k)
-            for (j = 0; j < n; j++)
-                swap(&A[imax][j], &A[k][j]);
-        p[k] = imax;
-
-
-        for (i = k + 1; i < n; i++)
-            A[i][k] = A[i][k] / A[k][k];
-
-        for (j = k + 1; j < n; j++)            
-            for (i = k + 1; i < n; i++)
-                A[i][j] = A[i][j] - A[k][j] * A[i][k];
-    }     
-    return 0;
-}
-
-int sscol(int n, double A[][NMAX], int p[], double b[]) {
-    int i, k;
-
-    for (i = 0; i < n; i++)
-        if (p[i] != i)
-            swap(&b[p[i]], &b[i]);
-
-    for (k = 0; k < n; k++)
-        for (i = k + 1; i < n; i++)
-            b[i] = b[i] - b[k] * A[i][k];
-
-    for (k = n - 1; k >= 0; k--) {
-        if (abs(A[k][k]) < eps)
-            return -1;
-        b[k] = b[k] / A[k][k];
-        for (i = k - 1; i >= 0; i--)
-            b[i] = b[i] - b[k] * A[i][k];
+    for (i__ = *n; i__ >= 1; --i__) {
+	i__1 = i__ + 1;
+	for (k = *n; k >= i__1; --k) {
+	    b[i__] -= b[k] * a[i__ + k * a_dim1];
+	}
+	if ((d__1 = a[i__ + i__ * a_dim1], abs(d__1)) < const_1.eps) {
+	    ret_val = -1;
+	    return ret_val;
+	}
+	b[i__] /= a[i__ + i__ * a_dim1];
     }
+    ret_val = 0;
+    return ret_val;
+} /* ssrow_ */
 
+integer lucol_(integer *n, integer *lda, doublereal *a, integer *p)
+{
+    /* System generated locals */
+    integer a_dim1, a_offset, ret_val, i__1, i__2, i__3;
+    doublereal d__1, d__2;
+
+    /* Local variables */
+    static integer i__, j, k, imax;
+    extern /* Subroutine */ int swap_(doublereal *, doublereal *);
+
+/*   SCALAR ARGUMENTS */
+/*   ARRAY ARGUMENTS */
+/*   GLOBAL SCALARS */
+/*   LOCAL SCALARS */
+    /* Parameter adjustments */
+    --p;
+    a_dim1 = *lda;
+    a_offset = 1 + a_dim1;
+    a -= a_offset;
+
+    /* Function Body */
+    i__1 = *n;
+    for (k = 1; k <= i__1; ++k) {
+	imax = k;
+	i__2 = *n;
+	for (i__ = k + 1; i__ <= i__2; ++i__) {
+	    if ((d__1 = a[i__ + k * a_dim1], abs(d__1)) > (d__2 = a[imax + k *
+		     a_dim1], abs(d__2))) {
+		imax = i__;
+	    }
+	}
+	if ((d__1 = a[imax + k * a_dim1], abs(d__1)) < const_1.eps) {
+	    ret_val = -1;
+	    return ret_val;
+	}
+	if (imax != k) {
+	    i__2 = *n;
+	    for (j = 1; j <= i__2; ++j) {
+		swap_(&a[imax + j * a_dim1], &a[k + j * a_dim1]);
+	    }
+	}
+	p[k] = imax;
+	i__2 = *n;
+	for (i__ = k + 1; i__ <= i__2; ++i__) {
+	    a[i__ + k * a_dim1] /= a[k + k * a_dim1];
+	}
+	i__2 = *n;
+	for (j = k + 1; j <= i__2; ++j) {
+	    i__3 = *n;
+	    for (i__ = k + 1; i__ <= i__3; ++i__) {
+		a[i__ + j * a_dim1] -= a[k + j * a_dim1] * a[i__ + k * a_dim1]
+			;
+	    }
+	}
+    }
+    ret_val = 0;
+    return ret_val;
+} /* lucol_ */
+
+integer sscol_(integer *n, integer *lda, doublereal *a, integer *p, 
+	doublereal *b)
+{
+    /* System generated locals */
+    integer a_dim1, a_offset, ret_val, i__1, i__2;
+    doublereal d__1;
+
+    /* Local variables */
+    static integer i__, k;
+    extern /* Subroutine */ int swap_(doublereal *, doublereal *);
+
+/*   SCALAR ARGUMENTS */
+/*   ARRAY ARGUMENTS */
+/*   GLOBAL SCALARS */
+/*   LOCAL SCALARS */
+    /* Parameter adjustments */
+    --b;
+    --p;
+    a_dim1 = *lda;
+    a_offset = 1 + a_dim1;
+    a -= a_offset;
+
+    /* Function Body */
+    i__1 = *n;
+    for (i__ = 1; i__ <= i__1; ++i__) {
+	if (p[i__] != i__) {
+	    swap_(&b[p[i__]], &b[i__]);
+	}
+    }
+    i__1 = *n;
+    for (k = 1; k <= i__1; ++k) {
+	i__2 = *n;
+	for (i__ = k + 1; i__ <= i__2; ++i__) {
+	    b[i__] -= b[k] * a[i__ + k * a_dim1];
+	}
+    }
+    for (k = *n; k >= 1; --k) {
+	if ((d__1 = a[k + k * a_dim1], abs(d__1)) < const_1.eps) {
+	    ret_val = -1;
+	    return ret_val;
+	}
+	b[k] /= a[k + k * a_dim1];
+	for (i__ = k - 1; i__ >= 1; --i__) {
+	    b[i__] -= b[k] * a[i__ + k * a_dim1];
+	}
+    }
+    ret_val = 0;
+    return ret_val;
+} /* sscol_ */
+
+/* Subroutine */ int printmatrix_(doublereal *a, integer *n)
+{
+    /* System generated locals */
+    integer i__1, i__2;
+
+    /* Builtin functions */
+    integer s_wsfe(cilist *), do_fio(integer *, char *, ftnlen), e_wsfe(void),
+	     s_wsle(cilist *), do_lio(integer *, integer *, char *, ftnlen), 
+	    e_wsle(void);
+
+    /* Local variables */
+    static integer i__, j;
+
+    /* Fortran I/O blocks */
+    static cilist io___23 = { 0, 6, 0, "(f7.3$)", 0 };
+    static cilist io___24 = { 0, 6, 0, 0, 0 };
+
+
+    /* Parameter adjustments */
+    a -= 1001;
+
+    /* Function Body */
+    i__1 = *n;
+    for (i__ = 1; i__ <= i__1; ++i__) {
+	i__2 = *n;
+	for (j = 1; j <= i__2; ++j) {
+	    s_wsfe(&io___23);
+	    do_fio(&c__1, (char *)&a[i__ + j * 1000], (ftnlen)sizeof(
+		    doublereal));
+	    e_wsfe();
+	}
+	s_wsle(&io___24);
+	do_lio(&c__9, &c__1, "", (ftnlen)0);
+	e_wsle();
+    }
     return 0;
-}
+} /* printmatrix_ */
 
-void swap(double *a, double *b) {
-    double temp = *a;
+/* Subroutine */ int printdvector_(doublereal *v, integer *n)
+{
+    /* System generated locals */
+    integer i__1;
+
+    /* Builtin functions */
+    integer s_wsfe(cilist *), do_fio(integer *, char *, ftnlen), e_wsfe(void);
+
+    /* Local variables */
+    static integer i__;
+
+    /* Fortran I/O blocks */
+    static cilist io___26 = { 0, 6, 0, "(f7.3$)", 0 };
+
+
+    /* Parameter adjustments */
+    --v;
+
+    /* Function Body */
+    i__1 = *n;
+    for (i__ = 1; i__ <= i__1; ++i__) {
+	s_wsfe(&io___26);
+	do_fio(&c__1, (char *)&v[i__], (ftnlen)sizeof(doublereal));
+	e_wsfe();
+    }
+    return 0;
+} /* printdvector_ */
+
+/* Subroutine */ int printivector_(integer *v, integer *n)
+{
+    /* System generated locals */
+    integer i__1;
+
+    /* Builtin functions */
+    integer s_wsfe(cilist *), do_fio(integer *, char *, ftnlen), e_wsfe(void);
+
+    /* Local variables */
+    static integer i__;
+
+    /* Fortran I/O blocks */
+    static cilist io___28 = { 0, 6, 0, "(i3)", 0 };
+
+
+    /* Parameter adjustments */
+    --v;
+
+    /* Function Body */
+    i__1 = *n;
+    for (i__ = 1; i__ <= i__1; ++i__) {
+	s_wsfe(&io___28);
+	do_fio(&c__1, (char *)&v[i__], (ftnlen)sizeof(integer));
+	e_wsfe();
+    }
+    return 0;
+} /* printivector_ */
+
+/* Subroutine */ int swap_(doublereal *a, doublereal *b)
+{
+    static doublereal temp;
+
+    temp = *a;
     *a = *b;
     *b = temp;
-}
+    return 0;
+} /* swap_ */
 
-void printMatrix(double A[][NMAX], int n) {
-    int i, j;
-    printf("\n");
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++)
-            printf("% 3.2f ", A[i][j]);
-        printf("\n");
+/* Subroutine */ int readmatrix_(doublereal *a, doublereal *b, integer *lda, 
+	integer *n)
+{
+    /* System generated locals */
+    integer a_dim1, a_offset, i__1;
+
+    /* Builtin functions */
+    integer s_rsle(cilist *), do_lio(integer *, integer *, char *, ftnlen), 
+	    e_rsle(void);
+
+    /* Local variables */
+    static integer i__, j, k, nsquare;
+
+    /* Fortran I/O blocks */
+    static cilist io___30 = { 0, 5, 0, 0, 0 };
+    static cilist io___33 = { 0, 5, 0, 0, 0 };
+    static cilist io___36 = { 0, 5, 0, 0, 0 };
+
+
+/*   SCALAR ARGUMENTS */
+/*   ARRAY ARGUMENTS */
+/*   LOCAL SCALARS */
+    /* Parameter adjustments */
+    --b;
+    a_dim1 = *lda;
+    a_offset = 1 + a_dim1;
+    a -= a_offset;
+
+    /* Function Body */
+    s_rsle(&io___30);
+    do_lio(&c__3, &c__1, (char *)&(*n), (ftnlen)sizeof(integer));
+    e_rsle();
+/* Computing 2nd power */
+    i__1 = *n;
+    nsquare = i__1 * i__1;
+    i__1 = nsquare;
+    for (k = 1; k <= i__1; ++k) {
+	s_rsle(&io___33);
+	do_lio(&c__3, &c__1, (char *)&i__, (ftnlen)sizeof(integer));
+	do_lio(&c__3, &c__1, (char *)&j, (ftnlen)sizeof(integer));
+	do_lio(&c__5, &c__1, (char *)&a[i__ + 1 + (j + 1) * a_dim1], (ftnlen)
+		sizeof(doublereal));
+	e_rsle();
     }
-}
+    i__1 = *n;
+    for (k = 1; k <= i__1; ++k) {
+	s_rsle(&io___36);
+	do_lio(&c__3, &c__1, (char *)&i__, (ftnlen)sizeof(integer));
+	do_lio(&c__5, &c__1, (char *)&b[i__ + 1], (ftnlen)sizeof(doublereal));
+	e_rsle();
+    }
+    return 0;
+} /* readmatrix_ */
 
-void printVector(double v[], int n) {
-    int i;
-    printf("\n");
-    for (i = 0; i < n; i++)
-        printf("% 3.2f\n", v[i]);
-}
+/* Main program alias */ int lu_solver__ () { MAIN__ (); return 0; }
