@@ -22,59 +22,102 @@ struct {
 
 /* Table of constant values */
 
-static integer c__1 = 1;
 static integer c__9 = 9;
+static integer c__1 = 1;
 static integer c__3 = 3;
 static integer c__5 = 5;
 
 /* Main program */ int MAIN__(void)
 {
     /* Builtin functions */
-    integer s_wsle(cilist *), do_lio(integer *, integer *, char *, ftnlen), 
-	    e_wsle(void);
+    integer s_cmp(char *, char *, ftnlen, ftnlen), s_wsle(cilist *), do_lio(
+	    integer *, integer *, char *, ftnlen), e_wsle(void);
 
     /* Local variables */
     static doublereal a[1000000]	/* was [1000][1000] */, b[1000];
-    static integer n, p[1000];
+    static integer i__, n, p[1000];
     extern /* Subroutine */ int readmatrix_(doublereal *, doublereal *, 
 	    integer *, integer *);
     static integer lda;
     static char arg[100];
     static integer res;
+    static logical qtmd;
     extern /* Subroutine */ int printdvector_(doublereal *, integer *);
-    extern integer lurow_(integer *, integer *, doublereal *, integer *), 
-	    ssrow_(integer *, integer *, doublereal *, integer *, doublereal *
-	    );
+    static logical colmd;
+    extern integer lucol_(integer *, integer *, doublereal *, integer *), 
+	    sscol_(integer *, integer *, doublereal *, integer *, doublereal *
+	    ), lurow_(integer *, integer *, doublereal *, integer *), ssrow_(
+	    integer *, integer *, doublereal *, integer *, doublereal *);
     extern /* Subroutine */ int getarg_(integer *, char *, ftnlen);
 
     /* Fortran I/O blocks */
-    static cilist io___2 = { 0, 6, 0, 0, 0 };
     static cilist io___9 = { 0, 6, 0, 0, 0 };
-    static cilist io___10 = { 0, 6, 0, 0, 0 };
+    static cilist io___12 = { 0, 6, 0, 0, 0 };
+    static cilist io___13 = { 0, 6, 0, 0, 0 };
+    static cilist io___14 = { 0, 6, 0, 0, 0 };
+    static cilist io___15 = { 0, 6, 0, 0, 0 };
+    static cilist io___16 = { 0, 6, 0, 0, 0 };
 
 
-    getarg_(&c__1, arg, (ftnlen)100);
-    s_wsle(&io___2);
-    do_lio(&c__9, &c__1, "arg: ", (ftnlen)5);
-    do_lio(&c__9, &c__1, arg, (ftnlen)100);
-    e_wsle();
-    lda = 1000;
+    colmd = FALSE_;
+    qtmd = FALSE_;
     const_1.eps = 1e-16f;
+    lda = 1000;
     readmatrix_(a, b, &lda, &n);
-    res = lurow_(&n, &lda, a, p);
-    if (res == 0) {
-	res = ssrow_(&n, &lda, a, p, b);
+    for (i__ = 1; i__ <= 2; ++i__) {
+	getarg_(&i__, arg, (ftnlen)100);
+	if (s_cmp(arg, "-c", (ftnlen)100, (ftnlen)2) == 0) {
+	    colmd = TRUE_;
+	} else if (s_cmp(arg, "-q", (ftnlen)100, (ftnlen)2) == 0) {
+	    qtmd = TRUE_;
+	}
+    }
+    if (colmd) {
+	s_wsle(&io___9);
+	do_lio(&c__9, &c__1, "Calculando orientado a colunas", (ftnlen)30);
+	e_wsle();
+	res = lucol_(&n, &lda, a, p);
 	if (res == 0) {
-	    printdvector_(b, &n);
+	    res = sscol_(&n, &lda, a, p, b);
+	    if (res == 0) {
+		if (! qtmd) {
+		    printdvector_(b, &n);
+		}
+	    } else {
+		s_wsle(&io___12);
+		do_lio(&c__9, &c__1, "sscol: A matriz parece ser singular", (
+			ftnlen)35);
+		e_wsle();
+	    }
 	} else {
-	    s_wsle(&io___9);
-	    do_lio(&c__9, &c__1, "CAGOU", (ftnlen)5);
+	    s_wsle(&io___13);
+	    do_lio(&c__9, &c__1, "lucol: A matriz parece ser singular", (
+		    ftnlen)35);
 	    e_wsle();
 	}
     } else {
-	s_wsle(&io___10);
-	do_lio(&c__9, &c__1, "CAGOU1", (ftnlen)6);
+	s_wsle(&io___14);
+	do_lio(&c__9, &c__1, "Calculando orientado a linhas", (ftnlen)29);
 	e_wsle();
+	res = lurow_(&n, &lda, a, p);
+	if (res == 0) {
+	    res = ssrow_(&n, &lda, a, p, b);
+	    if (res == 0) {
+		if (! qtmd) {
+		    printdvector_(b, &n);
+		}
+	    } else {
+		s_wsle(&io___15);
+		do_lio(&c__9, &c__1, "ssrow: A matriz parece ser singular", (
+			ftnlen)35);
+		e_wsle();
+	    }
+	} else {
+	    s_wsle(&io___16);
+	    do_lio(&c__9, &c__1, "lurow: A matriz parece ser singular", (
+		    ftnlen)35);
+	    e_wsle();
+	}
     }
     return 0;
 } /* MAIN__ */
@@ -309,8 +352,8 @@ integer sscol_(integer *n, integer *lda, doublereal *a, integer *p,
     static integer i__, j;
 
     /* Fortran I/O blocks */
-    static cilist io___25 = { 0, 6, 0, "(f7.3$)", 0 };
-    static cilist io___26 = { 0, 6, 0, 0, 0 };
+    static cilist io___31 = { 0, 6, 0, "(f7.3$)", 0 };
+    static cilist io___32 = { 0, 6, 0, 0, 0 };
 
 
     /* Parameter adjustments */
@@ -321,12 +364,12 @@ integer sscol_(integer *n, integer *lda, doublereal *a, integer *p,
     for (i__ = 1; i__ <= i__1; ++i__) {
 	i__2 = *n;
 	for (j = 1; j <= i__2; ++j) {
-	    s_wsfe(&io___25);
+	    s_wsfe(&io___31);
 	    do_fio(&c__1, (char *)&a[i__ + j * 1000], (ftnlen)sizeof(
 		    doublereal));
 	    e_wsfe();
 	}
-	s_wsle(&io___26);
+	s_wsle(&io___32);
 	do_lio(&c__9, &c__1, "", (ftnlen)0);
 	e_wsle();
     }
@@ -345,7 +388,7 @@ integer sscol_(integer *n, integer *lda, doublereal *a, integer *p,
     static integer i__;
 
     /* Fortran I/O blocks */
-    static cilist io___28 = { 0, 6, 0, "(f7.3$)", 0 };
+    static cilist io___34 = { 0, 6, 0, "(f7.3$)", 0 };
 
 
     /* Parameter adjustments */
@@ -354,7 +397,7 @@ integer sscol_(integer *n, integer *lda, doublereal *a, integer *p,
     /* Function Body */
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	s_wsfe(&io___28);
+	s_wsfe(&io___34);
 	do_fio(&c__1, (char *)&v[i__], (ftnlen)sizeof(doublereal));
 	e_wsfe();
     }
@@ -373,7 +416,7 @@ integer sscol_(integer *n, integer *lda, doublereal *a, integer *p,
     static integer i__;
 
     /* Fortran I/O blocks */
-    static cilist io___30 = { 0, 6, 0, "(i3)", 0 };
+    static cilist io___36 = { 0, 6, 0, "(i3)", 0 };
 
 
     /* Parameter adjustments */
@@ -382,7 +425,7 @@ integer sscol_(integer *n, integer *lda, doublereal *a, integer *p,
     /* Function Body */
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	s_wsfe(&io___30);
+	s_wsfe(&io___36);
 	do_fio(&c__1, (char *)&v[i__], (ftnlen)sizeof(integer));
 	e_wsfe();
     }
@@ -413,9 +456,9 @@ integer sscol_(integer *n, integer *lda, doublereal *a, integer *p,
     static integer i__, j, k, nsquare;
 
     /* Fortran I/O blocks */
-    static cilist io___32 = { 0, 5, 0, 0, 0 };
-    static cilist io___35 = { 0, 5, 0, 0, 0 };
     static cilist io___38 = { 0, 5, 0, 0, 0 };
+    static cilist io___41 = { 0, 5, 0, 0, 0 };
+    static cilist io___44 = { 0, 5, 0, 0, 0 };
 
 
 /*   SCALAR ARGUMENTS */
@@ -428,7 +471,7 @@ integer sscol_(integer *n, integer *lda, doublereal *a, integer *p,
     a -= a_offset;
 
     /* Function Body */
-    s_rsle(&io___32);
+    s_rsle(&io___38);
     do_lio(&c__3, &c__1, (char *)&(*n), (ftnlen)sizeof(integer));
     e_rsle();
 /* Computing 2nd power */
@@ -436,7 +479,7 @@ integer sscol_(integer *n, integer *lda, doublereal *a, integer *p,
     nsquare = i__1 * i__1;
     i__1 = nsquare;
     for (k = 1; k <= i__1; ++k) {
-	s_rsle(&io___35);
+	s_rsle(&io___41);
 	do_lio(&c__3, &c__1, (char *)&i__, (ftnlen)sizeof(integer));
 	do_lio(&c__3, &c__1, (char *)&j, (ftnlen)sizeof(integer));
 	do_lio(&c__5, &c__1, (char *)&a[i__ + 1 + (j + 1) * a_dim1], (ftnlen)
@@ -445,7 +488,7 @@ integer sscol_(integer *n, integer *lda, doublereal *a, integer *p,
     }
     i__1 = *n;
     for (k = 1; k <= i__1; ++k) {
-	s_rsle(&io___38);
+	s_rsle(&io___44);
 	do_lio(&c__3, &c__1, (char *)&i__, (ftnlen)sizeof(integer));
 	do_lio(&c__5, &c__1, (char *)&b[i__ + 1], (ftnlen)sizeof(doublereal));
 	e_rsle();

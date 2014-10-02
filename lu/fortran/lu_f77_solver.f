@@ -10,29 +10,52 @@
            double precision A(NMAX, NMAX)
            double precision b(NMAX)
            integer p(NMAX)
-           integer res, n
+           integer res, n, i
            integer lda
            character*100 arg
+           logical colMd, qtMd
+           colMd = .false.
+           qtMd = .false.
 
-           call GETARG(1, arg)
-           print *, "arg: ", arg
-
-
-
-           lda = NMAX
-       
            eps = 1e-16
+           lda = NMAX
            call readMatrix(A, b, lda, n)   
-           res = lurow(n, lda, A, p) 
-           if (res == 0) then
-               res = ssrow(n, lda, A, p, b)
+
+           do i = 1, 2
+               call GETARG(i, arg)
+               if (arg == "-c") then
+                   colMd = .true.
+               else if (arg == "-q") then
+                   qtMd = .true.
+               end if
+           end do
+
+           if (colMd) then
+               print *, "Calculando orientado a colunas"
+               res = lucol(n, lda, A, p)
                if (res == 0) then
-                   call printdVector(b, n)
+                   res = sscol(n, lda, A, p, b)
+                   if (res == 0) then
+                       if (.not. qtMd) call printdvector(b,n)
+                   else
+                       print *, "sscol: A matriz parece ser singular"
+                   end if
                else
-                   print *, "CAGOU"
+                   print *, "lucol: A matriz parece ser singular"
                end if
            else
-               print *, "CAGOU1"
+               print *, "Calculando orientado a linhas"
+               res = lurow(n, lda, A, p) 
+               if (res == 0) then
+                   res = ssrow(n, lda, A, p, b)
+                   if (res == 0) then
+                       if (.not. qtMd) call printdVector(b, n)
+                   else
+                       print *, "ssrow: A matriz parece ser singular"
+                   end if
+               else
+                   print *, "lurow: A matriz parece ser singular"
+               end if
            end if
        end
        

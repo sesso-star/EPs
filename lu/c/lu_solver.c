@@ -15,40 +15,54 @@ void swap(double *a, double *b);
 void printMatrix(double A[][NMAX], int n);
 void printVector(double v[], int n);
 
+typedef enum { false, true } bool;
 int main(int argc, char **argv) {
     int n = 0;
     int i;
     int p[NMAX];
-    
+    bool colMode = false;
+    bool quietMode = false;
+
     double b[NMAX];
     double A[NMAX][NMAX];
+
+    for (i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-c") == 0)
+            colMode = true;
+        else if (strcmp(argv[i], "-q") == 0)
+            quietMode = true;
+    }
     
     n = leMatriz(A, b);
-    if (argc > 1 && strcmp("-c", argv[1]) == 0) {
-        printf("\nCalculando orientado a colunas");
-        lucol(n, A, p);
-        printf("\nLU:");
-        printMatrix(A, n);
-        sscol(n, A, p, b);
-        printf("\nx:");
-        printVector(b, n);
-    }
-    else {
-        printf("\nCalculando orientado a linhas");
-        if (!lurow(n, A, p)) {
-            printf("\nLU:");
-            printMatrix(A, n);
-        }
-        else {
-            printf("\n\nDeu pau\n");
+
+    /* Calcula orientado a colunas */
+    if (colMode) {
+        printf("Calculando orientado a colunas\n");
+        if (!lucol(n, A, p)) { 
+            if (!sscol(n, A, p, b)) {
+                if (!quietMode) printVector(b, n);
+            } else {
+                printf("sscol: A matriz parece singular\n");
+                return -1;
+            }
+        } else {
+            printf("lucol: A matriz parece singular\n");
             return -1;
         }
-        if (!ssrow(n, A, p, b)) {
-            printf("\nx:");
-            printVector(b, n);
+    }
+    /* Calcula orientado a linhas */
+    else {
+        printf("Calculando orientado a linhas\n");
+        if (!lurow(n, A, p)) {
+            if (!ssrow(n, A, p, b)) {
+                if (!quietMode) printVector(b, n);
+            } else {
+               printf("ssrow: A matriz parece singular\n"); 
+               return -1;
+            }
         }
         else {
-            printf("\n\nDeu pau\n");
+            printf("lurow: A matriz parece singular\n");
             return -1;
         }
     }
