@@ -1,0 +1,21 @@
+if [[ -a $1 && -a $4 ]] && [[ $2 = "-c" || $2 = "-l" ]]; then
+    program=$1
+    option=$2
+    out_file=$3
+    in_file=$4
+
+    for i in {1..10}; do
+        /usr/bin/time -a -o $out_file -f "%e %U %S" -- $program -q $option  < $4 > /dev/null
+    done
+else
+    if ! [ -a $1 ]; then
+        echo "$1 nao existe"
+    fi
+
+    if ! [ -a $2 ]; then
+        echo "$2 nao existe"
+    fi
+
+    
+    echo  "Uso: ./test <programa> <-c ou -l> <arquivo de saida> <arquivo de entrada>"
+fi
