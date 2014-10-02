@@ -1,0 +1,5 @@
+for f in tst/a*.dat; do
+    echo -e "c/lu_solver\nfortran/lu_solver\nfortran/lu_f2c_solver\n$f\n5\n" > tmp
+    ./test_all < tmp
+done
+rm -f tmp

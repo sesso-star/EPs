@@ -1,19 +1,8 @@
-#!/bin/bash -i
-
-x="$( echo $1 | grep -o -E [0-9]+ )"
-x=$((x * 100))
-
+#!/bin/bash 
 root="results"
-cpath=$root/"c"
-fpath=$root/"fortran"
-f2cpath=$root/"f2c"
 
-mkdir $root $cpath $fpath $f2cpath 2> /dev/null
-
-read -e -p "Diga-me onde esta o test: " prog
-while ! [ -a $prog ]; do
-    read -e -p "$prog nao existe. Digite de novo: " prog
-done
+mkdir $root 2> /dev/null
+rm -f $cpath $fpath $f2cpath 
 
 read -e -p "executavel do C: " cprog
 while ! [ -a $cprog ]; do
@@ -39,4 +28,19 @@ read -e -p "Numero de repeticoes: " nreps
 re='^[0-9]+$'
 while ! [[ $nreps =~ $re ]] ; do
     read -e -p "$nreps nao e um numero. Digite de novo: " nreps
+done
+
+x=$( echo $matfile | grep -o -E [0-9]+)
+x=$((x*100))
+cpath=$root/"c_"$x"_"
+fpath=$root/"fortran_"$x"_"
+f2cpath=$root/"f2c_"$x"_"
+
+for i in $(seq 1 $nreps); do
+    /usr/bin/time -a -o $cpath"col.txt" -f "%e %U %S" -- $cprog -q -c < $matfile > /dev/null
+    /usr/bin/time -a -o $cpath"row.txt" -f "%e %U %S" -- $cprog -q -c < $matfile > /dev/null
+    /usr/bin/time -a -o $fpath"col.txt" -f "%e %U %S" -- $fprog -q -c < $matfile > /dev/null
+    /usr/bin/time -a -o $fpath"row.txt" -f "%e %U %S" -- $fprog -q -c < $matfile > /dev/null
+    /usr/bin/time -a -o $f2cpath"col.txt" -f "%e %U %S" -- $f2cprog -q -c < $matfile > /dev/null
+    /usr/bin/time -a -o $f2cpath"row.txt" -f "%e %U %S" -- $f2cprog -q -c < $matfile > /dev/null
 done

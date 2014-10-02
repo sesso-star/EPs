@@ -1,3 +1,4 @@
+#!/bin/bash
 if [[ -a $1 && -a $4 ]] && [[ $2 = "-c" || $2 = "-l" ]]; then
     program=$1
     option=$2
