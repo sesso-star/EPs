@@ -12,6 +12,13 @@
            integer p(NMAX)
            integer res, n
            integer lda
+           character*100 arg
+
+           call GETARG(1, arg)
+           print *, "arg: ", arg
+
+
+
            lda = NMAX
        
            eps = 1e-16
