@@ -1,0 +1,42 @@
+#!/bin/bash -i
+
+x="$( echo $1 | grep -o -E [0-9]+ )"
+x=$((x * 100))
+
+root="results"
+cpath=$root/"c"
+fpath=$root/"fortran"
+f2cpath=$root/"f2c"
+
+mkdir $root $cpath $fpath $f2cpath 2> /dev/null
+
+read -e -p "Diga-me onde esta o test: " prog
+while ! [ -a $prog ]; do
+    read -e -p "$prog nao existe. Digite de novo: " prog
+done
+
+read -e -p "executavel do C: " cprog
+while ! [ -a $cprog ]; do
+    read -e -p "$cprog nao existe. Digite de novo: " cprog
+done
+
+read -e -p "executavel do Fortran: " fprog
+while ! [ -a $fprog ]; do
+    read -e -p "$fprog nao existe. Digite de novo: " fprog
+done
+
+read -e -p "executavel do f2c: " f2cprog
+while ! [ -a $f2cprog ]; do
+    read -e -p "$f2cprog nao existe. Digite de novo: " f2cprog
+done
+
+read -e -p "arquivo da matriz: " matfile
+while ! [ -a $matfile ]; do
+    read -e -p "$matfile nao existe. Digite de novo: " matfile
+done
+
+read -e -p "Numero de repeticoes: " nreps
+re='^[0-9]+$'
+while ! [[ $nreps =~ $re ]] ; do
+    read -e -p "$nreps nao e um numero. Digite de novo: " nreps
+done
