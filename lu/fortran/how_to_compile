@@ -1,0 +1,1 @@
+gcc lu_f77_solver.c -L/usr/lib/ -lf2c
