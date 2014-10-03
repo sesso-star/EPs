@@ -1,0 +1,8 @@
+rm -i results/*_means_*.txt
+
+for f in results/c_*_col.txt; do octave -q mat_mean_calculator.m $f >> results/c_means_col.txt; done 
+for f in results/c_*_row.txt; do octave -q mat_mean_calculator.m $f >> results/c_means_row.txt; done 
+for f in results/fortran_*_col.txt; do octave -q mat_mean_calculator.m $f >> results/fortran_means_col.txt; done 
+for f in results/fortran_*_row.txt; do octave -q mat_mean_calculator.m $f >> results/fortran_means_row.txt; done 
+for f in results/f2c_*_col.txt; do octave -q mat_mean_calculator.m $f >> results/f2c_means_col.txt; done 
+for f in results/f2c_*_row.txt; do octave -q mat_mean_calculator.m $f >> results/f2c_means_row.txt; done 

@@ -1,0 +1,3 @@
+plot '<(head -n 7 c_means_row.txt)' using ($0+1):1 title "C - Linhas", '<(head -n 7 c_means_col.txt)' using ($0+1):1 title "C - Colunas", '<(head -n 7 f2c_means_row.txt)' using ($0+1):1 title "f2c - Linhas", '<(head -n 7 f2c_means_col.txt)' using ($0+1):1 title "f2c - Colunas", '<(head -n 7 fortran_means_row.txt)' using ($0+1):1 title "Fortran - Linhas", '<(head -n 7 fortran_means_col.txt)' using ($0+1):1 title "Fortran - Colunas"
+
+
