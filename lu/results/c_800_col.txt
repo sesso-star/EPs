@@ -1,200 +1,100 @@
-Command exited with non-zero status 255
-2.43 2.41 0.02
-Command exited with non-zero status 255
-2.43 2.41 0.02
-Command exited with non-zero status 255
-2.41 2.39 0.01
-Command exited with non-zero status 255
-2.43 2.42 0.00
-Command exited with non-zero status 255
-2.44 2.42 0.01
-Command exited with non-zero status 255
-2.43 2.42 0.01
-Command exited with non-zero status 255
-2.41 2.40 0.01
-Command exited with non-zero status 255
-2.43 2.42 0.00
-Command exited with non-zero status 255
-2.42 2.40 0.02
-Command exited with non-zero status 255
-2.42 2.41 0.01
-Command exited with non-zero status 255
-2.43 2.41 0.02
-Command exited with non-zero status 255
-2.43 2.43 0.00
-Command exited with non-zero status 255
 2.42 2.41 0.00
-Command exited with non-zero status 255
-2.42 2.40 0.02
-Command exited with non-zero status 255
-2.42 2.40 0.01
-Command exited with non-zero status 255
-2.44 2.43 0.00
-Command exited with non-zero status 255
-2.41 2.39 0.02
-Command exited with non-zero status 255
-2.41 2.40 0.00
-Command exited with non-zero status 255
-2.40 2.38 0.02
-Command exited with non-zero status 255
-2.41 2.40 0.01
-Command exited with non-zero status 255
-2.42 2.41 0.00
-Command exited with non-zero status 255
-2.43 2.42 0.01
-Command exited with non-zero status 255
-2.41 2.40 0.01
-Command exited with non-zero status 255
-2.42 2.38 0.03
-Command exited with non-zero status 255
-2.41 2.40 0.01
-Command exited with non-zero status 255
 2.42 2.42 0.00
-Command exited with non-zero status 255
-2.41 2.40 0.01
-Command exited with non-zero status 255
-2.42 2.40 0.01
-Command exited with non-zero status 255
-2.42 2.41 0.01
-Command exited with non-zero status 255
-2.43 2.42 0.00
-Command exited with non-zero status 255
-2.44 2.43 0.01
-Command exited with non-zero status 255
-2.42 2.42 0.00
-Command exited with non-zero status 255
-2.41 2.40 0.00
-Command exited with non-zero status 255
-2.42 2.39 0.02
-Command exited with non-zero status 255
-2.42 2.40 0.01
-Command exited with non-zero status 255
-2.43 2.42 0.01
-Command exited with non-zero status 255
-2.43 2.42 0.01
-Command exited with non-zero status 255
-2.43 2.42 0.01
-Command exited with non-zero status 255
-2.41 2.40 0.00
-Command exited with non-zero status 255
-2.42 2.41 0.01
-Command exited with non-zero status 255
-2.44 2.43 0.01
-Command exited with non-zero status 255
-2.41 2.40 0.01
-Command exited with non-zero status 255
-2.41 2.39 0.01
-Command exited with non-zero status 255
-2.43 2.42 0.00
-Command exited with non-zero status 255
-2.42 2.40 0.02
-Command exited with non-zero status 255
 2.45 2.43 0.01
-Command exited with non-zero status 255
-2.45 2.43 0.01
-Command exited with non-zero status 255
 2.40 2.39 0.01
-Command exited with non-zero status 255
-2.43 2.42 0.00
-Command exited with non-zero status 255
-2.41 2.40 0.01
-Command exited with non-zero status 255
-2.42 2.40 0.02
-Command exited with non-zero status 255
-2.42 2.40 0.02
-Command exited with non-zero status 255
-2.41 2.40 0.01
-Command exited with non-zero status 255
-2.45 2.40 0.01
-Command exited with non-zero status 255
-2.40 2.40 0.00
-Command exited with non-zero status 255
-2.42 2.41 0.01
-Command exited with non-zero status 255
-2.44 2.44 0.00
-Command exited with non-zero status 255
-2.42 2.42 0.00
-Command exited with non-zero status 255
-2.41 2.40 0.01
-Command exited with non-zero status 255
-2.42 2.41 0.01
-Command exited with non-zero status 255
-2.40 2.38 0.02
-Command exited with non-zero status 255
-2.44 2.42 0.01
-Command exited with non-zero status 255
-2.44 2.42 0.01
-Command exited with non-zero status 255
-2.42 2.41 0.01
-Command exited with non-zero status 255
-2.42 2.41 0.00
-Command exited with non-zero status 255
-2.43 2.42 0.01
-Command exited with non-zero status 255
+2.46 2.44 0.02
 2.41 2.40 0.00
-Command exited with non-zero status 255
-2.41 2.40 0.00
-Command exited with non-zero status 255
-2.43 2.42 0.01
-Command exited with non-zero status 255
-2.43 2.41 0.02
-Command exited with non-zero status 255
-2.42 2.40 0.01
-Command exited with non-zero status 255
-2.41 2.40 0.01
-Command exited with non-zero status 255
-2.42 2.40 0.02
-Command exited with non-zero status 255
-2.41 2.40 0.01
-Command exited with non-zero status 255
 2.40 2.38 0.01
-Command exited with non-zero status 255
-2.42 2.42 0.00
-Command exited with non-zero status 255
-2.41 2.41 0.00
-Command exited with non-zero status 255
 2.41 2.40 0.01
-Command exited with non-zero status 255
-2.42 2.41 0.00
-Command exited with non-zero status 255
-2.41 2.41 0.00
-Command exited with non-zero status 255
-2.42 2.41 0.00
-Command exited with non-zero status 255
-2.41 2.40 0.00
-Command exited with non-zero status 255
-2.43 2.42 0.01
-Command exited with non-zero status 255
-2.41 2.40 0.00
-Command exited with non-zero status 255
+2.43 2.42 0.00
 2.42 2.41 0.01
-Command exited with non-zero status 255
-2.43 2.43 0.00
-Command exited with non-zero status 255
-2.44 2.42 0.01
-Command exited with non-zero status 255
 2.42 2.41 0.00
-Command exited with non-zero status 255
-2.44 2.42 0.02
-Command exited with non-zero status 255
-2.41 2.39 0.02
-Command exited with non-zero status 255
 2.42 2.40 0.01
-Command exited with non-zero status 255
-2.44 2.44 0.00
-Command exited with non-zero status 255
-2.41 2.40 0.00
-Command exited with non-zero status 255
-2.43 2.43 0.00
-Command exited with non-zero status 255
+2.41 2.39 0.01
 2.42 2.41 0.01
-Command exited with non-zero status 255
-2.42 2.42 0.00
-Command exited with non-zero status 255
-2.41 2.39 0.02
-Command exited with non-zero status 255
-2.43 2.41 0.01
-Command exited with non-zero status 255
-2.40 2.39 0.01
-Command exited with non-zero status 255
+3.36 2.41 0.01
+2.40 2.40 0.00
+2.42 2.41 0.00
+2.41 2.40 0.01
 2.42 2.40 0.02
+2.41 2.40 0.01
+2.41 2.40 0.01
+2.43 2.40 0.02
+2.43 2.41 0.01
+2.42 2.40 0.01
+2.40 2.40 0.00
+2.42 2.40 0.01
+2.42 2.41 0.01
+2.43 2.43 0.00
+2.42 2.41 0.01
+2.42 2.40 0.00
+2.41 2.40 0.00
+2.41 2.41 0.00
+2.40 2.39 0.01
+2.42 2.39 0.02
+2.44 2.42 0.01
+2.43 2.41 0.01
+2.43 2.42 0.01
+2.42 2.40 0.01
+2.41 2.41 0.00
+2.42 2.42 0.00
+2.41 2.40 0.00
+2.42 2.40 0.02
+2.44 2.43 0.01
+2.44 2.42 0.01
+2.42 2.42 0.00
+2.43 2.42 0.00
+2.40 2.40 0.00
+2.42 2.42 0.00
+2.42 2.41 0.01
+2.42 2.41 0.00
+2.42 2.41 0.00
+2.42 2.40 0.01
+2.41 2.40 0.00
+2.41 2.40 0.00
+2.43 2.40 0.02
+2.42 2.40 0.01
+2.43 2.42 0.01
+2.42 2.40 0.01
+2.45 2.44 0.00
+2.41 2.40 0.00
+2.42 2.40 0.01
+2.41 2.40 0.00
+2.42 2.41 0.00
+2.41 2.40 0.00
+2.42 2.40 0.01
+2.42 2.40 0.01
+2.41 2.40 0.00
+2.43 2.41 0.01
+2.41 2.40 0.00
+2.40 2.40 0.00
+2.42 2.39 0.02
+2.41 2.40 0.01
+2.42 2.42 0.00
+2.43 2.42 0.00
+2.41 2.40 0.01
+2.41 2.39 0.02
+2.41 2.40 0.00
+2.42 2.41 0.01
+2.44 2.44 0.00
+2.42 2.40 0.01
+2.42 2.41 0.00
+2.41 2.40 0.00
+2.42 2.40 0.01
+2.42 2.42 0.00
+2.40 2.40 0.00
+2.42 2.41 0.01
+2.43 2.42 0.00
+2.42 2.39 0.02
+2.42 2.41 0.01
+2.43 2.42 0.01
+2.42 2.41 0.01
+2.43 2.42 0.01
+2.42 2.41 0.01
+2.41 2.40 0.01
+2.43 2.43 0.00
+2.41 2.40 0.01
+2.43 2.42 0.00
+2.43 2.42 0.00
+2.43 2.41 0.01
+2.41 2.42 0.00

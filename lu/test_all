@@ -38,10 +38,10 @@ f2cpath=$root/"f2c_"$x"_"
 
 for i in $(seq 1 $nreps); do
     /usr/bin/time -a -o $cpath"col.txt" -f "%e %U %S" -- $cprog -q -c < $matfile > /dev/null
-    /usr/bin/time -a -o $cpath"row.txt" -f "%e %U %S" -- $cprog -q -c < $matfile > /dev/null
+    /usr/bin/time -a -o $cpath"row.txt" -f "%e %U %S" -- $cprog -q -l < $matfile > /dev/null
     /usr/bin/time -a -o $fpath"col.txt" -f "%e %U %S" -- $fprog -q -c < $matfile > /dev/null
-    /usr/bin/time -a -o $fpath"row.txt" -f "%e %U %S" -- $fprog -q -c < $matfile > /dev/null
+    /usr/bin/time -a -o $fpath"row.txt" -f "%e %U %S" -- $fprog -q -l < $matfile > /dev/null
     /usr/bin/time -a -o $f2cpath"col.txt" -f "%e %U %S" -- $f2cprog -q -c < $matfile > /dev/null
-    /usr/bin/time -a -o $f2cpath"row.txt" -f "%e %U %S" -- $f2cprog -q -c < $matfile > /dev/null
+    /usr/bin/time -a -o $f2cpath"row.txt" -f "%e %U %S" -- $f2cprog -q -l < $matfile > /dev/null
     echo "$i reps done"
 done
