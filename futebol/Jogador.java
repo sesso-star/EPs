@@ -4,25 +4,22 @@ public class Jogador {
 
     private String nome;
     private Stats stats;
-    private CalculaForcaStrategy calculadoraDeForca;
+    private ForcaCalculator calculadoraDeForca;
     private int forca;
 
-    public Jogador(String nome, Stats stats, CalculaForcaStrategy tipoDeForca) {
+    public Jogador(String nome, Stats stats, ForcaCalculator tipoDeForca) {
         this.nome = nome;
-        this.forca = -1;
+        this.stats = stats;
+        this.calculadoraDeForca = tipoDeForca;
     }
     
-    private void atualizaForca() {
-        this.forca = this.calculadoraDeForca.calc(this.stats);
-    }
-
     public String getNome() {
         return nome;
     }
 
     public double getForca() {
-        this.atualizaForca();
-        return this.forca;
+        return this.calculadoraDeForca.calc(this.stats);
+        // return 0;
     }
 
     public String toString() {
