@@ -16,7 +16,7 @@ class Leitor {
                 }
                 input = input.replaceAll("\\s", "");
                 String[] statList = input.split(",");
-                if (statList.length == 8) {
+                if (statList.length == 9) {
                     String nome = statList[0];
                     int idade = Integer.parseInt(statList[1]);
                     double altura = Double.parseDouble(statList[2]);
@@ -26,7 +26,21 @@ class Leitor {
                     int explosao = Integer.parseInt(statList[6]);
                     int resistencia = Integer.parseInt(statList[7]);
                     Stats stats = new Stats(idade, altura, peso, velocidade, explosao, resistencia);
-                    FutebolStrategy tipodejogo = new FutebolStrategy();
+
+                    ForcaCalculator tipodejogo = null;
+                    switch (statList[8]) {
+                        case "futebol":
+                            tipodejogo = new FutebolForcaCalculator();
+                            break;
+                        case "beisebol":
+                            tipodejogo = new BeisebolForcaCalculator();
+                            break;
+                        case "basquete":
+                            tipodejogo = new BasqueteForcaCalculator();
+                            break;
+                        default:
+                            throw new IOException("Esporte não entendido");
+                    }
                     jogadores.add(new Jogador(nome, stats, tipodejogo));
                 }
             }

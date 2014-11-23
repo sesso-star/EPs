@@ -9,12 +9,14 @@
 /** FUNÇÕES PRINCIPAIS **/
 void qr(double A[][MAX], double b[], int n, int m);
 void qr_solve(double A[][MAX], double b[], int m);
+void prepareMatrix(double A[][MAX], int n, int m);
 
 /** FUNÇÕES AUXILIARES **/
 void randMatrix(double A[][MAX], int n, int m);
 void randVector(double b[], int n);
 void printMatrix(double A[][MAX], int n, int m);
 void printVector(double b[], int n);
+void swapColumns(double A[][MAX], int n, int col1, int col2);
 
 int main(int argc, char **argv) {
 	double A[MAX][MAX];
@@ -83,7 +85,7 @@ void qr(double A[][MAX], double b[], int n, int m) {
 		beta = 0;
 		for (i = j; i < n; i++)
 			beta += A[i][j] * b[i];
-		for (i = j; i < n; i++)
+for (i = j; i < n; i++)
 			b[i] -= gama * beta * A[i][j];
 
 		A[j][j] = -sigma;
@@ -100,6 +102,26 @@ void qr_solve(double A[][MAX], double b[], int m) {
             printf("qr_solve: Division by 0");
         b[i] /= A[i][i];
     }
+}
+
+void prepareMatrix(double A[][MAX], int n, int m) {
+	int i, j;
+	double norm, maxNorm = -1; // impossible
+	int maxNormColIdx = -1; // impossible
+
+	for (k = 0; k < m; k++) {
+		for (j = k; j < m; j++) {
+			norm = 0;
+			for (i = j; i < n; i++)
+				norm += A[i][j] * A[i][j];
+			if (norm > maxNorm) {
+				maxNorm = norm;
+				maxNormColIdx = j;
+			}
+		}
+		if (maxNormColIdx != k)
+			swapColumns(A, n, maxNormColIdx, k) /// AQUI
+	}
 }
 
 /** FUNÇÕES AUXILIARES *****************************************************************/
@@ -146,3 +168,13 @@ void printVector(double b[], int n) {
     printf("\n");
 }
 
+void swapColumns(double A[][MAX], int n, int col1, int col2) {
+	int i;
+	double aux;
+
+	for (i = 0; i < n; i++) {
+		aux = A[i][col1];
+		A[i][col1] = A[i][col2];
+		A[i][col2] = aux;
+	}
+}

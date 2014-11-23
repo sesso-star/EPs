@@ -1,6 +1,6 @@
 package futebol;
 
-class BeisebolStrategy implements CalculaForcaStrategy {
+class BeisebolForcaCalculator implements ForcaCalculator {
     public int calc(Stats stats) {
         return 0;
     }
