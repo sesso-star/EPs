@@ -4,17 +4,16 @@ public class Jogador {
 
     private String nome;
     private Stats stats;
-    private double pontuacao;
-    private Forca forca;
+    private CalculaForcaStrategy calculadoraDeForca;
+    private int forca;
 
     public Jogador(String nome, Stats stats, CalculaForcaStrategy tipoDeForca) {
         this.nome = nome;
-        this.pontuacao = pontuacao;
-        this.forca = new Forca(tipoDeForca);
+        this.forca = -1;
     }
     
-    private atualizaPontuacao() {
-        this.potuacao = this.forca.calcForca(this.stats);
+    private void atualizaForca() {
+        this.forca = this.calculadoraDeForca.calc(this.stats);
     }
 
     public String getNome() {
@@ -22,10 +21,10 @@ public class Jogador {
     }
 
     public double getForca() {
-        this.atualizaPontuacao();
-        return pontuacao;
+        this.atualizaForca();
+        return this.forca;
     }
-    
+
     public String toString() {
         StringBuilder string = new StringBuilder();
         string.append(getNome()).append(" (").append(getForca()).append(")");

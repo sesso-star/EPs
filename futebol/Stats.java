@@ -19,13 +19,13 @@ public class Stats {
 			throw new IllegalArgumentException("peso deve ser maior do que zero");
 		}
 		if (velocidade > 5 || velocidade < 0) {
-			throw new IllegalArgumentException("velocidade deve ser um inteiro no intervalo [0, 5]")
+			throw new IllegalArgumentException("velocidade deve ser um inteiro no intervalo [0, 5]");
 		}
 		if (explosao > 5 || explosao < 0) {
-			throw new IllegalArgumentException("explosao deve ser um inteiro no intervalo [0, 5]")
+			throw new IllegalArgumentException("explosao deve ser um inteiro no intervalo [0, 5]");
 		}
 		if (resistencia > 5 || resistencia < 0) {
-			throw new IllegalArgumentException("resistencia deve ser um inteiro no intervalo [0, 5]")
+			throw new IllegalArgumentException("resistencia deve ser um inteiro no intervalo [0, 5]");
 		}
 
 		this.idade = idade;
@@ -36,27 +36,27 @@ public class Stats {
 		this.resistencia = resistencia;
 	}
 
-	public getIdade() {
+	public int getIdade() {
 		return idade;
 	}
 
-	public getAltura() {
+	public double getAltura() {
 		return altura;
 	}
 
-	public getPeso() {
+	public double getPeso() {
 		return peso;
 	}
 
-	public getVelocidade() {
+	public int getVelocidade() {
 		return velocidade;
 	}
 
-	public getExplosao() {
+	public int getExplosao() {
 		return explosao;
 	}
 
-	public getResistencia() {
+	public int getResistencia() {
 		return resistencia;
 	}
 }

@@ -1,5 +1,5 @@
-#Nome, idade, altura, peso, força, velocidade, explosao, resistencia
-Gustavo, 19, 175, 72, 6, 6, 
-Bruno, 21, 175, 90, 7, 6
-Neymar, 23, 170, 64, 7, 9
-David Ortiz, 39, 195, 110, 
+#Nome,       idade, altura, peso, força, velocidade, explosao, resistencia
+Gustavo,        19,    175,   72,     4, 		  4, 		3, 			 3 
+Bruno,          21,    175,   90, 	  4, 		  3, 		4, 			 3
+Neymar,         23,    170,   64, 	  4, 		  5, 		4, 			 3
+David Ortiz,    39,	   195,  110, 	  5, 		  3,		4,           2
