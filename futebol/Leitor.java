@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 class Leitor {
-    public static ArrayList<Jogador> lejogadores() {
+    public static ArrayList<Jogador> leJogadores() {
         ArrayList<Jogador> jogadores = new ArrayList<Jogador>();
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -39,7 +39,7 @@ class Leitor {
 
     public static void main(String[] args) {
         // Short method for testing this class
-        ArrayList<Jogador> jogadores = lejogadores();
+        ArrayList<Jogador> jogadores = leJogadores();
         for (Jogador j : jogadores) {
             System.out.println(j.getNome());
         }
