@@ -22,7 +22,7 @@ public class Time {
 
 	public void addJogador(Jogador j) {
 		if (isCompleto()) {
-			throw new IllegalStateException("Time '" + getNome() + "' já está completo");
+			throw new IllegalStateException("Time '" + getNome() + "' ja esta completo");
 		}
 		forca += j.getForca();
 		jogadores.add(j);
