@@ -19,6 +19,7 @@ public class Jogador {
 
     public double getForca() {
         return this.calculadoraDeForca.calc(this.stats);
+        // return 0;
     }
 
     public String toString() {
