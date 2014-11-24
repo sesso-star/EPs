@@ -64,6 +64,7 @@ void qr(double A[][MAX], double b[], int n, int m) {
 			gama = 0;
 		else {
 			sigma = 0;
+			/* Norma2 da coluna j começando da linha i */
 			for (i = j; i < n; i++) {
 				A[i][j] /= max;
 				sigma += A[i][j] * A[i][j];
@@ -91,7 +92,7 @@ void qr(double A[][MAX], double b[], int n, int m) {
 		beta = 0;
 		for (i = j; i < n; i++)
 			beta += A[i][j] * b[i];
-for (i = j; i < n; i++)
+		for (i = j; i < n; i++)
 			b[i] -= gama * beta * A[i][j];
 
 		A[j][j] = -sigma;
