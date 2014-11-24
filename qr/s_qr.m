@@ -1,4 +1,4 @@
-n = 3
+n = 5
 m = 3
 
 rand("seed", 2)
@@ -7,6 +7,7 @@ _x = fix(10 * rand(m, 1));
 _b = b = _A * _x;
 
 sigma = zeros(m, 1);
+map = [1 : m]';
 
 for j = 1 : m
 	mx = abs(A(1, j));
@@ -34,6 +35,7 @@ for j = 1 : m
 			maxI = k;
 		end
 	end
+	map(j) = maxI;
 	if maxI != j
 		for i = 1 : n
 			aux = A(i, j);
@@ -79,10 +81,16 @@ for j = 1 : m
 	end
 end
 
+% solve
 for i = m : -1 : 1
 	for j = i + 1 : m
 		b(i) -= A(i, j) * b(j);
 	end
 	b(i) /= A(i, i);
 end
+b
 
+%remap
+for i = m : -1 : 1
+	[b(i), b(map(i))] = deal(b(map(i)), b(i));
+end

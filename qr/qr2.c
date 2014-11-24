@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define MAX 100
+#define MAX 1000
 #define abs(x) (((x) < 0) ? -(x) : (x))
 
 /** FUNÇÕES PRINCIPAIS **/
@@ -28,20 +28,15 @@ int main(int argc, char **argv) {
 
     readMatrix(A, b, &n, &m);
 
-//  printMatrix(A, n, m);
-//  system("sleep 5");
     getColNorms(A, sigma, n, m);
-//  printVector(sigma, m);
-//  printMatrix(A, n, m);
-//  system("sleep 10");
-
 
     qr(A, b, sigma, map, n, m);
     qr_solve(A, b, sigma, m);
-    remap(b, map, n);
+    remap(b, map, m);
 
 //  printMatrix(A, n, m);
-    printVector(b, n);
+//	printVector(sigma, m);
+    printVector(b, m);
 
     return 0;
 }
@@ -152,7 +147,7 @@ int readMatrix(double A[][MAX], double b[], int *n, int *m) {
 
 void remap(double b[], int map[], int n) {
     int i;
-    for (i = 0; i < n; i++)
+    for (i = n - 1; i >= 0; i--)
         swap(&b[i], &b[map[i]]);
 }
 
