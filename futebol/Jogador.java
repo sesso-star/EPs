@@ -11,15 +11,16 @@ public class Jogador {
         this.nome = nome;
         this.stats = stats;
         this.calculadoraDeForca = tipoDeForca;
+        this.getForca();
     }
     
     public String getNome() {
         return nome;
     }
 
-    public double getForca() {
-        return this.calculadoraDeForca.calc(this.stats);
-        // return 0;
+    public int getForca() {
+        this.forca = this.calculadoraDeForca.calc(this.stats);
+        return this.forca;
     }
 
     public String toString() {

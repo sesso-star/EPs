@@ -8,152 +8,151 @@ import java.util.Random;
 
 public class FazTime {
 
-	static final int JOGADORES_POR_TIME = 2;
-	static List<Jogador> jogadores = new ArrayList<Jogador>();
-	static List<Time> times = new ArrayList<Time>();
-	static char[] alfabeto = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
-			'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+    static final int JOGADORES_POR_TIME = 2;
+    static List<Jogador> jogadores = new ArrayList<Jogador>();
+    static List<Time> times = new ArrayList<Time>();
+    static char[] alfabeto = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
+            'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
 
-	private static double forcaMedia;
+    private static double forcaMedia;
 
-	private static void inicializaJogadores(String esporte) {
-		jogadores = Leitor.leJogadores(esporte);
-		calculaMedia();
-	}
+    private static void inicializaJogadores(String esporte) {
+        jogadores = Leitor.leJogadores(esporte);
+        calculaMedia();
+    }
 
-	private static void preparaTimes() {
-		times.clear();
-		int totalTimes = jogadores.size() / JOGADORES_POR_TIME;
-		for (int i = 0; i < totalTimes; i++) {
-			times.add(new Time("Time " + alfabeto[i], JOGADORES_POR_TIME));
-		}
-	}
+    private static void preparaTimes() {
+        times.clear();
+        int totalTimes = jogadores.size() / JOGADORES_POR_TIME;
+        for (int i = 0; i < totalTimes; i++) {
+            times.add(new Time("Time " + alfabeto[i], JOGADORES_POR_TIME));
+        }
+    }
 
-	private static void calculaMedia() {
-		double forcaTotal = 0;
+    private static void calculaMedia() {
+        double forcaTotal = 0;
 
-		for (Jogador j : jogadores) {
-			forcaTotal += j.getForca();
-		}
+        for (Jogador j : jogadores) {
+            forcaTotal += j.getForca();
+        }
 
-		forcaMedia = forcaTotal / jogadores.size();
-	}
+        forcaMedia = forcaTotal / jogadores.size();
+    }
 
-	public static void main(String[] args) {
-		do {
-			String esporte = args[0];
-			System.out.println("uhuuu");
-			inicializaJogadores(esporte);
-			preparaTimes();
-			montaTimes();
-		} while (!calculaEquilibrio());
+    public static void main(String[] args) {
+        do {
+            String esporte = args[0];
+            inicializaJogadores(esporte);
+            preparaTimes();
+            montaTimes();
+        } while (!calculaEquilibrio());
 
-		imprimeTimes();
+        imprimeTimes();
 
-		System.out.println("##################");
-		System.out.println("  FIM DO SORTEIO");
-		System.out.println("##################");
-	}
+        System.out.println("##################");
+        System.out.println("  FIM DO SORTEIO");
+        System.out.println("##################");
+    }
 
-	private static void imprimeTimes() {
-		for (Time time : times) {
-			System.out.println(time);
-			System.out.println("-----");
+    private static void imprimeTimes() {
+        for (Time time : times) {
+            System.out.println(time);
+            System.out.println("-----");
 
-			try {
-				Thread.sleep(new Random().nextInt(3000));
-			} catch (InterruptedException e) {
-			}
-		}
-	}
+            try {
+                Thread.sleep(new Random().nextInt(3000));
+            } catch (InterruptedException e) {
+            }
+        }
+    }
 
-	private static boolean calculaEquilibrio() {
-		int forcaMinima = Integer.MAX_VALUE;
-		int forcaMaxima = Integer.MIN_VALUE;
+    private static boolean calculaEquilibrio() {
+        int forcaMinima = Integer.MAX_VALUE;
+        int forcaMaxima = Integer.MIN_VALUE;
 
-		for (Time time : times) {
-			forcaMinima = Math.min(time.getForca(), forcaMinima);
-			forcaMaxima = Math.max(time.getForca(), forcaMaxima);
-		}
+        for (Time time : times) {
+            forcaMinima = Math.min(time.getForca(), forcaMinima);
+            forcaMaxima = Math.max(time.getForca(), forcaMaxima);
+        }
 
-		return !(forcaMinima < 0.7 * forcaMaxima);
-	}
+        return !(forcaMinima < 0.7 * forcaMaxima);
+    }
 
-	private static void montaTimes() {
-		// Randomiza a lista de jogadores
-		Collections.shuffle(jogadores, new Random(System.currentTimeMillis()));
-		Collections.shuffle(times, new Random(System.currentTimeMillis()));
+    private static void montaTimes() {
+        // Randomiza a lista de jogadores
+        Collections.shuffle(jogadores, new Random(System.currentTimeMillis()));
+        Collections.shuffle(times, new Random(System.currentTimeMillis()));
 
-		Iterator<Time> itTime = times.iterator();
-		while (jogadores.size() > 0) {
-			Time timeDaVez = itTime.next();
-			if (timeDaVez.isCompleto()) {
-				continue;
-			}
+        Iterator<Time> itTime = times.iterator();
+        while (jogadores.size() > 0) {
+            Time timeDaVez = itTime.next();
+            if (timeDaVez.isCompleto()) {
+                continue;
+            }
 
-			Jogador j = getJogador(timeDaVez);
-			timeDaVez.addJogador(j);
+            Jogador j = getJogador(timeDaVez);
+            timeDaVez.addJogador(j);
 
-			if (itTime.hasNext() == false) {
-				itTime = times.iterator();
-			}
-		}
-	}
+            if (itTime.hasNext() == false) {
+                itTime = times.iterator();
+            }
+        }
+    }
 
-	private static Jogador getJogador(int forca) {
-		Jogador jj = null;
-		if (jogadores.size() == 0)
-			return null;
-		else if (jogadores.size() == 1)
-			return jogadores.remove(0);
+    private static Jogador getJogador(int forca) {
+        Jogador jj = null;
+        if (jogadores.size() == 0)
+            return null;
+        else if (jogadores.size() == 1)
+            return jogadores.remove(0);
 
-		Iterator<Jogador> it = jogadores.iterator();
-		while (it.hasNext()) {
-			Jogador j = it.next();
-			if (j.getForca() == forca) {
-				jj = j;
-				break;
-			}
-		}
+        Iterator<Jogador> it = jogadores.iterator();
+        while (it.hasNext()) {
+            Jogador j = it.next();
+            if (j.getForca() == forca) {
+                jj = j;
+                break;
+            }
+        }
 
-		if (jj != null)
-			jogadores.remove(jj);
+        if (jj != null)
+            jogadores.remove(jj);
 
-		return jj;
-	}
+        return jj;
+    }
 
-	private static Jogador getJogador(Time timeDaVez) {
-		double peso = Math.random();
+    private static Jogador getJogador(Time timeDaVez) {
+        double peso = Math.random();
 
-		if (timeDaVez.getForca() < forcaMedia) {
-			peso += Math.random();
-		} else {
-			peso -= Math.random();
-		}
+        if (timeDaVez.getForca() < forcaMedia) {
+            peso += Math.random();
+        } else {
+            peso -= Math.random();
+        }
 
-		int forca = 0;
-		if (peso >= 0 && peso < 0.10) {
-			// 10%
-			forca = 1;
-		} else if (peso >= 0.10 && peso < 0.25) {
-			// 15%
-			forca = 2;
-		} else if (peso >= 0.25 && peso < 0.65) {
-			// 40%
-			forca = 3;
-		} else if (peso >= 0.65 && peso < 0.95) {
-			// 30%
-			forca = 4;
-		} else if (peso >= 0.95) {
-			// 5%
-			forca = 5;
-		}
+        int forca = 0;
+        if (peso >= 0 && peso < 0.10) {
+            // 10%
+            forca = 1;
+        } else if (peso >= 0.10 && peso < 0.25) {
+            // 15%
+            forca = 2;
+        } else if (peso >= 0.25 && peso < 0.65) {
+            // 40%
+            forca = 3;
+        } else if (peso >= 0.65 && peso < 0.95) {
+            // 30%
+            forca = 4;
+        } else if (peso >= 0.95) {
+            // 5%
+            forca = 5;
+        }
 
-		Jogador jj = getJogador(forca);
-		while (jj == null && jogadores.size() > 0)
-			jj = getJogador(timeDaVez);
+        Jogador jj = getJogador(forca);
+        while (jj == null && jogadores.size() > 0)
+            jj = getJogador(timeDaVez);
 
-		return jj;
-	}
+        return jj;
+    }
 
 }

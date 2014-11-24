@@ -20,6 +20,7 @@ class Leitor {
             default:
                 throw new IllegalArgumentException("Esporte não entendido");
         }
+        
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             String input;
@@ -41,15 +42,14 @@ class Leitor {
                     int explosao = Integer.parseInt(statList[6]);
                     int resistencia = Integer.parseInt(statList[7]);
                     Stats stats = new Stats(idade, altura, peso, velocidade, explosao, resistencia);
-                    jogadores.add(new Jogador(nome, stats, tipodejogo));
+                    Jogador j = new Jogador(nome, stats, tipodejogo);
+                    System.out.println(j);
+                    jogadores.add(j);
                 }
             }
         }
         catch(IOException io) {
             io.printStackTrace();
-        }
-        for (Jogador j : jogadores) {
-            System.out.println(j.getNome());
         }
         return jogadores;   
     }
