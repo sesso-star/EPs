@@ -52,7 +52,7 @@ for j = 1 : m
 	
 	A(j, j) += mySigma;
 
-	gama = 1 / (mySigma * A(j, j));
+	gama = 1 / (mySigma * A(j, j))
 
 	mySigma
 	
