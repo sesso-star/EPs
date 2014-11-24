@@ -37,11 +37,11 @@ for j = 1 : m
 	if maxI != j
 		for i = 1 : n
 			aux = A(i, j);
-			A(i, j) = A(i, k);
-			A(i, k) = aux;
+			A(i, j) = A(i, maxI);
+			A(i, maxI) = aux;
 			aux = sigma(j);
-			sigma(j) = sigma(k);
-			sigma(k) = aux;
+			sigma(j) = sigma(maxI);
+			sigma(maxI) = aux;
 		end
 	end
 	
@@ -54,8 +54,6 @@ for j = 1 : m
 
 	gama = 1 / (mySigma * A(j, j))
 
-	mySigma
-	
 	for k = j + 1 : m
 		alpha = 0;
 		for i = j : n
