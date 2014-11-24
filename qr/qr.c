@@ -9,30 +9,38 @@
 /** FUNÇÕES PRINCIPAIS **/
 void qr(double A[][MAX], double b[], int n, int m);
 void qr_solve(double A[][MAX], double b[], int m);
+void prepareMatrix(double A[][MAX], int map[], int n, int m);
 
 /** FUNÇÕES AUXILIARES **/
-void randMatrix(double A[][MAX], int n, int m);
-void randVector(double b[], int n);
+int readMatrix(double A[][MAX], double b[], int *n, int *m); 
+void remap(double b[], int map[], int n);
 void printMatrix(double A[][MAX], int n, int m);
 void printVector(double b[], int n);
+void swapColumns(double A[][MAX], int n, int col1, int col2);
+void swap(double *a, double *b); 
 
 int main(int argc, char **argv) {
+	int n, m;
 	double A[MAX][MAX];
 	double b[MAX];
+	int map[MAX];
 
-	int	n = 5; /* Number of lines */
-	int	m = 3; /* Number of columns */
+	readMatrix(A, b, &n, &m);
 
-	randMatrix(A, n, m);
-    randVector(b, n);
+//	printMatrix(A, n, m);
+//	system("sleep 5");
+	prepareMatrix(A, map, n, m);
+//	printMatrix(A, n, m);
+//	system("sleep 10");
 
-    printMatrix(A, n, m);
-    printVector(b, n);
+//  printMatrix(A, n, m);
+//  printVector(b, n);
 
 	qr(A, b, n, m);
     qr_solve(A, b, m);
+	remap(b, map, n);
 
-    printMatrix(A, n, m);
+//  printMatrix(A, n, m);
     printVector(b, n);
 
 	return 0;
@@ -83,7 +91,7 @@ void qr(double A[][MAX], double b[], int n, int m) {
 		beta = 0;
 		for (i = j; i < n; i++)
 			beta += A[i][j] * b[i];
-		for (i = j; i < n; i++)
+for (i = j; i < n; i++)
 			b[i] -= gama * beta * A[i][j];
 
 		A[j][j] = -sigma;
@@ -102,28 +110,60 @@ void qr_solve(double A[][MAX], double b[], int m) {
     }
 }
 
-/** FUNÇÕES AUXILIARES *****************************************************************/
+void prepareMatrix(double A[][MAX], int map[], int n, int m) {
+	int i, j, k;
+	double norm, maxNorm = -1; // impossible
+	int maxNormColIdx = -1; // impossible
 
-/* Generates a random matrix of n lines and m columns with
- * each number in the interval: [0; 100[ */
-void randMatrix(double A[][MAX], int n, int m) {
-	int i, j;
+	for (k = 0; k < m; k++) {
+		maxNorm = 0;
+		maxNormColIdx = k;
+		for (j = k; j < m; j++) {
+			norm = 0;
+			for (i = k; i < n; i++) 
+				norm += A[i][j] * A[i][j];
+			if (norm > maxNorm) {
+				maxNorm = norm;
+				maxNormColIdx = j;
+			}
+		}
+		
+		if (maxNormColIdx != k) 
+			swapColumns(A, n, maxNormColIdx, k);
 
-	srand(time(NULL));
-
-	for (i = 0; i < n; i++)
-		for (j = 0; j < m; j++) 
-			A[i][j] = (double)rand() / RAND_MAX * 100;
+		map[k] = maxNormColIdx;
+	}
 }
 
-void randVector(double b[], int n) {
-    int i;
+/** FUNÇÕES AUXILIARES *****************************************************************/
 
-    srand(time(NULL));
+int readMatrix(double A[][MAX], double b[], int *n, int *m) {
+	int k, i, j, nm;
+	scanf("%d", n);
+	scanf("%d", m);
+	nm = *n * *m;
+	
+	// Clear A and b
+	for (i = 0; i < *n; i++) {
+		for (j = 0; j < *m; j++)
+			A[i][j] = 0;
+		b[i] = 0;
+	}
 
-    for (i = 0; i < n; i++)
-        b[i] = (double)rand() / RAND_MAX * 100;
+	for (k = 0; k < nm; k++) {
+		scanf("%d %d", &i, &j);
+		scanf("%lf", &A[i][j]);
+	}
+	for (k = 0; k < *n; k++) {
+		scanf("%d", &i);
+		scanf("%lf", &b[i]);
+	}
+}
 
+void remap(double b[], int map[], int n) {
+	int i;
+	for (i = 0; i < n; i++)
+		swap(&b[i], &b[map[i]]);
 }
 
 void printMatrix(double A[][MAX], int n, int m) {
@@ -146,3 +186,16 @@ void printVector(double b[], int n) {
     printf("\n");
 }
 
+void swapColumns(double A[][MAX], int n, int col1, int col2) {
+	int i;
+
+	for (i = 0; i < n; i++) {
+		swap(&A[i][col1], &A[i][col2]);
+	}
+}
+
+void swap(double *a, double *b) {
+	double temp = *a;
+	*a = *b;
+	*b = temp;
+}
