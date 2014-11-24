@@ -16,9 +16,8 @@ public class FazTime {
 
 	private static double forcaMedia;
 
-	private static void inicializaJogadores() {
-		jogadores = Leitor.leJogadores();
-
+	private static void inicializaJogadores(String esporte) {
+		jogadores = Leitor.leJogadores(esporte);
 		calculaMedia();
 	}
 
@@ -42,7 +41,9 @@ public class FazTime {
 
 	public static void main(String[] args) {
 		do {
-			inicializaJogadores();
+			String esporte = args[0];
+			System.out.println("uhuuu");
+			inicializaJogadores(esporte);
 			preparaTimes();
 			montaTimes();
 		} while (!calculaEquilibrio());
