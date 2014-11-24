@@ -8,7 +8,7 @@
 
 /** FUNÇÕES PRINCIPAIS **/
 void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m);
-void qr_solve(double A[][MAX], double b[], int m);
+void qr_solve(double A[][MAX], double b[], double sigma[], int m);
 void getColNorms(double A[][MAX], double sigma[], int n, int m);
 
 /** FUNÇÕES AUXILIARES **/
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
 
 
 	qr(A, b, sigma, map, n, m);
-    qr_solve(A, b, m);
+    qr_solve(A, b, sigma, m);
 	remap(b, map, n);
 
 //  printMatrix(A, n, m);
@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
 
 void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
 	int i, j, k, maxI;
-	double max, mySigma, alpha, beta, gama;
+	double max, alpha, beta, gama;
 
 	for (j = 0; j < m; j++) {
 		/* swap columns */
@@ -67,12 +67,11 @@ void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
 		}
 		map[j] = maxI;
 
-		mySigma = sigma[j];
 		if (A[j][j] < 0)
-			mySigma = -mySigma;
-		A[j][j] += mySigma;
+			sigma[j] = -sigma[j];
+		A[j][j] += sigma[j];
 
-		gama = 1 / (mySigma * A[j][j]);
+		gama = 1 / (sigma[j] * A[j][j]);
 		
 		/* Multiplica Q_j por A_j */
 		for (k = j + 1; k < m; k++) {
@@ -90,22 +89,20 @@ void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
 		for (i = j; i < n; i++)
 			b[i] -= gama * beta * A[i][j];
 
-		A[j][j] = -mySigma;
+		sigma[j] = -sigma[j];
 
 		for (k = j + 1; k < m; k++)
 			sigma[k] = sqrt(sigma[k] * sigma[k] - A[j][k] * A[j][k]);
 	}
 }
 
-void qr_solve(double A[][MAX], double b[], int m) {
+void qr_solve(double A[][MAX], double b[], double sigma[], int m) {
     int i, j;
 
     for (i = m - 1; i >= 0; i--) {
         for (j = i + 1; j < m; j++)
             b[i] -= A[i][j] * b[j];
-        if (A[i][i] == 0)
-            printf("qr_solve: Division by 0");
-        b[i] /= A[i][i];
+        b[i] /= sigma[i];
     }
 }
 
