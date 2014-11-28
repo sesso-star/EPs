@@ -9,7 +9,8 @@ void genPoints(int n, double points[]);
 void genA(int npoints, int nsolpol, double A[][NMAX], double points[]);
 void fillb(int npoints, double npol, double points[], double pol[], double b[]);
 void isAlmostLD(int n, double x[], double y[]);
-void genPolGraph(int npol, double pol[]);
+void genPolPlot(int npol, double pol[]);
+void pointsToFile(int npoints, double points[], double b[]);
 
 void printMatrix(double A[][NMAX], int n, int m);
 void printVector(double b[], int n);
@@ -45,7 +46,8 @@ int main(int argc, char *argv[]) {
     printMatrix(A, npoints, nsolpol);
     printf("b gerado: \n");
     printVector(b, npoints);
-    genPolGraph(npol, pol);
+    genPolPlot(npol, pol);
+    pointsToFile(npoints, points, b);
     return 0;
 }
 
@@ -90,16 +92,16 @@ void fillb(int npoints, double npol, double points[], double pol[], double b[]) 
 void isAlmostLD(int n, double x[], double y[]) {
 }
 
-void genPolGraph(int npol, double pol[]) {
+void genPolPlot(int npol, double pol[]) {
     int i;
     FILE *f;
-    f = fopen("./plot_script", "w");
+    f = fopen("./plotpol", "w");
     fprintf(f, "f(x) = ");
     for (i = 0; i < npol; i++) {
         float x = pol[i];
         char str[NMAX];
-        sprintf(str, "%f * x ** %d", pol[i], i);
-        fprintf(f, str);
+        sprintf(str, "%lf * x ** %d", pol[i], i);
+        fprintf(f, "%s", str);
         fprintf(f, " + ");
     }
     fprintf(f, "0\n");
@@ -107,6 +109,21 @@ void genPolGraph(int npol, double pol[]) {
     fprintf(f, "pause -1");
     fclose(f);
 }
+
+void pointsToFile(int npoints, double points[], double b[]) {
+    int i;
+    FILE *points_f;
+    FILE *script_f;
+    points_f = fopen("./gentd_points", "w");
+    script_f = fopen("./plotpoints", "w");
+    for (i = 0; i < npoints; i++) 
+        fprintf(points_f, "%lf %lf\n", points[i], b[i]);
+    fprintf(script_f, "plot 'gentd_points'\n pause -1");
+    fclose(points_f);
+    fclose(script_f);  
+}
+
+
 
 /*Funcoes auxiliares*/
 void printMatrix(double A[][NMAX], int n, int m) {
