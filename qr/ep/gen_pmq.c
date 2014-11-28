@@ -9,6 +9,7 @@ void genPoints(int n, double points[]);
 void genA(int npoints, int nsolpol, double A[][NMAX], double points[]);
 void fillb(int npoints, double npol, double points[], double pol[], double b[]);
 void isAlmostLD(int n, double x[], double y[]);
+void genPolGraph(int npol, double pol[]);
 
 void printMatrix(double A[][NMAX], int n, int m);
 void printVector(double b[], int n);
@@ -44,7 +45,7 @@ int main(int argc, char *argv[]) {
     printMatrix(A, npoints, nsolpol);
     printf("b gerado: \n");
     printVector(b, npoints);
-
+    genPolGraph(npol, pol);
     return 0;
 }
 
@@ -87,6 +88,24 @@ void fillb(int npoints, double npol, double points[], double pol[], double b[]) 
 }
 
 void isAlmostLD(int n, double x[], double y[]) {
+}
+
+void genPolGraph(int npol, double pol[]) {
+    int i;
+    FILE *f;
+    f = fopen("./plot_script", "w");
+    fprintf(f, "f(x) = ");
+    for (i = 0; i < npol; i++) {
+        float x = pol[i];
+        char str[NMAX];
+        sprintf(str, "%f * x ** %d", pol[i], i);
+        fprintf(f, str);
+        fprintf(f, " + ");
+    }
+    fprintf(f, "0\n");
+    fprintf(f, "plot [-10:10] f(x)\n");
+    fprintf(f, "pause -1");
+    fclose(f);
 }
 
 /*Funcoes auxiliares*/
