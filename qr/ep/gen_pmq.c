@@ -95,7 +95,7 @@ void isAlmostLD(int n, double x[], double y[]) {
 void genPolPlot(int npol, double pol[]) {
     int i;
     FILE *f;
-    f = fopen("./plotpol", "w");
+    f = fopen("./data/plotpol", "w");
     fprintf(f, "f(x) = ");
     for (i = 0; i <= npol; i++) {
         float x = pol[i];
@@ -114,8 +114,8 @@ void pointsToFile(int npoints, double points[], double b[]) {
     int i;
     FILE *points_f;
     FILE *script_f;
-    points_f = fopen("./gentd_points", "w");
-    script_f = fopen("./plotpoints", "w");
+    points_f = fopen("./data/gentd_points", "w");
+    script_f = fopen("./data/plotpoints", "w");
     for (i = 0; i < npoints; i++) 
         fprintf(points_f, "%lf %lf\n", points[i], b[i]);
     fprintf(script_f, "plot 'gentd_points'\n pause -1");
