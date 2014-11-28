@@ -1,0 +1,108 @@
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+
+#define NMAX 1000
+
+void genRandPol(int n, double pol[]);
+void genPoints(int n, double points[]);
+void genA(int npoints, int nsolpol, double A[][NMAX], double points[]);
+void fillb(int npoints, double npol, double points[], double pol[], double b[]);
+void isAlmostLD(int n, double x[], double y[]);
+
+void printMatrix(double A[][NMAX], int n, int m);
+void printVector(double b[], int n);
+
+
+int main(int argc, char *argv[]) {
+    double pol[NMAX];
+    double A[NMAX][NMAX];
+    double b[NMAX];
+    double points[NMAX];
+    int n = 0, m = 0;
+    int npoints = 0;
+    int npol = 0;
+    int nsolpol = 0;
+
+    if (argc != 4) {
+        printf("Uso: ./gen_pmq [grau do polinomio gerador dos pontos] [quantidade de pontos gerados (n)] [grau do polinomio para solucionar o problema (m)]\n");
+        return;
+    }
+    npol = atoi(argv[1]);
+    npoints = atoi(argv[2]);
+    nsolpol = atoi(argv[3]);
+    
+    genRandPol(npol, pol);
+    genPoints(npoints, points);
+    genA(npoints, nsolpol, A, points);
+    fillb(npoints, npol, points, pol, b);
+    printf("polinomio gerado: \n");
+    printVector(pol, npol);
+    printf("pontos gerados:(x esperado) \n");
+    printVector(points, npoints);
+    printf("Matrix gerada: \n");
+    printMatrix(A, npoints, nsolpol);
+    printf("b gerado: \n");
+    printVector(b, npoints);
+
+    return 0;
+}
+
+void genRandPol(int npol, double pol[]) {
+    int i;
+    for (i = 0; i <= npol; i++) {
+        pol[i] = rand() / (double) (RAND_MAX / 10.0);
+    }
+}
+
+void genPoints(int npoints, double points[]) {
+    int i;
+    for (i = 0; i < npoints; i++) {
+        points[i] = rand()  / (double) (RAND_MAX / 10.0);
+    }
+}
+
+void genA(int npoints, int nsolpol, double A[][NMAX], double points[]) { 
+    int i, j;
+    for (i = 0; i < npoints; i++) {
+        float pot = points[i];
+        for (j = 0; j <= nsolpol; j++) {
+            A[i][j] = pot;
+            pot = pot * points[i];
+        }
+    }
+}
+
+void fillb(int npoints, double npol, double points[], double pol[], double b[]) {
+    int i, j;
+    for (i = 0; i < npoints; i++) {
+        float img = 0;
+        float pot = points[i];
+        for (j = 0; j <= npol; j++) {
+            img += pot * pol[j];
+            pot *= points[i];
+        }
+        b[i] = img;
+    }
+}
+
+void isAlmostLD(int n, double x[], double y[]) {
+}
+
+/*Funcoes auxiliares*/
+void printMatrix(double A[][NMAX], int n, int m) {
+    int i, j;
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < m; j++)
+	    printf("%lf ", A[i][j]);
+	printf("\n");
+    }
+    printf("\n");
+}
+
+void printVector(double b[], int n) {
+    int i;
+    for (i = 0; i < n; i++)
+        printf("%lf ", b[i]);
+    printf("\n");
+}
