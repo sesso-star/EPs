@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
     genA(npoints, nsolpol, A, points);
     fillb(npoints, npol, points, pol, b);
     printf("polinomio gerado: \n");
-    printVector(pol, npol);
+    printVector(pol, npol + 1);
     printf("pontos gerados:(x esperado) \n");
     printVector(points, npoints);
     printf("Matrix gerada: \n");
@@ -97,7 +97,7 @@ void genPolPlot(int npol, double pol[]) {
     FILE *f;
     f = fopen("./plotpol", "w");
     fprintf(f, "f(x) = ");
-    for (i = 0; i < npol; i++) {
+    for (i = 0; i <= npol; i++) {
         float x = pol[i];
         char str[NMAX];
         sprintf(str, "%lf * x ** %d", pol[i], i);
