@@ -80,7 +80,7 @@ void fillb(int npoints, double npol, double points[], double pol[], double b[]) 
     int i, j;
     for (i = 0; i < npoints; i++) {
         float img = 0;
-        float pot = points[i];
+        float pot = 1;
         for (j = 0; j <= npol; j++) {
             img += pot * pol[j];
             pot *= points[i];
