@@ -73,21 +73,12 @@ void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
         A[j][j] += sigma[j];
 
         /* Multiplica Q_j por A_j */
-        /*for (k = j + 1; k < m; k++) {
-            alpha = 0;
-            for (i = j; i < n; i++)
-                alpha += A[i][j] * A[i][k];
-            for (i = j; i < n; i++)
-                A[i][k] -= alpha * A[i][j] / (sigma[j] * A[j][j]);
-        }*/
         /*w = uT * A*/
         for (i = 0; i < m - j; i++) 
             w[i] = 0;
         for (i = j; i < n; i++) 
             for (k = j + 1; k  < m; k++) { 
-                //printf("%d\n", i);
                 w[k - (j + 1)] += A[i][j] * A[i][k];
-            }
         /*A -= gama * u * w*/
         for (i = j; i < n; i++) 
             for (k = j + 1; k < m; k++)
