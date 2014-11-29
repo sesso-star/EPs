@@ -60,6 +60,8 @@ void genRandPol(int npol, double pol[]) {
     int i;
     for (i = 0; i <= npol; i++) {
         pol[i] = rand() / (double) (RAND_MAX / 10.0);
+        if (rand() > RAND_MAX / 2.0) 
+            pol[i] *= -1;
     }
 }
 
