@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #define NMAX 1000
-#define DISTURB_COEF 0.01
+#define DISTURB_COEF 0.1
 
 void genRandPol(int npol, double pol[]);
 void writeProblem(int npoints, int nsolpol, double A[][NMAX], double b[]);
@@ -39,11 +39,12 @@ int main(int argc, char *argv[]) {
     
     genRandPol(npol, pol);
     genPoints(npoints, points);
+    //disturbPoints(npoints, points);
     genA(npoints, nsolpol, A, points);
     fillb(npoints, npol, points, pol, b);
-   /* printf("polinomio gerado: \n");
+    printf("polinomio gerado: (x esperado)\n");
     printVector(pol, npol + 1);
-    printf("pontos gerados:(x esperado) \n");
+    /*printf("pontos gerados:\n");
     printVector(points, npoints);
     printf("Matrix gerada: \n");
     printMatrix(A, npoints, nsolpol);
@@ -65,9 +66,9 @@ void genRandPol(int npol, double pol[]) {
 void writeProblem(int npoints, int nsolpol, double A[][NMAX], double b[]) {
     int i, j;
     FILE *f = fopen("prob.txt", "w");
-    fprintf(f, "%d %d\n", npoints, nsolpol);
+    fprintf(f, "%d %d\n", npoints, nsolpol + 1);
     for (i = 0; i < npoints; i++)
-        for (j = 0; j < nsolpol; j++)
+        for (j = 0; j <= nsolpol; j++)
             fprintf(f, "%d %d %lf\n", i, j, A[i][j]);
     for (i = 0; i < npoints; i++)
         fprintf(f, "%d %lf\n", i, b[i]);
@@ -76,19 +77,22 @@ void writeProblem(int npoints, int nsolpol, double A[][NMAX], double b[]) {
 
 void genPoints(int npoints, double points[]) {
     int i;
-    double counter = 0;
     for (i = 0; i < npoints; i++) {
         points[i] = rand()  / (double) (RAND_MAX / 10.0);
-        if (rand() >= RAND_MAX / 2.0) {
+        if (rand() > RAND_MAX / 2.0) 
             points[i] *= -1;
-            counter++;
-        }
     }
 }
 
 void disturbPoints(int npoints, double points[]) {
     int i;
     for (i = 0; i < npoints; i++) {
+        double biggest_disturb = points[i] * DISTURB_COEF;
+        /*double dx = biggest_disturb * (rand() / (float) RAND_MAX);  */
+        double dx = biggest_disturb;
+        if (rand() > RAND_MAX / 2.0)
+            dx *= -1;
+        points[i] += dx;
     }
 }
 

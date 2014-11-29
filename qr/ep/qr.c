@@ -27,7 +27,8 @@ int main(int argc, char **argv) {
     double sigma[MAX];
 
     readMatrix(A, b, &n, &m);
-
+    printMatrix(A, n, m);
+    printVector(b, n);
     getColNorms(A, sigma, n, m);
 
     qr(A, b, sigma, map, n, m);
