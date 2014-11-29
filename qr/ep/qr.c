@@ -27,8 +27,6 @@ int main(int argc, char **argv) {
     double sigma[MAX];
 
     readMatrix(A, b, &n, &m);
-    printMatrix(A, n, m);
-    printVector(b, n);
     getColNorms(A, sigma, n, m);
 
     qr(A, b, sigma, map, n, m);
@@ -72,7 +70,7 @@ void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
         if (A[j][j] < 0)
             sigma[j] = -sigma[j];
         A[j][j] += sigma[j];
-
+        
         /* Multiplica Q_j por A_j */
         for (k = j + 1; k < m; k++) {
             alpha = 0;

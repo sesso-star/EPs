@@ -39,15 +39,15 @@ int main(int argc, char *argv[]) {
     
     genRandPol(npol, pol);
     genPoints(npoints, points);
-    //disturbPoints(npoints, points);
+    disturbPoints(npoints, points);
     genA(npoints, nsolpol, A, points);
     fillb(npoints, npol, points, pol, b);
     printf("polinomio gerado: (x esperado)\n");
     printVector(pol, npol + 1);
-    /*printf("pontos gerados:\n");
+   /* printf("pontos gerados:\n");
     printVector(points, npoints);
     printf("Matrix gerada: \n");
-    printMatrix(A, npoints, nsolpol);
+    printMatrix(A, npoints, nsolpol + 1);
     printf("b gerado: \n");
     printVector(b, npoints);*/
     genPolPlot(npol, pol);
@@ -99,7 +99,7 @@ void disturbPoints(int npoints, double points[]) {
 void genA(int npoints, int nsolpol, double A[][NMAX], double points[]) { 
     int i, j;
     for (i = 0; i < npoints; i++) {
-        double pot = points[i];
+        double pot = 1;
         for (j = 0; j <= nsolpol; j++) {
             A[i][j] = pot;
             pot = pot * points[i];
