@@ -3,9 +3,12 @@
 #include <stdlib.h>
 
 #define NMAX 1000
+#define DISTURB_COEF 0.01
 
-void genRandPol(int n, double pol[]);
-void genPoints(int n, double points[]);
+void genRandPol(int npol, double pol[]);
+void writeProblem(int npoints, int nsolpol, double A[][NMAX], double b[]);
+void genPoints(int npoints, double points[]);
+void disturbPoints(int npoints, double points[]);
 void genA(int npoints, int nsolpol, double A[][NMAX], double points[]);
 void fillb(int npoints, double npol, double points[], double pol[], double b[]);
 void isAlmostLD(int n, double x[], double y[]);
@@ -21,33 +24,34 @@ int main(int argc, char *argv[]) {
     double A[NMAX][NMAX];
     double b[NMAX];
     double points[NMAX];
-    int n = 0, m = 0;
-    int npoints = 0;
     int npol = 0;
-    int nsolpol = 0;
+    int npoints = 0;  /*n*/
+    int nsolpol = 0;  /*m*/
 
-    if (argc != 4) {
-        printf("Uso: ./gen_pmq [grau do polinomio gerador dos pontos] [quantidade de pontos gerados (n)] [grau do polinomio para solucionar o problema (m)]\n");
-        return;
+    if (argc != 5) {
+        printf("Uso: ./gen_pmq [grau do polinomio gerador dos pontos] [quantidade de pontos gerados (n)] [grau do polinomio para solucionar o problema (m)] [semente do gerador]\n");
+        return 0;
     }
     npol = atoi(argv[1]);
     npoints = atoi(argv[2]);
     nsolpol = atoi(argv[3]);
+    srand(atoi(argv[4]));
     
     genRandPol(npol, pol);
     genPoints(npoints, points);
     genA(npoints, nsolpol, A, points);
     fillb(npoints, npol, points, pol, b);
-    printf("polinomio gerado: \n");
+   /* printf("polinomio gerado: \n");
     printVector(pol, npol + 1);
     printf("pontos gerados:(x esperado) \n");
     printVector(points, npoints);
     printf("Matrix gerada: \n");
     printMatrix(A, npoints, nsolpol);
     printf("b gerado: \n");
-    printVector(b, npoints);
+    printVector(b, npoints);*/
     genPolPlot(npol, pol);
     pointsToFile(npoints, points, b);
+    writeProblem(npoints, nsolpol, A, b);
     return 0;
 }
 
@@ -58,17 +62,40 @@ void genRandPol(int npol, double pol[]) {
     }
 }
 
+void writeProblem(int npoints, int nsolpol, double A[][NMAX], double b[]) {
+    int i, j;
+    FILE *f = fopen("prob.txt", "w");
+    fprintf(f, "%d %d\n", npoints, nsolpol);
+    for (i = 0; i < npoints; i++)
+        for (j = 0; j < nsolpol; j++)
+            fprintf(f, "%d %d %lf\n", i, j, A[i][j]);
+    for (i = 0; i < npoints; i++)
+        fprintf(f, "%d %lf\n", i, b[i]);
+    fclose(f);
+}
+
 void genPoints(int npoints, double points[]) {
     int i;
+    double counter = 0;
     for (i = 0; i < npoints; i++) {
         points[i] = rand()  / (double) (RAND_MAX / 10.0);
+        if (rand() >= RAND_MAX / 2.0) {
+            points[i] *= -1;
+            counter++;
+        }
+    }
+}
+
+void disturbPoints(int npoints, double points[]) {
+    int i;
+    for (i = 0; i < npoints; i++) {
     }
 }
 
 void genA(int npoints, int nsolpol, double A[][NMAX], double points[]) { 
     int i, j;
     for (i = 0; i < npoints; i++) {
-        float pot = points[i];
+        double pot = points[i];
         for (j = 0; j <= nsolpol; j++) {
             A[i][j] = pot;
             pot = pot * points[i];
@@ -79,8 +106,8 @@ void genA(int npoints, int nsolpol, double A[][NMAX], double points[]) {
 void fillb(int npoints, double npol, double points[], double pol[], double b[]) {
     int i, j;
     for (i = 0; i < npoints; i++) {
-        float img = 0;
-        float pot = 1;
+        double img = 0;
+        double pot = 1;
         for (j = 0; j <= npol; j++) {
             img += pot * pol[j];
             pot *= points[i];
@@ -98,7 +125,7 @@ void genPolPlot(int npol, double pol[]) {
     f = fopen("./data/plotpol", "w");
     fprintf(f, "f(x) = ");
     for (i = 0; i <= npol; i++) {
-        float x = pol[i];
+        double x = pol[i];
         char str[NMAX];
         sprintf(str, "%lf * x ** %d", pol[i], i);
         fprintf(f, "%s", str);
