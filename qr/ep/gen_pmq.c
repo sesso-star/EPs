@@ -24,18 +24,24 @@ int main(int argc, char *argv[]) {
     double A[NMAX][NMAX];
     double b[NMAX];
     double points[NMAX];
+    int fullRank;
     int npol = 0;
     int npoints = 0;  /*n*/
     int nsolpol = 0;  /*m*/
 
-    if (argc != 5) {
-        printf("Uso: ./gen_pmq [grau do polinomio gerador dos pontos] [quantidade de pontos gerados (n)] [grau do polinomio para solucionar o problema (m)] [semente do gerador]\n");
+    if (argc != 6) {
+        printf("Uso: ./gen_pmq [-i para A com posto completo | -d para A com posto incompleto] [grau do polinomio gerador dos pontos] [quantidade de pontos gerados (n)] [grau do polinomio para solucionar o problema (m)] [semente do gerador]\n");
         return 0;
     }
-    npol = atoi(argv[1]);
-    npoints = atoi(argv[2]);
-    nsolpol = atoi(argv[3]);
-    srand(atoi(argv[4]));
+    if(!strcmp("-i", argv[1]))
+        fullRank = 1;
+    else
+        fullRank = 0;
+    printf("%d\n", fullRank);
+    npol = atoi(argv[2]);
+    npoints = atoi(argv[3]);
+    nsolpol = atoi(argv[4]);
+    srand(atoi(argv[5]));
     
     genRandPol(npol, pol);
     genPoints(npoints, points);

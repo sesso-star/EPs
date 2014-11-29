@@ -5,6 +5,7 @@
 
 #define MAX 1000
 #define abs(x) (((x) < 0) ? -(x) : (x))
+#define eps 1e-16
 
 /** FUNÇÕES PRINCIPAIS **/
 void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m);
@@ -51,7 +52,7 @@ int main(int argc, char **argv) {
 void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
     int i, j, k, maxI;
     double max, alpha, beta;
-
+    int rank;
     for (j = 0; j < m; j++) {
         double w[MAX];
         /* swap columns */
@@ -62,6 +63,10 @@ void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
                 max = sigma[k];
                 maxI = k;
             }
+        if (abs(max) < eps) {
+            printf("xiiiiiii, a matriz nao tem posto completo\n");
+            return;
+        }
         if (maxI != j) {
             swapColumns(A, n, j, maxI);
             swap(&sigma[j], &sigma[maxI]);
@@ -77,7 +82,7 @@ void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
         for (i = 0; i < m - j; i++) 
             w[i] = 0;
         for (i = j; i < n; i++) 
-            for (k = j + 1; k  < m; k++) { 
+            for (k = j + 1; k  < m; k++)  
                 w[k - (j + 1)] += A[i][j] * A[i][k];
         /*A -= gama * u * w*/
         for (i = j; i < n; i++) 
@@ -98,6 +103,7 @@ void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
         /* Reajuste das novas normas2 de cada coluna a partir da linha j + 1 */
         for (k = j + 1; k < m; k++)
             sigma[k] = sqrt(sigma[k] * sigma[k] - A[j][k] * A[j][k]);
+        rank++;
     }
 }
 
