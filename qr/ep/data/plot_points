@@ -1,2 +1,2 @@
-plot 'gentd_points'
+plot 'points'
  pause -1

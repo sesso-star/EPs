@@ -156,7 +156,7 @@ void pointsToFile(int npoints, double points[], double b[]) {
     script_f = fopen("./data/plot_points", "w");
     for (i = 0; i < npoints; i++) 
         fprintf(points_f, "%lf %lf\n", points[i], b[i]);
-    fprintf(script_f, "plot 'gentd_points'\n pause -1");
+    fprintf(script_f, "plot 'points'\n pause -1");
     fclose(points_f);
     fclose(script_f);  
 }
