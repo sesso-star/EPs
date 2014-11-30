@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     genPoints(npoints, points);
     genA(npoints, nsolpol, A, points, rank);
     fillb(npoints, npol, points, pol, b);
-    disturb(npoints, b);
+    //disturb(npoints, b);
     printf("polinomio gerado: (x esperado)\n");
     printVector(pol, npol + 1);
     /*printf("pontos gerados:\n");
