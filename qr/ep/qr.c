@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
     readMatrix(A, b, &n, &m);
     getColNorms(A, sigma, n, m);
-
+    printVector(sigma, m);
     qr(A, b, sigma, map, n, m);
     qr_solve(A, b, sigma, m);
     remap(b, map, m);
@@ -37,7 +37,6 @@ int main(int argc, char **argv) {
 //  printMatrix(A, n, m);
 //	printVector(sigma, m);
     printVector(b, m);
-
     return 0;
 }
 
@@ -55,6 +54,7 @@ void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
     int rank;
     for (j = 0; j < m; j++) {
         double w[MAX];
+        printMatrix(A, n, m);
         /* swap columns */
         max = sigma[j];
         maxI = j;
@@ -130,11 +130,14 @@ void getColNorms(double A[][MAX], double sigma[], int n, int m) {
     
     for (j = 0; j < m; j++) {
         /* Norma infinita */
-        max = abs(A[1][j]);
+        max = abs(A[0][j]); 
         for (i = 1; i < n; i++)
             if (abs(A[i][j] > max))
                 max = abs(A[i][j]);
-
+        if (abs(max) < eps) { 
+            sigma[j] = 0;
+            continue;
+        }
         /* Norma2 da coluna j */
         for (i = 0; i < n; i++) {
             normalized = A[i][j] / max;

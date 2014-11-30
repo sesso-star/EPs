@@ -9,7 +9,7 @@ void genRandPol(int npol, double pol[]);
 void writeProblem(int npoints, int nsolpol, double A[][NMAX], double b[]);
 void genPoints(int npoints, double points[]);
 void disturbPoints(int npoints, double points[]);
-void genA(int npoints, int nsolpol, double A[][NMAX], double points[]);
+void genA(int npoints, int nsolpol, double A[][NMAX], double points[], int rank);
 void fillb(int npoints, double npol, double points[], double pol[], double b[]);
 void isAlmostLD(int n, double x[], double y[]);
 void genPolPlot(int npol, double pol[]);
@@ -24,20 +24,16 @@ int main(int argc, char *argv[]) {
     double A[NMAX][NMAX];
     double b[NMAX];
     double points[NMAX];
-    int fullRank;
+    int rank = 0;
     int npol = 0;
     int npoints = 0;  /*n*/
     int nsolpol = 0;  /*m*/
 
     if (argc != 6) {
-        printf("Uso: ./gen_pmq [-i para A com posto completo | -d para A com posto incompleto] [grau do polinomio gerador dos pontos] [quantidade de pontos gerados (n)] [grau do polinomio para solucionar o problema (m)] [semente do gerador]\n");
+        printf("Uso: ./gen_pmq [posto da matriz gerada] [grau do polinomio gerador dos pontos] [quantidade de pontos gerados (n)] [grau do polinomio para solucionar o problema (m)] [semente do gerador]\n");
         return 0;
     }
-    if(!strcmp("-i", argv[1]))
-        fullRank = 1;
-    else
-        fullRank = 0;
-    printf("%d\n", fullRank);
+    rank = atoi(argv[1]);
     npol = atoi(argv[2]);
     npoints = atoi(argv[3]);
     nsolpol = atoi(argv[4]);
@@ -46,16 +42,16 @@ int main(int argc, char *argv[]) {
     genRandPol(npol, pol);
     genPoints(npoints, points);
     disturbPoints(npoints, points);
-    genA(npoints, nsolpol, A, points);
+    genA(npoints, nsolpol, A, points, rank);
     fillb(npoints, npol, points, pol, b);
     printf("polinomio gerado: (x esperado)\n");
     printVector(pol, npol + 1);
-   /* printf("pontos gerados:\n");
+    printf("pontos gerados:\n");
     printVector(points, npoints);
     printf("Matrix gerada: \n");
     printMatrix(A, npoints, nsolpol + 1);
     printf("b gerado: \n");
-    printVector(b, npoints);*/
+    printVector(b, npoints);
     genPolPlot(npol, pol);
     pointsToFile(npoints, points, b);
     writeProblem(npoints, nsolpol, A, b);
@@ -104,15 +100,19 @@ void disturbPoints(int npoints, double points[]) {
     }
 }
 
-void genA(int npoints, int nsolpol, double A[][NMAX], double points[]) { 
+void genA(int npoints, int nsolpol, double A[][NMAX], double points[], int rank) { 
     int i, j;
-    for (i = 0; i < npoints; i++) {
+    for (i = 0; i < rank; i++) {
         double pot = 1;
         for (j = 0; j <= nsolpol; j++) {
             A[i][j] = pot;
             pot = pot * points[i];
         }
     }
+    /*complete the matrix with zeros*/
+    for (i = rank; i < npoints; i++) 
+        for (j = 0; j <= nsolpol; j++)
+            A[i][j] = 0;
 }
 
 void fillb(int npoints, double npol, double points[], double pol[], double b[]) {
