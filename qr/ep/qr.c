@@ -11,6 +11,8 @@
 int qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m);
 void qr_solve(double A[][MAX], double b[], double sigma[], int m, int rank);
 void getColNorms(double A[][MAX], double sigma[], int n, int m);
+void plotSolution(int m, double b[]);
+double findResidual(double b[], int n, int rank);
 
 /** FUNÇÕES AUXILIARES **/
 int readMatrix(double A[][MAX], double b[], int *n, int *m); 
@@ -27,20 +29,19 @@ int main(int argc, char **argv) {
     int map[MAX];
     double sigma[MAX];
     int rank;
-
     readMatrix(A, b, &n, &m);
     getColNorms(A, sigma, n, m);
-    printVector(sigma, m);
+    //printVector(sigma, m);
     rank = qr(A, b, sigma, map, n, m);
-    printVector(b, n);
+    printf("posto: %d\n", rank);
+    //printVector(b, n);
     qr_solve(A, b, sigma, m, rank);
+    printf("residuo: %lf\n", findResidual(b, n, rank));
     remap(b, map, m);
 
-//  printMatrix(A, n, m);
-//  printf("simga:\n");
-//	printVector(sigma, m);
 	printf("resultado:\n");
     printVector(b, m);
+    plotSolution(m, b);
     return 0;
 }
 
@@ -122,7 +123,6 @@ int qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
  * Calcula-se c = Q^t * b e, depois, o 'x' tal que R * x = c */
 void qr_solve(double A[][MAX], double b[], double sigma[], int m, int rank) {
     int i, j;
-    printf("rank: %d\n", rank);
     for (i = rank - 1; i >= 0; i--) {
         for (j = i + 1; j < rank; j++)
             b[i] -= A[i][j] * b[j];
@@ -155,6 +155,39 @@ void getColNorms(double A[][MAX], double sigma[], int n, int m) {
         sigma[j] = sqrt(sigma[j]);
         sigma[j] *= max;            
     }
+}
+
+/*
+ * Recebe em b uma solucao para o problema e cria
+ * um script em gnuplot que plota a funcao representada
+ * por esse b.*/
+void plotSolution(int m, double b[]) {
+    int i;
+    FILE *f;
+    f = fopen("./data/plot_sol", "w");
+    fprintf(f, "g(x) = ");
+    for (i = 0; i < m; i++) {
+        double x = b[i];
+        char str[MAX];
+        sprintf(str, "%lf * x ** %d", b[i], i);
+        fprintf(f, "%s", str);
+        fprintf(f, " + ");
+    }
+    fprintf(f, "0\n");
+    fprintf(f, "plot [-1:1] g(x), 'points'\n");
+    fprintf(f, "pause -1");
+    fclose(f);
+}
+
+/* Calcula a distancia euclidiana entre
+ * fA * x e fb*/
+double findResidual(double b[], int n, int rank) {
+    int i, j;
+    double d;
+    for (i = rank; i < n; i++) {
+        d += b[i] * b[i];
+    }
+    return sqrt(d);
 }
 
 /** FUNÇÕES AUXILIARES *****************************************************************/
@@ -228,4 +261,19 @@ void swap(double *a, double *b) {
     double temp = *a;
     *a = *b;
     *b = temp;
+}
+
+/* Clona o vetor b em c */
+void cloneVector(double b[], double c[], int n) {
+    int i;
+    for (i = 0; i < n; i++) 
+        c[i] = b[i];
+}
+
+/* Clona a matriz A em B */
+void cloneMatrix(double A[][MAX], double B[][MAX], int n, int m) {
+    int i, j;
+    for (i = 0; i < n; i++)
+        for (j = 0; j < m; j++)
+            B[i][j] = A[i][j];
 }
