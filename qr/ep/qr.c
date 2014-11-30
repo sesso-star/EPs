@@ -32,7 +32,6 @@ int main(int argc, char **argv) {
     getColNorms(A, sigma, n, m);
     printVector(sigma, m);
     rank = qr(A, b, sigma, map, n, m);
-    printf("retorno: %d\n", rank);
     printVector(b, n);
     qr_solve(A, b, sigma, m, rank);
     remap(b, map, m);
@@ -40,8 +39,8 @@ int main(int argc, char **argv) {
 //  printMatrix(A, n, m);
 //  printf("simga:\n");
 //	printVector(sigma, m);
-	printf("b:\n");
-    printVector(b, n);
+	printf("resultado:\n");
+    printVector(b, m);
     return 0;
 }
 
@@ -103,7 +102,6 @@ int qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
             b[i] -= beta * A[i][j] / (sigma[j] * A[j][j]);
         sigma[j] = -sigma[j];
 
-        printMatrix(A, n, m);
         /* Reajuste das novas normas2 de cada coluna a partir da linha j + 1 */
         for (k = j + 1; k < m; k++) {
             sigma[k] = sigma[k] * sigma[k] - A[j][k] * A[j][k];
@@ -126,7 +124,7 @@ void qr_solve(double A[][MAX], double b[], double sigma[], int m, int rank) {
     int i, j;
     printf("rank: %d\n", rank);
     for (i = rank - 1; i >= 0; i--) {
-        for (j = i + 1; j < m; j++)
+        for (j = i + 1; j < rank; j++)
             b[i] -= A[i][j] * b[j];
         b[i] /= sigma[i];
     }

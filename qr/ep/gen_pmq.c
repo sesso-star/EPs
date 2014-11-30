@@ -3,12 +3,12 @@
 #include <stdlib.h>
 
 #define NMAX 1000
-#define DISTURB_COEF 0.1
+#define DISTURB_COEF 0.01
 
 void genRandPol(int npol, double pol[]);
 void writeProblem(int npoints, int nsolpol, double A[][NMAX], double b[]);
 void genPoints(int npoints, double points[]);
-void disturbPoints(int npoints, double points[]);
+void disturb(int npoints, double b[]);
 void genA(int npoints, int nsolpol, double A[][NMAX], double points[], int rank);
 void fillb(int npoints, double npol, double points[], double pol[], double b[]);
 void isAlmostLD(int n, double x[], double y[]);
@@ -41,13 +41,13 @@ int main(int argc, char *argv[]) {
     
     genRandPol(npol, pol);
     genPoints(npoints, points);
-    disturbPoints(npoints, points);
     genA(npoints, nsolpol, A, points, rank);
     fillb(npoints, npol, points, pol, b);
+    disturb(npoints, b);
     printf("polinomio gerado: (x esperado)\n");
     printVector(pol, npol + 1);
-    printf("pontos gerados:\n");
-    printVector(points, npoints);
+    /*printf("pontos gerados:\n");
+    printVector(points, npoints);*/
     printf("Matrix gerada: \n");
     printMatrix(A, npoints, nsolpol + 1);
     printf("b gerado: \n");
@@ -88,15 +88,15 @@ void genPoints(int npoints, double points[]) {
     }
 }
 
-void disturbPoints(int npoints, double points[]) {
+void disturb(int npoints, double b[]) {
     int i;
     for (i = 0; i < npoints; i++) {
-        double biggest_disturb = points[i] * DISTURB_COEF;
-        /*double dx = biggest_disturb * (rand() / (float) RAND_MAX);  */
-        double dx = biggest_disturb;
+        double biggest_disturb = b[i] * DISTURB_COEF;
+        double dx = biggest_disturb * (rand() / (float) RAND_MAX);
+        //double dx = biggest_disturb;
         if (rand() > RAND_MAX / 2.0)
             dx *= -1;
-        points[i] += dx;
+        b[i] += dx;
     }
 }
 
