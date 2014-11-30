@@ -8,8 +8,8 @@
 #define eps 1e-16
 
 /** FUNÇÕES PRINCIPAIS **/
-void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m);
-void qr_solve(double A[][MAX], double b[], double sigma[], int m);
+int qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m);
+void qr_solve(double A[][MAX], double b[], double sigma[], int m, int rank);
 void getColNorms(double A[][MAX], double sigma[], int n, int m);
 
 /** FUNÇÕES AUXILIARES **/
@@ -26,17 +26,22 @@ int main(int argc, char **argv) {
     double b[MAX];
     int map[MAX];
     double sigma[MAX];
+    int rank;
 
     readMatrix(A, b, &n, &m);
     getColNorms(A, sigma, n, m);
     printVector(sigma, m);
-    qr(A, b, sigma, map, n, m);
-    qr_solve(A, b, sigma, m);
+    rank = qr(A, b, sigma, map, n, m);
+    printf("retorno: %d\n", rank);
+    printVector(b, n);
+    qr_solve(A, b, sigma, m, rank);
     remap(b, map, m);
 
 //  printMatrix(A, n, m);
+//  printf("simga:\n");
 //	printVector(sigma, m);
-    printVector(b, m);
+	printf("b:\n");
+    printVector(b, n);
     return 0;
 }
 
@@ -47,14 +52,14 @@ int main(int argc, char **argv) {
  * armazenadas na própria A. Recebe-se o vetor 'b' (Ax = b) e retorna-se nele mesmo
  * o vetor c = Qt * b. Em sigma recebe-se a norma_2 de cada coluna de A e nele retorna-se
  * a diagonal principal de R. Em map retorna-se o vetor que representa as trocas de colunas
- * feitas durante a decomposição. 'n' é o número de linhas da matriz e 'm' é o número de colunas */
-void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
+ * feitas durante a decomposição. 'n' é o número de linhas da matriz e 'm' é o número de colunas
+ * A funcao devolve o inteiro rank que é o posto da matriz A */
+int qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
     int i, j, k, maxI;
     double max, alpha, beta;
-    int rank;
+    int rank = 0;
     for (j = 0; j < m; j++) {
         double w[MAX];
-        printMatrix(A, n, m);
         /* swap columns */
         max = sigma[j];
         maxI = j;
@@ -64,8 +69,8 @@ void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
                 maxI = k;
             }
         if (abs(max) < eps) {
-            printf("xiiiiiii, a matriz nao tem posto completo\n");
-            return;
+            printf("A matriz possui posto incompleto\n");
+            return rank;
         }
         if (maxI != j) {
             swapColumns(A, n, j, maxI);
@@ -90,21 +95,25 @@ void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
                 A[i][k] -= (A[i][j] * w[k - (j + 1)])/ (sigma[j] * A[j][j]);
 
 
-        
         /* multiplica Q_j por b_j */        
         beta = 0;
         for (i = j; i < n; i++)
             beta += A[i][j] * b[i];
         for (i = j; i < n; i++)
             b[i] -= beta * A[i][j] / (sigma[j] * A[j][j]);
-
         sigma[j] = -sigma[j];
 
+        printMatrix(A, n, m);
         /* Reajuste das novas normas2 de cada coluna a partir da linha j + 1 */
-        for (k = j + 1; k < m; k++)
-            sigma[k] = sqrt(sigma[k] * sigma[k] - A[j][k] * A[j][k]);
+        for (k = j + 1; k < m; k++) {
+            sigma[k] = sigma[k] * sigma[k] - A[j][k] * A[j][k];
+            if (sigma[k] < 0)
+                sigma[k] = 0;
+            sigma[k] = sqrt(sigma[k]);
+        }
         rank++;
     }
+    return rank;
 }
 
 /* Resolve Ax = b, dado a decomposição QR de A.
@@ -113,14 +122,16 @@ void qr(double A[][MAX], double b[], double sigma[], int map[], int n, int m) {
  * colunas de A.
  * Em map recebe-se as permutações de colunas feitas em A.
  * Calcula-se c = Q^t * b e, depois, o 'x' tal que R * x = c */
-void qr_solve(double A[][MAX], double b[], double sigma[], int m) {
+void qr_solve(double A[][MAX], double b[], double sigma[], int m, int rank) {
     int i, j;
-
-    for (i = m - 1; i >= 0; i--) {
+    printf("rank: %d\n", rank);
+    for (i = rank - 1; i >= 0; i--) {
         for (j = i + 1; j < m; j++)
             b[i] -= A[i][j] * b[j];
         b[i] /= sigma[i];
     }
+    for (i = rank; i < m; i++)
+        b[i] = 0;
 }
 
 /* devolve em sigma as normas de cada coluna de A. A tem n linhas e m colunas */
@@ -200,7 +211,6 @@ void printMatrix(double A[][MAX], int n, int m) {
 /* Imprime o vetor b */
 void printVector(double b[], int n) {
     int i;
-    printf("\nb = \n");
     for (i = 0; i < n; i++)
         printf("%lf\n", b[i]);
     printf("\n");
