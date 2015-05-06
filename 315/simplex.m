@@ -14,6 +14,7 @@ function simplex (A, b, c, m, n, x)
 	assert(!(length(Ib) < m), "x é degenerado!");
 	assert(length(Ib) == m, "Base não tem m elementos!");
 
+	printf("\nCalcula a base:\n");
 	x
 	Ib
 	Nb
@@ -24,16 +25,27 @@ function simplex (A, b, c, m, n, x)
 		cb(k) = c(i);
 		B(:,k++) = A(:,i);
 	end
+	cb = cb';
 
+	printf("\nCalcula matriz basica B e custos basicos cb\n");
 	A
 	c
 	cb
 	B
 
-	% FALTA FAZER
+	% FALTA FAZER meter o do-until
 	% calcula o custo reduzido de j
 	for j = Nb
-		redc = c(j) - cb * inverse(B) * A(:,j)
+		printf("\nCalcula Custo reduzido referente a direção d%d\n", j);
+		redc = c(j) - cb' * inverse(B) * A(:,j)
+
+		% Constrói um d
+		d = zeros(n, 1);
+		d(j) = 1;
+		db = -inverse(B) * A(:,j);
+		for i = 1 : m
+			d(Ib(i)) = db(i);
+		d
 	end
 
 end 
