@@ -37,34 +37,21 @@ function simplex (A, b, c, m, n, x)
 	B
 
 	% calcula custo reduzido de j, indice não básico, até achar um custo < 0 ou testar todos os indices
-	do
-		i = 1;
-		do
-			printf("\nCalcula Custo reduzido referente a direção d%d\n", j);
+    [redc, d, ij] = custoDirecao(A, B, c, n, m, I);
+    [imin, teta] = calculaTeta(x, d, I);
+    while redc < 0 && imin != -1
+        printf("\nCalcula novo ponto x\n");
+        x = x + teta * d.d
 
-			j = I.n(i);
-			d = direcaoViavel(A, inverse(B), n, m, j, I);
-			redc = custoReduzido(c, d, j)
-			i++;
+        % Rearruma a base
+        [I.b(imin), I.n(ij)] = deal(I.n(ij), I.b(imin));
+        c.b(imin) = c.c(I.b(imin));
+        B(:,imin) = A(:,I.b(imin));
+        [redc, d, ij] = custoDirecao(A, B, c, n, m, I);
 
-			d.d	
-		until (redc < 0) || (i > n - m)
-		ij = i - 1 % Indice de j em In
-
-		if redc < 0
-			% Muda para novo ponto
-			printf("\nCalcula novo ponto x\n");
-			[imin, teta] = teta(x, d, I);
-			if imin > 0
-				x = x + teta * d.d
-
-				% Rearruma a base
-				[I.b(imin), I.n(ij)] = deal(I.n(ij), I.b(imin));
-				c.b(imin) = c.c(I.b(imin));
-				B(:,imin) = A(:,I.b(imin));
-			end
-		end
-	until (redc >= 0 || imin == -1)
+        % recalcula teta
+        [imin, teta] = calculaTeta(x, d, I);
+    end
 
 	printf("\nFim:\n");
 	I.b
@@ -74,6 +61,22 @@ end
 
 %%%%%%%%%%%%%%% FUNÇÕES AUXILIARES %%%%%%%%%%%%%%%
 
+% Calcula a direção e custo reduzido a partir de um ponto x
+% retorna o o custo a direção e o indice ij de In de onde o custo
+% reduzido passou a ser < 0
+function [redc, d, ij] = custoDirecao(A, B, c, n, m, I)
+	i = 1;
+	do
+		j = I.n(i);
+		printf("\nCalcula Custo reduzido referente a direção d%d\n", j);
+		d = direcaoViavel(A, inverse(B), n, m, j, I);
+		redc = custoReduzido(c, d, j)
+		i++;
+
+		d.d	
+	until (redc < 0) || (i > n - m)
+	ij = i - 1 % Indice de j em In
+end
 
 % Calcula a j-ésima direção viável: -B^-1 * A_j
 function d = direcaoViavel(A, invB, n, m, j, I)
@@ -95,7 +98,7 @@ end
 
 % calcula o teta: min{ -x_b(i) / d_b(i) }, d_b(i) < 0, i em Ib
 % além de retornar teta, retorna o índice de Ib que minimiza a expressão acima
-function [imin, teta] = teta(x, d, I) 
+function [imin, teta] = calculaTeta(x, d, I) 
 	i = 1;
 
 	% Verifica se existe um d_B(i) < 0
