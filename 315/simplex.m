@@ -41,7 +41,7 @@ function simplex (A, b, c, m, n, x)
     B
 
     % calcula custo reduzido de j, indice não básico, até achar um custo < 0 ou testar todos os indices
-    [redc, d, ij] = custoDirecao(A, B, c, n, m, I);
+    [redc, u, ij] = custoDirecao(A, B, c, n, m, I);
     [imin, teta] = calculaTeta(x, d, I);
     while redc < 0 && imin != -1
         printf("\nCalcula novo ponto x\n");
@@ -49,6 +49,7 @@ function simplex (A, b, c, m, n, x)
 
         % Rearruma a base
         [I.b(imin), I.n(ij)] = deal(I.n(ij), I.b(imin));
+        % Arruma o c
         c.b(imin) = c.c(I.b(imin));
         B(:,imin) = A(:,I.b(imin));
         [redc, d, ij] = custoDirecao(A, B, c, n, m, I);
@@ -94,6 +95,14 @@ function u = calculaDirecao(A, invB, j)
     u = -invB * A(:,j);
 end
 
+
+%
+%
+function newx = atualizaX (x, u, I, t)
+    for i = 1 : m
+        x(I.b(i)) += t * u(i);
+    end
+end
 
 % Dado vetor u = -db, j e I retorna o vetor d tal que:
 % d_j = 1;
