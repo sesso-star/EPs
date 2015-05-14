@@ -63,11 +63,15 @@ end
 % d = -(invB) * Aj
 function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
     i = 1;
-    cbinvB = c.b' * invB; % O(m^2) 
+    cbinvB = zeros (1, m);
+    for j = 1 : m
+        cbinvB += c(I.b(j)) * invB(j, :); % O(m^2)
+    end
+    
     do                    % O(n - m)
         j = I.n(i);
         printf("\nCalcula Custo reduzido referente a direção j = %d\n", j);
-        redc = custoReduzido(c.c(j), cbinvB, A(:, j)) % O (1)
+        redc = custoReduzido(c(j), cbinvB, A(:, j)) % O (1)
         i++;
     until (redc < 0) || (i > n - m)
 
