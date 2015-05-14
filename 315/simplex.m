@@ -26,10 +26,12 @@ function simplex (A, b, c, m, n, x)
     c = struct('c', c, 'b', []);
     k = 1;
     for i = I.b
-    c.b(k) = c.c(i);
+        c.b(k) = c.c(i);
         B(:,k++) = A(:,i);
     end
     c.b = c.b';
+
+
 
     % print resultados
     printf("\nCalcula matriz basica B e custos basicos cb\n");
@@ -61,49 +63,57 @@ function simplex (A, b, c, m, n, x)
     x
 end 
 
+
 %%%%%%%%%%%%%%% FUNÇÕES AUXILIARES %%%%%%%%%%%%%%%
 
 % Calcula a direção e custo reduzido a partir de um ponto x
 % retorna o custo, a direção e o indice ij de In de onde o custo
 % reduzido passou a ser < 0
-function [redc, d, ij] = custoDirecao(A, B, c, n, m, I)
+% 
+% redc = c(ij) - [(c.b)^t * (invB)] * Aj
+% d = -(invB) * Aj
+function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
     i = 1;
-    do
+    cbinvB = c.b' * invB; % O(m^2) 
+    do                    % O(n - m)
         j = I.n(i);
-        printf("\nCalcula Custo reduzido referente a direção d%d\n", j);
-        d = direcaoViavel(A, inverse(B), n, m, j, I);
-        redc = custoReduzido(c, d, j)
+        printf("\nCalcula Custo reduzido referente a direção j = %d\n", j);
+        redc = custoReduzido(c.c(j), cbinvB, A(:, j)) % O (1)
         i++;
-
-        d.d 
     until (redc < 0) || (i > n - m)
+
     ij = i - 1 % Indice de j em In
+    u = calculaDirecao(A, invB, n, m, ij, I);
 end
 
-% Calcula a j-ésima direção viável: 
-% d.b = -B^-1 * A_j
-% d.d = (0,...,0) + ej + e_B(1)
-function d = direcaoViavel(A, invB, n, m, j, I)
-    d = struct('d', [], 'b', []);
 
-    d.d = zeros(n, 1);
-    d.d(j) = 1;
+% Calcula a j-ésima direção viável. Devolve em u
+% o vetor u = -db = B^-1 * A_j
+%
+function u = calculaDirecao(A, invB, j)
+    u = -invB * A(:,j);
+end
 
-    %for k = 1 : m
-    %    d.d(I.b(k)) = -invB(k, :) * A(:, j);
-    %    d.b(k) = d.d(I.b(k));
-    %end
-    %alternativa (não sei se vale mais a pena)
-    d.b = -invB * A(:,j);
-    for k = 1 : m
-        d.d(I.b(k)) = d.b(k);
+
+% Dado vetor u = -db, j e I retorna o vetor d tal que:
+% d_j = 1;
+% d_i = 0 se i \notin I.b
+% d_I.b(i) = u_i para i = 1..m
+%
+function d = u2d(u, j, I)
+    d = zeros(1, n);
+    d(j) = 1;
+    for i = 1 : m
+        d(I.b(i)) = u(i);
     end
 end
 
 % Calcula o custo reduzido: c_j - c.b' * B^-1 * A_j
-function redc = custoReduzido(c, d, j)
-    redc = c.c(j) + c.b' * d.b;
+%
+function redc = custoReduzido(cj, cbinvB, Aj)
+    redc = cj - cbinvB * Aj;
 end
+
 
 % calcula o teta: min{ -x_b(i) / d_b(i) }, d_b(i) < 0, i em Ib
 % além de retornar teta, retorna o índice de Ib que minimiza a expressão acima
@@ -136,3 +146,6 @@ function [imin, teta] = calculaTeta(x, d, I)
      % while (i <= length (I.b))
      %   
 end
+
+
+
