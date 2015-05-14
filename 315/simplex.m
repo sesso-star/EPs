@@ -17,42 +17,34 @@ function simplex (A, b, c, m, n, x)
     assert(!(length(I.b) < m), "x é degenerado!");
     assert(length(I.b) == m, "Base não tem m elementos!");
     
-    % print resultados
-    printf("\nCalcula a base:\n");
-    x
-    I
-    
     % Calcula cb e B
-    c = struct('c', c, 'b', []);
     k = 1;
     for i = I.b
-    c.b(k) = c.c(i);
         B(:,k++) = A(:,i);
     end
-    c.b = c.b';
-
-    % print resultados
-    printf("\nCalcula matriz basica B e custos basicos cb\n");
-    A
-    c.c
-    c.b
-    B
+	invB = inv(B);
+	clear("B");
 
     % calcula custo reduzido de j, indice não básico, até achar um custo < 0 ou testar todos os indices
-    [redc, d, ij] = custoDirecao(A, B, c, n, m, I);
-    [imin, teta] = calculaTeta(x, d, I);
+    [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
+    [imin, teta] = calculaTeta(x, u, I);
     while redc < 0 && imin != -1
         printf("\nCalcula novo ponto x\n");
-        x = x + teta * d.d
+		x = x + teta * u.d % ISSO NÂO FAZ MAIS SENTIDO PKE U EH RM
 
         % Rearruma a base
         [I.b(imin), I.n(ij)] = deal(I.n(ij), I.b(imin));
-        c.b(imin) = c.c(I.b(imin));
-        B(:,imin) = A(:,I.b(imin));
-        [redc, d, ij] = custoDirecao(A, B, c, n, m, I);
+		for i = 1 : m
+			if i != imin
+				invB(i,:) -= -d(i) * invB(imin,:) / u(imin);
+			else 
+				invB(i,:) /= u(imin);
+			end
+		end
 
-        % recalcula teta
-        [imin, teta] = calculaTeta(x, d, I);
+        % recalcula as bagaça
+        [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
+        [imin, teta] = calculaTeta(x, u, I);
     end
 
     printf("\nFim:\n");
@@ -89,20 +81,10 @@ function d = direcaoViavel(A, invB, n, m, j, I)
     d.d = zeros(n, 1);
     d.d(j) = 1;
 
-    %for k = 1 : m
-    %    d.d(I.b(k)) = -invB(k, :) * A(:, j);
-    %    d.b(k) = d.d(I.b(k));
-    %end
-    %alternativa (não sei se vale mais a pena)
     d.b = -invB * A(:,j);
     for k = 1 : m
         d.d(I.b(k)) = d.b(k);
     end
-end
-
-% Calcula o custo reduzido: c_j - c.b' * B^-1 * A_j
-function redc = custoReduzido(c, d, j)
-    redc = c.c(j) + c.b' * d.b;
 end
 
 % calcula o teta: min{ -x_b(i) / d_b(i) }, d_b(i) < 0, i em Ib
@@ -118,10 +100,10 @@ function [imin, teta] = calculaTeta(x, d, I)
     if i <= length(I.b)
         teta = -x(I.b(i)) / d.d(I.b(i));                                                  
         imin = I.b(i++);                     
-        while(i < length(I.b))
+        while(i <= length(I.b))
             t = -x(I.b(i)) / d.d(I.b(i));       % conseguimos garantir que esse d.d(I.b(i)) é menor que zero?
                                                 % só queremos olhar para i básico em que di < 0.
-            if t < teta % && t >= 0             uma possivel solução
+            if t < teta  && t >= 0              % uma possivel solução
                 teta = t;
                 imin = I.b(i);
             end
@@ -131,8 +113,4 @@ function [imin, teta] = calculaTeta(x, d, I)
         imin = -1;
         teta = 0;
     end
-     % tentativa 2
-     %
-     % while (i <= length (I.b))
-     %   
 end
