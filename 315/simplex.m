@@ -59,6 +59,7 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
 	% 
 	% redc = c(j) - [(c.b)' * (invB)] * Aj
 	% u = (invB) * Aj
+        % ij é o ij-ésimo componente não básico que vai se tornar básico
 
 	cbinvB = zeros (1, m);
 	for i = 1 : m
@@ -82,8 +83,10 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
         end
         
         if ij != -1        
-            % Indice de ij em I.n
-	    u = calculaDirecao(A, invB, ij);	% O(m^2)
+            invB
+            ij
+            A
+	    u = calculaDirecao(A, invB, I.n(ij));	% O(m^2)
             printf("Entra na base: %d\n", I.n(ij));
             %printDir(u, m);
         end
