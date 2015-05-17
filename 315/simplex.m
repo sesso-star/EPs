@@ -28,10 +28,10 @@ function simplex (A, b, c, m, n, x)
         for i = 1 : m
             if i != imin
                 invB(i,:) += (-u(i) * invB(imin,:)) / u(imin);
-            else 
-                invB(i,:) /= u(imin);
             end
         end
+        invB(imin,:) /= u(imin);
+
         printf("Iterando %d:\n", it);
         printXb(x, I, m);
         printCusto(x, c, n);
@@ -82,11 +82,13 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
     
     if ij != -1        
         invB
-        ij
+        I.n(ij)
         A
-        u = calculaDirecao(A, invB, I.n(ij));       % O(m^2)
+        I
+        invB * (A(:,I.n(ij)))
+        u = calculaDirecao(A, invB, I.n(ij))       % O(m^2)
         printf("Entra na base: %d\n", I.n(ij));
-        %printDir(u, m);
+        printDir(u, I, m);
     end
 end
 
