@@ -176,7 +176,7 @@ end
 
 
 function printXb(x, I, m)
-        for i = 1 : m
+    for i = 1 : m
         printf("%d %f\n", I.b(i), x(I.b(i)));
     end
     printf("\n");
