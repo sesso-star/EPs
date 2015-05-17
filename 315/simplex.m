@@ -28,7 +28,7 @@ function simplex (A, b, c, m, n, x)
         for i = 1 : m
             %[imin, teta] = calculaTeta(x, u, I);
             if i != imin
-                invB(i,:) -= -u(i) * invB(imin,:) / u(imin);
+                invB(i,:) += -u(i) * invB(imin,:) / u(imin);
             else 
                 invB(i,:) /= u(imin);
             end
