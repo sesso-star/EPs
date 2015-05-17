@@ -14,10 +14,10 @@ function simplex (A, b, c, m, n, x)
     it = 1;
     [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
     while redc < 0
-    	d = u2d(u, I.n(ij), I);
-    	[imin, teta] = calculaTeta(x, u, I);
+        d = u2d(u, I.n(ij), I);
+        [imin, teta] = calculaTeta(x, u, I);
         if imin == -1 % custo ótimo é -inf
-        	break;
+            break;
         end
         
         % atualiza x
@@ -28,9 +28,9 @@ function simplex (A, b, c, m, n, x)
         for i = 1 : m
             %[imin, teta] = calculaTeta(x, u, I);
             if i != imin
-            	invB(i,:) -= -u(i) * invB(imin,:) / u(imin);
+                invB(i,:) -= -u(i) * invB(imin,:) / u(imin);
             else 
-            	invB(i,:) /= u(imin);
+                invB(i,:) /= u(imin);
             end
         end
 
@@ -73,19 +73,19 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
     u = [];
     printf("Custos Reduzidos\n");
     for j = 1 : n - m % O(nm - m²)
-    	nj = I.n(j);
+        nj = I.n(j);
         rc(j) = custoReduzido(c(nj), cbinvB, A(:, nj)); % O(m)
         printf ("%d %f\n", nj, rc(j));
         if rc(j) < redc
-        	ij = j;
-        	redc = rc(j);
+            ij = j;
+            redc = rc(j);
         end
     end
     
     if ij != -1        
-    	invB
-    	ij
-    	A
+        invB
+        ij
+        A
         u = calculaDirecao(A, invB, I.n(ij));       % O(m^2)
         printf("Entra na base: %d\n", I.n(ij));
         %printDir(u, m);
@@ -103,11 +103,11 @@ function [imin, teta] = calculaTeta(x, u, I)
 
     for i = 1 : length(I.b)
         if u(i) > 1e-8 % u_i > 0
-        	t = x(I.b(i)) / u(i); 
-        	if t < teta             
-        		teta = t;
-        		imin = i;
-        	end
+            t = x(I.b(i)) / u(i); 
+            if t < teta             
+                teta = t;
+                imin = i;
+            end
         end
     end
         
@@ -128,10 +128,10 @@ end
 
 
 function x = atualizax (x, t, u, j, I)
-	for i = 1 : length(I.b)
-		x(I.b(i)) -= t * u(i);
-	end
-	x(j) = t;
+    for i = 1 : length(I.b)
+        x(I.b(i)) -= t * u(i);
+    end
+    x(j) = t;
 end
 
 function redc = custoReduzido(cj, cbinvB, Aj)
@@ -149,11 +149,11 @@ function I = calculaBase(x, n, m);
     k = 1;
     I = struct('b', [], 'n', []);
     for i = 1 : n
-    	if x(i) != 0
-    		I.b(j++) = i;
-    	else
-    		I.n(k++) = i;
-    	end
+        if x(i) != 0
+            I.b(j++) = i;
+        else
+            I.n(k++) = i;
+        end
     end
     % verifica se o x passado é degenerado ou não. Isso é, se x tem de fato (n - m) zeros
     assert(!(length(I.b) < m), "x é degenerado!");
@@ -171,14 +171,14 @@ function d = u2d(u, j, I)
     d = zeros(1, length(I.b) + length(I.n));
     d(j) = 1;
     for i = 1 : length(I.b)
-    	d(I.b(i)) = -u(i);
+        d(I.b(i)) = -u(i);
     end
     d = d'
 end
 
 
 function printXb(x, I, m)
-	for i = 1 : m
+    for i = 1 : m
         printf("%d %f\n", I.b(i), x(I.b(i)));
     end
     printf("\n");
@@ -186,7 +186,7 @@ end
 
 
 function printDir(u, I, m)
-	for i = 1 : m
+    for i = 1 : m
         printf("%d %f\n", I.b(i), u(i));
     end
     printf("\n");
