@@ -5,32 +5,27 @@ function simplex (A, b, c, m, n, x)
 	% Calcula B^-1
 	invB = inv(A(:,I.b));
 
-	printf("\n************* Inicio ****************\n");
-	x
-	I
-        
         printf("Simplex: Fase 2\n\n");
         printf("Iterando 0:\n")
-        %printXb(x, I, m);
-        %printCusto(x, c, n);
+        printXb(x, I, m);
+        printCusto(x, c, n);
     
         imin = 0;
         it = 1;
         [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
 	while redc < 0
+                d = u2d(u, ij, I);
 		[imin, teta] = calculaTeta(x, u, I);
                 if imin == -1 % custo ótimo é -inf
                     break;
                 end
-		u2d(u, I.n(ij), I); %%%%%%%%%%%%% imprime d: so ta aqui pra imprimir pra agte ver bonitinho.. mas na moral naão precisa koapskoap
-
-                printf("Iterando %d:\n");
-		x = atualizax(x, teta, u, I.n(ij), I)
-
-
-		% Rearruma a base
+                
+                % atualiza x
+		x = atualizax(x, teta, u, I.n(ij), I); 
+		% atualiza a base
 		[I.b(imin), I.n(ij)] = deal(I.n(ij), I.b(imin));
-		for i = 1 : m
+		% atualiza B^-1
+                for i = 1 : m
 		    %[imin, teta] = calculaTeta(x, u, I);
 			if i != imin
 				invB(i,:) -= -u(i) * invB(imin,:) / u(imin);
@@ -38,11 +33,15 @@ function simplex (A, b, c, m, n, x)
 				invB(i,:) /= u(imin);
 			end
 		end
+
+                printf("Iterando %d:\n", it);
+                printXb(x, I, m);
+                printCusto(x, c, n);
+
                 it++;
                 [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
 	end
 
-	printf("\n\n\n************** Fim ***************\n");
 	I.b
 	I.n
 	x
@@ -84,44 +83,34 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
         
         if ij != -1        
             % Indice de ij em I.n
-	    u = calculaDirecao(A, invB, ij);	% O(m^2)	TODO NÃO DA PRA REDUZIR ESSE ?? Acho que não! É multiplicação de uma matriz mxm e um vetor m. Então é soma de linha j de invB * escalar Aj(j)
+	    u = calculaDirecao(A, invB, ij);	% O(m^2)
             printf("Entra na base: %d\n", I.n(ij));
-            printf("Custo reduzido %f\n", redc);
             %printDir(u, m);
         end
 end
 
 function [imin, teta] = calculaTeta(x, u, I) 
-	% calcula o teta: min{ -x_b(i) / d_b(i) }, d_b(i) < 0, i em Ib
+        % calcula o teta: min{ -x_b(i) / d_b(i) }, d_b(i) < 0, i em Ib
 	% além de retornar teta, retorna o índice de Ib que minimiza a expressão acima
-        printf ("A grandiosa função: calcula teta!\n");
-	i = 1;
-	% Verifica se existe um d_B(i) < 0
-	while i <= length(I.b) && u(i) < 0
-		i++;
-	end
+        imin = -1;
+        teta = inf;
 
-	if i <= length(I.b)
-		teta = x(I.b(i)) / u(i);
-		imin = i++;
-		while(i <= length(I.b))
-                        if abs(u(i)) < eps
-			        t = x(I.b(i)) / u(i);d 
-			        if t < teta             
-				    teta = t;
-				    imin = i;
-			        end
-                        end
-		        i++;
-		end
-	else
-		imin = -1;
-		teta = 0;
-	end
+        printf("Vamos calcular o teta:\n");
+        printDir(u, I, length(I.b));
 
+	for i = 1 : length(I.b)
+                if u(i) > 1e-8 % u_i > 0
+		        t = x(I.b(i)) / u(i); 
+		        if t < teta             
+		                teta = t;
+		                imin = i;
+		        end
+                end
+        end
+        
         printf("Theta*\n%f\n\n", teta);
         if (imin != -1)
-            printf("Sai da base: %d\n", imin);
+                printf("Sai da base: %d\n\n\n", I.b(imin));
         end
 end
 
@@ -186,5 +175,22 @@ function d = u2d(u, j, I)
 end
 
 
+function printXb(x, I, m)
+    for i = 1 : m
+        printf("%d %f\n", I.b(i), x(I.b(i)));
+    end
+    printf("\n");
+end
 
 
+function printDir(u, I, m)
+    for i = 1 : m
+        printf("%d %f\n", I.b(i), u(i));
+    end
+    printf("\n");
+end
+
+
+function printCusto(x, c, n)
+    printf("Valor função objetivo: %f\n\n", x'*c);
+end
