@@ -26,9 +26,8 @@ function simplex (A, b, c, m, n, x)
                 [I.b(imin), I.n(ij)] = deal(I.n(ij), I.b(imin));
                 % atualiza B^-1
                 for i = 1 : m
-                    %[imin, teta] = calculaTeta(x, u, I);
                         if i != imin
-                                invB(i,:) -= -u(i) * invB(imin,:) / u(imin);
+                                invB(i,:) += (-u(i) * invB(imin,:)) / u(imin);
                         else 
                                 invB(i,:) /= u(imin);
                         end
@@ -100,6 +99,7 @@ function [imin, teta] = calculaTeta(x, u, I)
 
         printf("Vamos calcular o teta:\nu:\n");
         printDir(u, I, length(I.b));
+        printXb(x, I, length(I.b));
 
         for i = 1 : length(I.b)
                 if u(i) > 1e-8 % u_i > 0
