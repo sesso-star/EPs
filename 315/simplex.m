@@ -1,4 +1,4 @@
-function simplex (A, b, c, m, n, x)
+function [ind, v] = simplex (A, b, c, m, n, x)
     % Calcula indices básicos (I.b) e não básicos (I.n)
     I = calculaBase(x, n, m);
     
@@ -19,20 +19,18 @@ function simplex (A, b, c, m, n, x)
         if imin == -1 % custo ótimo é -inf
             break;
         end
-        
+
         % atualiza x
         x = atualizax(x, teta, u, I.n(ij), I); 
         % atualiza a base
         [I.b(imin), I.n(ij)] = deal(I.n(ij), I.b(imin));
         % atualiza B^-1
         for i = 1 : m
-            %[imin, teta] = calculaTeta(x, u, I);
             if i != imin
-                invB(i,:) += -u(i) * invB(imin,:) / u(imin);
-            else 
-                invB(i,:) /= u(imin);
+                invB(i,:) += (-u(i) * invB(imin,:)) / u(imin);
             end
         end
+        invB(imin,:) /= u(imin);
 
         printf("Iterando %d:\n", it);
         printXb(x, I, m);
@@ -45,6 +43,13 @@ function simplex (A, b, c, m, n, x)
     I.b
     I.n
     x
+    if imin == -1
+        ind = -1;
+        v = u2d(u, I.n(ij), I);
+    else
+        ind = 0;
+        v = x;
+    end
 end 
 
 
@@ -83,12 +88,9 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
     end
     
     if ij != -1        
-        invB
-        ij
-        A
         u = calculaDirecao(A, invB, I.n(ij));       % O(m^2)
         printf("Entra na base: %d\n", I.n(ij));
-        %printDir(u, m);
+        printDir(u, I, m);
     end
 end
 
@@ -97,20 +99,20 @@ function [imin, teta] = calculaTeta(x, u, I)
     % além de retornar teta, retorna o índice de Ib que minimiza a expressão acima
     imin = -1;
     teta = inf;
-
+    
     printf("Vamos calcular o teta:\nu:\n");
     printDir(u, I, length(I.b));
-
+    printXb(x, I, length(I.b));
+    
     for i = 1 : length(I.b)
         if u(i) > 1e-8 % u_i > 0
-            t = x(I.b(i)) / u(i); 
-            if t < teta             
+            t = x(I.b(i)) / u(i);
+            if t < teta
                 teta = t;
                 imin = i;
             end
         end
     end
-        
     printf("Theta*\n%f\n\n", teta);
     if (imin != -1)
         printf("Sai da base: %d\n\n\n", I.b(imin));

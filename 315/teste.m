@@ -27,6 +27,6 @@ function teste(n, m)
 
     assert(algI == 0, "Algoritmo acha que solução ótima é -inf");
 
-    dif = algMini - mini;
-    assert(dif > 1e-4, "As soluções deram diferentes!!!");
+    dif = algMini - mini
+    assert(abs(dif) < 1e-4, "As soluções deram diferentes!!!\n%f\n", dif);
 end
