@@ -1,4 +1,4 @@
-function simplex (A, b, c, m, n, x)
+function [ind, v] = simplex (A, b, c, m, n, x)
     % Calcula indices básicos (I.b) e não básicos (I.n)
     I = calculaBase(x, n, m);
     
@@ -38,6 +38,16 @@ function simplex (A, b, c, m, n, x)
         it++;
         [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
     end
+    if imin == -1
+        ind = -1;
+        v = u2d(u, I.n(ij), I);
+        printf("Solução é -inf na direção:\n");
+    else
+        ind = 0;
+        v = x;
+        printf("Solução ótima encontrada:\n");
+    end
+    v
 end 
 
 
