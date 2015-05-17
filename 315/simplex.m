@@ -81,12 +81,7 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
     end
     
     if ij != -1        
-        invB
-        I.n(ij)
-        A
-        I
-        invB * (A(:,I.n(ij)))
-        u = calculaDirecao(A, invB, I.n(ij))       % O(m^2)
+        u = calculaDirecao(A, invB, I.n(ij));       % O(m^2)
         printf("Entra na base: %d\n", I.n(ij));
         printDir(u, I, m);
     end
