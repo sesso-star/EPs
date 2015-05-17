@@ -14,7 +14,7 @@ function simplex (A, b, c, m, n, x)
         it = 1;
         [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
 	while redc < 0
-                d = u2d(u, ij, I);
+                d = u2d(u, I.n(ij), I);
 		[imin, teta] = calculaTeta(x, u, I);
                 if imin == -1 % custo ótimo é -inf
                     break;
@@ -95,7 +95,7 @@ function [imin, teta] = calculaTeta(x, u, I)
         imin = -1;
         teta = inf;
 
-        printf("Vamos calcular o teta:\n");
+        printf("Vamos calcular o teta:\nu:\n");
         printDir(u, I, length(I.b));
 
 	for i = 1 : length(I.b)
@@ -169,7 +169,7 @@ function d = u2d(u, j, I)
 	d = zeros(1, length(I.b) + length(I.n));
 	d(j) = 1;
 	for i = 1 : length(I.b)
-		d(I.b(i)) = u(i);
+		d(I.b(i)) = -u(i);
 	end
 	d = d'
 end
