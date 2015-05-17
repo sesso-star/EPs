@@ -69,12 +69,13 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
         redc = 0;
         ij = -1;
         printf("Custos Reduzidos\n");
-        for j = 1 : length(I.n) % O(nm - m²)
+        I.n
+        for j = 1 : n - m % O(nm - m²)
             nj = I.n(j);
             rc(j) = custoReduzido(c(nj), cbinvB, A(:, nj)); % O(m)
-            printf ("%d %f\n", j, rc(j));
+            printf ("%d %f\n", nj, rc(j));
             if rc(j) < redc
-                ij = j;
+                ij = nj;
                 redc = rc(j);
             end
         end
@@ -83,7 +84,9 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
 	u = calculaDirecao(A, invB, j);	% O(m^2)	TODO NÃO DA PRA REDUZIR ESSE ?? Acho que não! É multiplicação de uma matriz mxm e um vetor m. Então é soma de linha j de invB * escalar Aj(j)
 
         printf("Entra na base: %d\n", ij);
+        printf("Custo reduzido %f\n", redc);
         %printDir(u, m);
+
 
 end
 
