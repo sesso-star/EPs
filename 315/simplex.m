@@ -8,10 +8,17 @@ function simplex (A, b, c, m, n, x)
 	printf("\n************* Inicio ****************\n");
 	x
 	I
+        
+        printf("Simplex: Fase 2\n\n");
+        printf("Iterando 0:\n");
+        %printXb(x, I, m);
+        %printCusto(x, c, n);
+
 
 	% Calcula um novo ponto x até achar um x em que todos os custos reduzidos sejam > 0 ou custo otimo = -Inf
 	[redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
-	[imin, teta] = calculaTeta(x, u, I);
+        [imin, teta] = calculaTeta(x, u, I);
+
 	while redc < 0 && imin != -1
 		printf("\n\n\n*********** Calcula novo ponto x *************\n");
 		u2d(u, I.n(ij), I); %%%%%%%%%%%%% imprime d: so ta aqui pra imprimir pra agte ver bonitinho.. mas na moral naão precisa koapskoap
@@ -54,24 +61,30 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
 
 	cbinvB = zeros (1, m);
 	for i = 1 : m
-		cbinvB += c(I.b(i)) * invB(i, :);										% O(m^2)
+		cbinvB += c(I.b(i)) * invB(i, :); % O(m^2)
 	end
+        
+	% calcula o custo reduzido para todos indices não básicos
+        rc = zeros (1, n - m);
+        redc = 0;
+        ij = -1;
+        printf("Custos Reduzidos\n");
+        for j = 1 : length(I.n) % O(nm - m²)
+            nj = I.n(j);
+            rc(j) = custoReduzido(c(nj), cbinvB, A(:, nj)); % O(m)
+            printf ("%d %f\n", j, rc(j));
+            if rc(j) < redc
+                ij = j;
+                redc = rc(j);
+            end
+        end
+	
+        % Indice de j em I.n
+	u = calculaDirecao(A, invB, j);	% O(m^2)	TODO NÃO DA PRA REDUZIR ESSE ?? Acho que não! É multiplicação de uma matriz mxm e um vetor m. Então é soma de linha j de invB * escalar Aj(j)
 
-	% calcula o custo reduzido para cada indice não básico até achar algum
-	% negativo.
-	i = 1;
-	do																			%
-		j = I.n(i);																%
-		printf("\nCalcula Custo reduzido referente a direção j = %d\n", j);		% O(m^2)
-		redc = custoReduzido(c(j), cbinvB, A(:, j))	% O(m)						%
-		i++;																	%
-	until (redc < 0) || (i > n - m)
+        printf("Entra na base: %d\n", ij);
+        %printDir(u, m);
 
-	%%%%% TODO E SE I > N - M ... QQ DEVOLVEMOS?!?!?!
-
-	% Indice de j em I.n
-	ij = i - 1; 
-	u = calculaDirecao(A, invB, j);												% O(m^2)	TODO NÃO DA PRA REDUZIR ESSE ??
 end
 
 function [imin, teta] = calculaTeta(x, u, I) 
@@ -89,9 +102,9 @@ function [imin, teta] = calculaTeta(x, u, I)
 		teta = x(I.b(i)) / u(i);
 		imin = i++;
 		while(i <= length(I.b))
-			t = x(I.b(i)) / u(i);			    % conseguimos garantir que esse d.d(I.b(i)) é menor que zero?
-												% só queremos olhar para i básico em que di < 0.
-			if t < teta  && t >= 0              % uma possivel solução
+			t = x(I.b(i)) / u(i);			    
+												
+			if t < teta  && t >= 0             
 				teta = t;
 				imin = i;
 			end
@@ -101,6 +114,11 @@ function [imin, teta] = calculaTeta(x, u, I)
 		imin = -1;
 		teta = 0;
 	end
+
+        printf("Theta*\n%f\n\n", teta);
+        if (imin != -1)
+            printf("Sai da base: %d\n", imin);
+        end
 end
 
 
@@ -123,8 +141,8 @@ end
 function redc = custoReduzido(cj, cbinvB, Aj)
 	% Calcula o custo reduzido: c_j - c.b' * B^-1 * A_j
 	%
-
-	redc = cj - cbinvB * Aj;
+	
+        redc = cj - cbinvB * Aj;
 end
 
 function I = calculaBase(x, n, m);
