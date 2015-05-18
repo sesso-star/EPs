@@ -42,10 +42,13 @@ function [ind, v] = simplex (A, b, c, m, n, x)
     if imin == -1
         ind = -1;
         v = u2d(u, I.n(ij), I);
+        printf("Solução é -inf na direção:\n");
     else
         ind = 0;
         v = x;
+        printf("Solução ótima encontrada:\n");
     end
+    v
 end 
 
 
@@ -167,7 +170,7 @@ function d = u2d(u, j, I)
     for i = 1 : length(I.b)
         d(I.b(i)) = -u(i);
     end
-    d = d'
+    d = d';
 end
 
 
