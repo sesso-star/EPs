@@ -169,7 +169,7 @@ function d = u2d(u, j, I)
     for i = 1 : length(I.b)
         d(I.b(i)) = -u(i);
     end
-    d = d'
+    d = d';
 end
 
 
