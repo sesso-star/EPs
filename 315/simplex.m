@@ -13,10 +13,9 @@ function [ind, v] = simplex (A, b, c, m, n, x)
     imin = 0;
     it = 1;
     [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
-    while redc < 0
-        d = u2d(u, I.n(ij), I);
+    while redc < 0 % se essa condição falha, x é ótimo
         [imin, teta] = calculaTeta(x, u, I);
-        if imin == -1 % custo ótimo é -inf
+        if imin == -1 % custo ótimo é -inf e u tem a direção
             break;
         end
 
@@ -40,9 +39,6 @@ function [ind, v] = simplex (A, b, c, m, n, x)
         [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
     end
 
-    I.b
-    I.n
-    x
     if imin == -1
         ind = -1;
         v = u2d(u, I.n(ij), I);
@@ -81,7 +77,7 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
         nj = I.n(j);
         rc(j) = custoReduzido(c(nj), cbinvB, A(:, nj)); % O(m)
         printf ("%d %f\n", nj, rc(j));
-        if rc(j) < redc
+        if rc(j) < redc - 1e-10
             ij = j;
             redc = rc(j);
         end
@@ -89,7 +85,7 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
     
     if ij != -1        
         u = calculaDirecao(A, invB, I.n(ij));       % O(m^2)
-        printf("Entra na base: %d\n", I.n(ij));
+        printf("\nEntra na base: %d\n\n", I.n(ij));
         printDir(u, I, m);
     end
 end
@@ -100,12 +96,8 @@ function [imin, teta] = calculaTeta(x, u, I)
     imin = -1;
     teta = inf;
     
-    printf("Vamos calcular o teta:\nu:\n");
-    printDir(u, I, length(I.b));
-    printXb(x, I, length(I.b));
-    
     for i = 1 : length(I.b)
-        if u(i) > 1e-8 % u_i > 0
+        if u(i) > 1e-10 % u_i > 0
             t = x(I.b(i)) / u(i);
             if t < teta
                 teta = t;
@@ -188,6 +180,7 @@ end
 
 
 function printDir(u, I, m)
+    printf("Direção:\n");
     for i = 1 : m
         printf("%d %f\n", I.b(i), u(i));
     end
