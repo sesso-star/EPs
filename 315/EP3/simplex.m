@@ -16,7 +16,8 @@ function [A, b, invB, I, rankA] =  phase1 (A, b, c, m, n)
     c1 = [zeros(n, 1); ones(m, 1)]
     % solução inicial x = 0, y = b
     x1 = [zeros(n, 1); b]
-    I = calculaBase(x1, n + m, m)
+    I.b = [n + 1 : n + m]
+    I.n = [1 : n]
     invB = inv(A1(:, I.b))
     [ind, x, I] = phase2(A1, b, c1, m, n + m, x1, I, invB); 
     % aqui precisamos verificar se todas variaveis articificiais valem zero. Se isso não
