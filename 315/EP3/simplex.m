@@ -70,6 +70,8 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
     % u = (invB) * Aj
     % ij é o ij-ésimo componente não básico que vai se tornar básico
     % p = cb * invB
+    %
+    % Esta função é O(nm)
 
     p = zeros (1, m);
     for i = 1 : m
@@ -102,8 +104,9 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
 end
 
 function [imin, teta] = calculaTeta(x, u, I) 
-    % calcula o teta: min{ -x_b(i) / d_b(i) }, d_b(i) < 0, i em Ib
-    % além de retornar teta, retorna o índice de Ib que minimiza a expressão acima
+    % Calcula o teta: min{ -x_b(i) / d_b(i) }, d_b(i) < 0, i em Ib. Além de retornar 
+    % teta, retorna o menor índice de Ib que minimiza a expressão acima.
+    % Essa função é O(m)
     imin = -1;
     teta = inf;
     
