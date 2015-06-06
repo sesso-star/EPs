@@ -1,6 +1,6 @@
 function [ind, v] = simplex (A, b, c, m, n)
     [A, b, invB, I, m] = phase1(A, b, c, m, n)
-    [ind, v] = phase2(A, b, c, m, n, x, I, invB)
+    %[ind, v] = phase2(A, b, c, m, n, x, I, invB)
 end
 
 function [A, b, invB, I, rankA] =  phase1 (A, b, c, m, n)
@@ -14,10 +14,14 @@ function [A, b, invB, I, rankA] =  phase1 (A, b, c, m, n)
     A
     A1 = [A, eye(m)]
     c1 = [zeros(n, 1); ones(m, 1)]
+    % solução inicial x = 0, y = b
     x1 = [zeros(n, 1); b]
     I = calculaBase(x1, n + m, m)
     invB = inv(A1(:, I.b))
-    [ind, x, I] = phase2(A1, b, c1, m, n + m, x1, I, invB);
+    [ind, x, I] = phase2(A1, b, c1, m, n + m, x1, I, invB); 
+    % aqui precisamos verificar se todas variaveis articificiais valem zero. Se isso não
+    % aconteceu, temos que o problema inicial é inviável. 
+    [I, A, invB, m] = removeArtificials(x, I, A, invB, m, n);
 end
 
 function [ind, v, I] = phase2 (A, b, c, m, n, x, I, invB)
@@ -35,17 +39,8 @@ function [ind, v, I] = phase2 (A, b, c, m, n, x, I, invB)
         end
 
         % atualiza x
-        x = atualizax(x, teta, u, I.n(ij), I); 
-        % atualiza a base
-        [I.b(imin), I.n(ij)] = deal(I.n(ij), I.b(imin));
-        % atualiza B^-1
-        for i = 1 : m
-            if i != imin
-                invB(i,:) += (-u(i) * invB(imin,:)) / u(imin);
-            end
-        end
-        invB(imin,:) /= u(imin);
-
+        x = atualizax(x, teta, u, I.n(ij), I, m); 
+        [I, invB] = atualizaBase(I, invB, u, imin, ij, m); 
         printf("Iterando %d:\n", it);
         printXb(x, I, m);
         printCusto(x, c, n);
@@ -146,21 +141,44 @@ function u = calculaDirecao(A, invB, j)
 end
 
 
+function [I, invB] = atualizaBase(I, invB, u, imin, ij, m)
+    % Dada uma base, e dois indices imin e ij, retira da base o imin-ésimo elemento 
+    % básico (I.b(imin)) adiciona a base o ij-ésimo elemento não básico (I.n(ij)).
+    % O vetor u vale B^-1 * A(I.n(ij))
+    % Além disso atualiza a inversa da matriz básica.
+
+    [I.b(imin), I.n(ij)] = deal(I.n(ij), I.b(imin));
+    
+    for i = 1 : m
+        if i != imin
+            invB(i,:) += (-u(i) * invB(imin,:)) / u(imin);
+        end
+    end
+    invB(imin,:) /= u(imin);
+end
+
+
 function x = atualizax (x, t, u, j, I)
+    % Dados x, theta, u e a variável j que entrou na base, atualiza o x s.v.b.
+    % 
+    
     for i = 1 : length(I.b)
         x(I.b(i)) -= t * u(i);
     end
     x(j) = t;
 end
 
+
 function redc = custoReduzido(cj, cbinvB, Aj)
     % Calcula o custo reduzido: c_j - c.b' * B^-1 * A_j
-    
+    %
+
     redc = cj - cbinvB * Aj;
 end
 
+
 function I = calculaBase(x, n, m);
-    % Calcula indices basicos e não básicos a partir de x
+    % Calcula indices basicos e não básicos a partir de x não-degenerado
     % I.b é o vetor de indices básicos 
     % I.n é o vetor de índices não-básicos
 
@@ -180,12 +198,49 @@ function I = calculaBase(x, n, m);
 end
 
 
+function [I, A, invB, m] = removeArtificials(x, I, A, invB, m, n)
+    % Dado uma base I da primeira fase do simplex, esta função remove da base os
+    % índices das variáveis artificiais. Se for necessário, deleta linhas LD de A
+    
+    artindex = [];
+    for i = 1 : m
+       if (I.b(i) > n)
+           artindex = [artindex, i];
+       end
+    end
+    
+    i = 1;
+    while (i <= length(artindex))
+        l = artindex(i);
+        j = -1;
+        k = 1;
+        while ((k <= n - m) && (j == -1))
+            if (abs(invB(l, :) * A(:, I.n(k))) > 1e-10)
+                j = k;
+            end
+            k++;
+        end
+
+        if (j == -1)
+            % Siginifica que B^-1(l, :) * Aj = 0 para todo j, isso significa que A tem
+            % suas linhas LD. Ou seja, podemos remover uma de suas linhas. Vamos remover
+            % a l-ésima linha.
+            m -= 1;
+            A(l, :) = [];
+        else
+            % vamos trocar a base do indice l para j
+            u = invB * A(:, I.n(ij));
+            [I, invB] = atualizaBase(I, invB, u, l, j, m);
+        end
+        i++;
+    end
+end
+
 function d = u2d(u, j, I)
     % Dado vetor u = -db, j e I retorna o vetor d tal que:
     % d_j = 1;
     % d_i = 0 se i \notin I.b
     % d_I.b(i) = u_i para i = 1..m
-    %
 
     d = zeros(1, length(I.b) + length(I.n));
     d(j) = 1;
