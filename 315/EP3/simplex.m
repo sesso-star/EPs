@@ -1,15 +1,26 @@
-function [ind, v] = simplex (A, b, c, m, n, x)
-    [ind, v] = phase2 (A, b, c, m, n, x)
+function [ind, v] = simplex (A, b, c, m, n)
+    [A, b, invB, I, m] = phase1(A, b, c, m, n)
+    [ind, v] = phase2(A, b, c, m, n, x, I, invB)
 end
 
-function [ind, v] = phase2 (A, b, c, m, n, x)
-    % Calcula indices básicos (I.b) e não básicos (I.n)
-    I = calculaBase(x, n, m);
-    
-    % Calcula B^-1
-    invB = inv(A(:,I.b));
+function [A, b, invB, I, rankA] =  phase1 (A, b, c, m, n)
+    printf("Fase 1\n\n") ;
+    for i = 1 : m
+        if (b < 0)
+            b *= -1;
+            A(i, :)  *= -1;
+        end
+    end
+    A
+    A1 = [A, eye(m)]
+    c1 = [zeros(n, 1); ones(m, 1)]
+    x1 = [zeros(n, 1); b]
+    I = calculaBase(x1, n + m, m)
+    invB = inv(A1(:, I.b))
+    [ind, x, I] = phase2(A1, b, c1, m, n + m, x1, I, invB);
+end
 
-    printf("Simplex: Fase 2\n\n");
+function [ind, v, I] = phase2 (A, b, c, m, n, x, I, invB)
     printf("Iterando 0:\n")
     printXb(x, I, m);
     printCusto(x, c, n);
