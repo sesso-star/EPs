@@ -3,13 +3,11 @@ function [ind, v] = tableau (A, b, c, m, n, x)
     invB = inv(A(:, Ib));
 
     tableaux = [0,       c' - c(Ib)' * invB * A;
-               invB * b, invB * A]
+               invB * b, invB * A];
 
     
     while (j = getJ(tableaux)) != 0
         l = getL(tableaux, j);
-        l
-        j
         if l == 0
             % Entra aqui se não existe u > 0, logo custo ótimo é -inf
             ind = -inf;
