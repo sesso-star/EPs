@@ -36,7 +36,10 @@ function [ind, v, I] = phase2 (A, b, c, m, n, x, I, invB)
     while redc < 0 % se essa condição falha, x é ótimo
         [imin, teta] = calculaTeta(x, u, I);
         if imin == -1 % custo ótimo é -inf e u tem a direção
-            break;
+            ind = -1;
+            v = u2d(u, I.n(ij), I);
+            printf("Solução é -inf na direção:\n");
+            return;
         end
 
         % atualiza x
@@ -50,15 +53,9 @@ function [ind, v, I] = phase2 (A, b, c, m, n, x, I, invB)
         [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
     end
 
-    if imin == -1
-        ind = -1;
-        v = u2d(u, I.n(ij), I);
-        printf("Solução é -inf na direção:\n");
-    else
-        ind = 0;
-        v = x;
-        printf("Solução ótima encontrada:\n");
-    end
+    ind = 0;
+    v = x;
+    printf("Solução ótima encontrada:\n");
     v
 end 
 
@@ -80,35 +77,35 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
     %
     % Esta função é O(nm)
 
-    p = zeros (1, m);
+    cbinvB = zeros (1, m);
     for i = 1 : m
-        p += c(I.b(i)) * invB(i, :); % O(m^2)
+        cbinvB += c(I.b(i)) * invB(i, :); % O(m^2)
     end
 
-    % calcula o custo reduzido (redc) para todos indices não básicos
-    redc = 0;
-    ij = -1;
-    u = [];
     printf("Custos Reduzidos\n");
     j = 1;
-    
-    while ((j <= n - m) && (redc == 0)) % O(nm - m²)
-        nj = I.n(j);
-        rc(j) = custoReduzido(c(nj), p, A(:, nj)); % O(m)
-        printf ("%d %f\n", nj, rc(j));
-        if rc(j) < redc - 1e-10
+    while j <= n - m % O(nm - m²)
+        redc = c(I.n(j)) - cbinvB * A(:, I.n(j));
+
+        if redc < -1e-10
+            % Achou um custo reduzido < 0
             ij = j;
-            redc = rc(j);
+
+            % Calcula direção u
+            u = calculaDirecao(A, invB, I.n(ij));       % O(m^2)
+            printf("\nEntra na base: %d\n\n", I.n(ij));
+            printDir(u, I, m);
+            
+            return;
         end
+
         j++;
     end
-    
-    % Calcula a direção u
-    if ij != -1        
-        u = calculaDirecao(A, invB, I.n(ij));       % O(m^2)
-        printf("\nEntra na base: %d\n\n", I.n(ij));
-        printDir(u, I, m);
-    end
+
+    % Se chegou aqui é porque todos os custos reduzidos >= 0 (Solucão ótima!!)
+    u = [];
+    ij = -1;
+    redc = 0;
 end
 
 function [imin, teta] = calculaTeta(x, u, I) 
@@ -168,14 +165,6 @@ function x = atualizax (x, t, u, j, I)
         x(I.b(i)) -= t * u(i);
     end
     x(j) = t;
-end
-
-
-function redc = custoReduzido(cj, cbinvB, Aj)
-    % Calcula o custo reduzido: c_j - c.b' * B^-1 * A_j
-    %
-
-    redc = cj - cbinvB * Aj;
 end
 
 
