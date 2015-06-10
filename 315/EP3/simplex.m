@@ -85,7 +85,7 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
         p += c(I.b(i)) * invB(i, :); % O(m^2)
     end
 
-    % calcula o custo reduzido para todos indices não básicos
+    % calcula o custo reduzido (redc) para todos indices não básicos
     redc = 0;
     ij = -1;
     u = [];
@@ -103,6 +103,7 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
         j++;
     end
     
+    % Calcula a direção u
     if ij != -1        
         u = calculaDirecao(A, invB, I.n(ij));       % O(m^2)
         printf("\nEntra na base: %d\n\n", I.n(ij));
@@ -203,26 +204,15 @@ function [I, A, invB, m] = removeArtificials(x, I, A, invB, m, n)
     % Dado uma base I da primeira fase do simplex, esta função remove da base os
     % índices das variáveis artificiais. Se for necessário, deleta linhas LD de A
     
-    artindex = [];
-    for i = 1 : m
-       if (I.b(i) > n)
-           artindex = [artindex, i];
-       end
-    end
+    artindex = I.b(I.b > n);
     
-    i = 1;
-    while (i <= length(artindex))
-        l = artindex(i);
-        j = -1;
+    for l = artindex
         k = 1;
-        while ((k <= n - m) && (j == -1))
-            if (abs(invB(l, :) * A(:, I.n(k))) > 1e-10)
-                j = k;
-            end
+        while ((k <= n - m) && abs(invB(l, :) * A(:, I.n(k))) <= 1e-10)  %% por que abs? o_O
             k++;
         end
 
-        if (j == -1)
+        if k > n - m
             % Siginifica que B^-1(l, :) * Aj = 0 para todo j, isso significa que A tem
             % suas linhas LD. Ou seja, podemos remover uma de suas linhas. Vamos remover
             % a l-ésima linha.
@@ -231,9 +221,8 @@ function [I, A, invB, m] = removeArtificials(x, I, A, invB, m, n)
         else
             % vamos trocar a base do indice l para j
             u = invB * A(:, I.n(ij));
-            [I, invB] = atualizaBase(I, invB, u, l, j, m);
+            [I, invB] = atualizaBase(I, invB, u, l, k, m);
         end
-        i++;
     end
 end
 
