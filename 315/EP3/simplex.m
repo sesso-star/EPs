@@ -15,6 +15,7 @@ function [ind, v] = simplex(A, b, c, m, n)
     invB = inv(A(:, I.b));
 
     % Resolve problema auxiliar
+    printf("\n******************** Fase1 ********************\n\n");
     [ind, x, I, invB] = fase2(A, b, c1, m, n + m, x, I, invB);
 
     % Verifica se o problema primal é viável
@@ -29,6 +30,7 @@ function [ind, v] = simplex(A, b, c, m, n)
     x = x(1 : n);
 
     % Resolve problema primal, com solução encontrada
+    printf("\n******************** Fase2 ********************\n\n");
     [ind, v, I, invB] = fase2(A, b, c, m, n, x, I, invB);
 end
 
@@ -36,6 +38,11 @@ function [ind, v, I, invB] = fase2(A, b, c, m, n, x, I, invB)
     %
     %
     %
+
+    it = 0;
+    printf("\nIteração %d:\n", it);
+    printXb(x, I, m);
+    printCusto(x, c, n);
 
     [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
     while redc < 0                              % se essa condição falha, x é ótimo
@@ -48,7 +55,16 @@ function [ind, v, I, invB] = fase2(A, b, c, m, n, x, I, invB)
 
         % atualiza x
         x = atualizax(x, teta, u, I.n(ij), I); 
-        [I, invB] = atualizaBase(I, invB, u, imin, ij, m); 
+        [I, invB] = atualizaBase(I, invB, u, imin, ij, m);
+
+        it++;
+        printf("\nIteração %d:\n", it);
+        printXb(x, I, m);
+        printDir(u, I, m);
+        printCusto(x, c, n);
+        printf("|  => entra na base <=: x%d\n", I.n(ij)); 
+        printf("|  <=  sai da base  =>: x%d\n", I.b(imin));
+        printf("|  Teta: %f\n", teta);
 
         [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
     end
@@ -216,22 +232,38 @@ end
 
 
 function printXb(x, I, m)
-    for i = 1 : m
-        printf("%d %f\n", I.b(i), x(I.b(i)));
+    vb = "Var Basicas";
+    vbl = length(vb);
+    v = "Valor";
+    vl = length(v) + 5;
+
+    printf("|  %*s\t%*s\n|  ", vbl, vb, vl, v);
+    for _ = 1 : vbl
+        printf("=");
+    end
+    printf("\t");
+    for _ = 1 : vl
+        printf("=");
     end
     printf("\n");
+
+    for i = 1 : m
+        printf("|  %*s\t%*f\n", vbl, ["x" num2str(I.b(i))], vl, x(I.b(i)));
+    end
+    printf("|  \n");
 end
 
 
 function printDir(u, I, m)
-    printf("Direção:\n");
+    %% Formatar direção
+    printf("|  Direção:\n");
     for i = 1 : m
-        printf("%d %f\n", I.b(i), u(i));
+        printf("|  %d %f\n", I.b(i), u(i));
     end
-    printf("\n");
+    printf("|  \n");
 end
 
 
 function printCusto(x, c, n)
-    printf("Valor função objetivo: %f\n\n", x'*c);
+    printf("|  Valor função objetivo: %f\n", x'*c);
 end
