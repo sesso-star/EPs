@@ -1,0 +1,267 @@
+\documentclass[12pt]{article}
+\usepackage[portuguese]{babel}               % acentos e tal
+\usepackage[utf8]{inputenc}                  %
+\usepackage{amsmath}						 % math
+
+\usepackage{amsfonts}						 % math symbols (ex: R^n)
+\usepackage{amssymb}
+
+\usepackage{graphicx}						 % imagens
+\usepackage{hyperref}                        % hyperlink
+\usepackage[usenames, dvipsnames]{color}
+% \usepackage[]{algorithm2e}
+\usepackage{algpseudocode}
+\usepackage{indentfirst}
+
+% cores
+\definecolor{title_color}{RGB}{60, 100, 200}
+\definecolor{text_color}{RGB}{0, 0, 0}
+\definecolor{section_color}{RGB}{25, 100, 75}
+\definecolor{basic_dir}{RGB}{0, 255, 170}
+\definecolor{svb}{RGB}{0, 50, 150}
+
+% títulos
+\usepackage{titlesec}
+\titleformat*{\section}{\LARGE\bfseries}
+
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\title{Relatório EP3 MAC315}
+
+\author{Bruno Sesso, Gustavo Estrela de Matos}
+
+\bigskip
+\date{\today}
+
+\begin{document}
+\begin{titlepage}
+	
+    \bigskip
+    \bigskip
+    \bigskip
+    \bigskip
+    \bigskip
+    \bigskip
+
+\begin{center}
+	\begin{flushleft}
+    	\textcolor{title_color} {
+        	\fontsize{1cm}{1em}\selectfont {Implementação do Método Simplex\\}
+    	}
+    \end{flushleft}
+  
+	\bigskip
+    \begin{flushleft}{
+    \textcolor{text_color} {
+    	\href{mailto:bsesso@gmail.com}{Bruno Sesso} 8536002\\    					      		           \href{mailto:estrela.gustavo.matos@gmail.com}{Gustavo Estrela de Matos} 8536051\\}
+    }
+    \end{flushleft}
+    
+	\bigskip
+    \bigskip
+    \bigskip
+    \bigskip
+    \bigskip
+    \bigskip	\bigskip
+    \bigskip
+    \bigskip
+    \bigskip
+    \bigskip
+    \bigskip	\bigskip
+    \bigskip
+    \bigskip
+    \bigskip
+    \bigskip
+	\today
+\end{center}
+\end{titlepage}
+
+\newpage
+\section{Introdução}
+
+
+
+\subsection{Apresentação do problema}
+    Os problemas de Programação Linear (PL) são casos específicos de otimização combinatória em que a função objetivo e as restrições são ambos lineares. Portanto a função objetivo é da forma $c^{T}x$ e as restrições são da forma $a_{i}^{T}x \geq b_{i}$ ou $a_{i}^{T}x \leq b_{i}$, com $c, x, a_i \in \mathbb{R}^{n}$ e $b_{i} \in \mathbb{R}$.
+    
+    Multiplicando por $-1$ todas as restrições da forma $a_{i}^{T}x \geq b_i$, podemos escrever qualquer PL como:
+
+    \begin{center}
+    	\begin{tabular}{r l}
+        	minimizar & $c^Tx$ \\
+        
+	        sujeito a & $Ax \leq b$, \\
+        
+        			  & $A \in R^{m \times n}$ e $b \in \mathbb{R}^m$.
+		\end{tabular}
+    \end{center}
+	Também é possível mostrar que qualquer PL pode ser escrito na forma: 
+
+	\begin{center}
+    	\begin{tabular}{r l}
+	  		minimizar & $c^Tx$ \\
+        
+	        sujeito a & $Ax = b$, \\
+       				  & $x \geq 0$~\cite{315book}.
+        \end{tabular}
+    \end{center}
+    Se for escrito dessa maneira, dizemos que o problema está no formato padrão. Adotaremos esse formato durante todo o trabalho.
+    
+    Se vale que $Ax^1 = b$ e $x^1 \geq 0$ dizemos que $x^1$ é um ponto viável. O conjunto $P = \{x| Ax = b, x \geq 0\}$ de todos os pontos viáveis é chamado conjunto viável.
+    
+    Uma solução ótima do problema é um ponto $x^1 \in P$ que minimiza \footnote[1]{Se o interesse for maximizar ${c}^{T}x$, podemos simplismente conseguir um problema equivalente em que o objetivo seja minimizar $-{c}^{T}x$.} a função objetivo $c$. Se $x^1$ existe, dizemos que o custo ótimo é $c^Tx$. Se $x^1$ não existe, ou não existem pontos viáveis ($P = \emptyset$), ou podemos diminuir o custo o quanto quisermos e dizemos que o custo ótimo é $- \infty$.
+    
+
+\subsection{Objetivos do trabalho}
+	Neste trabalho, temos o objetivo de desenvolver, na linguagem Octave, o algoritmo simplex para resolver problemas de Programação Linear.
+
+
+\section{Conceitos fundamentais}
+	Antes de introduzirmos o funcionamento do nosso algoritmo, precisamos definir alguns conceitos que são fundamentais para garantir sua corretude.
+
+	Seja o nosso problema de Programação Linear o seguinte:
+    \begin{center}
+    	\begin{tabular}{r l}
+	  		minimizar & $c^Tx$ \\
+        
+        	sujeito a & $Ax = b$ \\
+            & $x \geq 0$ \\
+       	
+        
+        com & $c, x \in \mathbb{R}^n$, $A \in \mathbb{R}^{m \times n}$ e $b \in \mathbb{R}^{m}$.
+        \end{tabular}
+    \end{center}
+
+	Além disso, vamos usar a notação $a_i$ para a i-ésima linha de A e $A_i$ para a i-ésima coluna de A.
+    
+    
+\subsection{Restrições e degenerecência}
+	Uma restrição $a^{T}_{i}x \geq b_{i}$ (ou $a^{T}_{i}x \leq b_{i}$), com $a_{i} \in \mathbb{R}^{n}$ e $b_i \in \mathbb{R}$, é uma \emph{restrição ativa} em um ponto $x^1 \in \mathbb{R}^n$ se $a^{T}_{i}x^1 = b_i$. Uma restrição de igualdade é sempre ativa. Um conjunto de restrições será dito LI se os vetores $a_{i}$ correspondentes forem LI.
+    
+    Diremos que $x^1$ uma solução viavel básica é \emph{degenerada} se existem mais de $n$ restrições ativas LI nesse ponto. Como as $m$ restrições de igualdade são sempre cumpridas, temos que as soluções básicas degeneradas possuem mais do que $n - m$ componentes nulas, enquanto que as não degeneradas possuem exatamente $n - m$.
+    
+    
+\subsection{Soluções Viáveis Básicas}
+	\label{subsec:svb}
+    Dizemos que um ponto $x \in \mathbb{R}^{n}$ do conjunto viável $P$ é uma \emph{solução viável básica}, se existem $n$ restrições ativas em $x$ que são LI. Note que para problemas no formato padrão, existem sempre $m$ restrições ativas LI vindas de $Ax = b$, e as outras $n - m$ vem, necessariamente de $x \geq 0$. Portanto, uma solução viável básica possui ao menos $n - m$ componentes nulas.
+    
+    Se $x^1$ é uma solução básica não degenerada e seja $B(1), ..., B(m)$ os índices das componentes não nulas de $x$. A matriz $B = \begin{bmatrix} A_{B(1)}, ..., A_{B(m)}\end{bmatrix}$ é chamada \emph{matriz básica} associada a $x^1$.
+    
+    %teorema 2.8
+    Se o conjunto $P$ tem uma solução viável básica, então ou o custo ótimo é $- \inf$ ou existe $x^1 \in P$ solução viável básica que é ótimo, ou seja, o custo de qualquer ponto do conjunto viável é maior ou igual do que o custo de $x^1$. Portanto, na solução de um PL com ao menos uma solução viável básica, podemos limitar a esses elementos a nossa busca por um ponto de custo ótimo~\cite{315book}.
+    
+    
+\subsection{Direções básicas}
+	Se $x^1$ é um solução viável básica de $P$, com índices básicos $B(1), ..., B(m)$. Dizemos que $d \in \mathbb{R}^n$, tal que $d_j = 1$, $Ad = 0$ $(A(x + \theta d) = b)$ e $d_i = 0$ para todo $i \notin \{B(1), ..., B(m)\}$, é a j-ésima direção básica partindo de $x^1$. Seja $d_B = \begin{bmatrix}d_{B(1)}, ..., d_{B(m)}\end{bmatrix}$, como $A(x + \theta d) = b$, temos que $d_B = -B^{-1}A_j$. Usaremos $u = -d_B = B^{-1}A_j$ por facilidade de notação, durante o trabalho.
+ 
+ 
+	A figura \ref{fig:basic_dir} dá um exemplo de direções básicas, $di$ e $dj$ a partir de uma solução viável básica $x^1$. Note que o poliedro pode ou não limitar um $\theta$ tal que o ponto $y = x^1 + \theta*d$ ($d$ direção básica) seja viável, e como veremos em \ref{concepts:adj_svb} isso pode implicar em custo $-\infty$ se nessa direção o custo diminui.
+    
+\thicklines    
+\begin{center}\label{fig:basic_dir}
+    \begin{picture}(200, 200)
+        \put(50, 50){\line(1, 0){100}}
+        \put(50, 50){\line(-1, 1){50}}
+        \put(35, 35){$x^2$}
+        \put(50, 50){\circle*{5}}
+        
+        \put(-15, 85){\textcolor{svb}{$x^1$}}
+        \put(0, 100){\line(1, 2){35}}
+        % di
+	    \put(0, 100){\textcolor{basic_dir}{\vector(1, 2){20}}}
+		\put(5, 130){\textcolor{basic_dir}{$d_i$}}
+        %dj
+		\put(0, 100){\textcolor{basic_dir}{\vector(1, -1){25}}}
+		\put(15, 65){\textcolor{basic_dir}{$d_j$}}
+        \put(0, 100){\circle*{5}}
+        
+        \put(150, 50){\circle*{5}}
+        \put(135, 35){$x^3$}
+        
+        \put(75, 100){$P$}
+    \end{picture}
+\end{center} 
+
+\subsection{Custos reduzidos}\label{concepts:reduced costs}
+
+    Seja $x^1$ uma solução viável básica, $B$ a matriz básica associada e $c_B = \begin{bmatrix} c_{B(1)}, ..., c_{B(m)}\end{bmatrix}$. Definimos, para cada $j \in \{1, ..., n\}$ o custo reduzido: 
+    \begin{center}
+    $\overline{c}_{j} = c_j - c_{B}^{T} B^{-1}A_j$.
+    \end{center}
+    
+    %teorema 3.1
+    Seja $x^1$ uma solução viável básica e $\overline{c}$ o vetor de custos reduzidos correspondente. Sabemos que se $\overline{c} \geq 0$, então $x^1$ é ótimo. Além disso, se $x^1$ for ótimo e não degenerado, então $\overline{c} \geq 0$~\cite{315book}. Portanto, se estivermos em uma solução viável básica e $\overline{c} \geq 0$, então estamos em um ponto ótimo.
+    
+    Note que ao escolhermos uma direção viável básica, o custo de um ponto $y = x^1 + \theta d_j$ é $c^{T}(x^1 + \theta d_j)$
+
+\subsection{Soluções Viáveis Básicas adjacentes}\label{concepts:adj_svb}
+	Seja $x^1$ uma solução viável básica com índices básicos $B(1), ..., B(m)$. Uma solução viável básica é \emph{adjacente} a $x^1$ se compartilha $m-1$ índices com $x^1$. Para achar uma solução viável básica adjacente, vamos usar as direções básicas, pois elas forçam o crescimento de uma variável $j$ não-básica, mantendo $Ax = b$ e $x \geq 0$. Veremos que para um $\theta \geq 0$, o ponto $x^1 + \theta d_j$ é solução viável básica adjacente a $x^1$, com $d_j$ como foi definido em \ref{concepts:reduced costs}. 
+    
+    Vamos tomar $\theta = \min_{i = 1,...,m | u_i > 0}{\{x_{B(i)} / u_i\}}$ e ver que $x^2 = x^1 + \theta d_j$ é de fato uma solução viável básica adjacente a $x^1$. Caso todas as componentes de $u_i$ sejam menores ou igual a zero e o custo reduzido na direção $j$ menor do que zero teremos que o problema tem custo ótimo $- \infty$, como será explicado a seguir.
+    
+    Se $\theta$ definido acima não existe, temos que todas as componentes de $u_i$ são menores ou igual a zero ($d \geq 0$), logo qualquer ponto $x^2 = x^1 + \theta d$ é viável com $\theta \geq 0$, pois a restrição $Ax^2 = b$ é verificada (por construção), e $x^2_j = x^1_j + \theta \geq x^1_j \geq 0$, e para $i$ básico $x^2_j = x^1_j + \theta d_ j \geq x^1_j \geq 0$. Se ainda tivermos que o custo diminui nessa direção, poderemos diminuir o custo o quanto quisermos e a solução do problema será $- \infty$.
+    
+    Se $\theta \in \mathbb{R}$, como $d_i = 0$ $\forall{i \in \{B(1), ..., B(m)\}, i \neq j}$, temos que para essas mesmas componentes $x^2$ é nulo. Logo, temos $n - 1$ restrições ativas LI em $x^2$. Suponha que para $l \in \{1,..,m\}$ vale que $\theta =  x_{B(l)} / u_l$, então $x^2_{B(l)} = x^1_{B(l)} + (-x^1_B(l)/d_{B(l)}) * d_{B(l)} = 0$ (diremos que $B(l)$ sai da base), logo existem $n$ restrições ativas LI em $x^2$. Além disso, por construção, vale que $Ax = b$ e $x \geq 0$ para variáveis não básicas e para $x_B(l)$. Para $B(k)$ básico diferente de $B(l)$, temos que $x^2_B(k) \geq x^1_{B(k)} + (-x^1_B(k)/d_{B(k)}) * d_{B(k)} = 0$. Portanto $x^2$ é solução viável básica adjacente a $x^1$ e, como a base de $x^2$ é $\{B(1), ..., B(l - 1), j, B(l + 1), ..., B(m)\}$, $x^2$ é adjacente a $x^1$.
+    
+    
+    
+\section{O algoritmo}
+
+
+\subsection{Ideia do algoritmo}
+	A ultima seção apresenta ideias essenciais para a construção da fase 2 do algoritmo simplex. Dentre elas, as mais importantes são: podemos reduzir nosso espaço de busca as soluções viaveis básicas; se $\overline{c} \geq 0$ e estamos em uma solução viável básica, então esse ponto é ótimo.
+    
+    Portanto, utilizamos uma dinâmica que percorre as soluções viáveis básicas, com auxilio das direções básicas, sempre diminuindo a função custo, até que não seja mais possível sair de um ponto sem aumentar ou manter o custo, ou até encontrar uma direção que podemos diminuir o custo sem limitações.
+    
+    %o algoritmo pode parar se c >= 0 ou se u não tem componentes maiores que zero.
+\subsection{Algoritmo}
+\begin{algorithmic}
+\Function{$simplex$}{$A$, $b$, $c$, $m$, $n$, $x$}
+	\State calcula indices basicos ($Ib$) e não básicos ($In$)
+    \State $B \gets  A_{Ib(i)}$, i = 1, ..., m
+    \State $invB \gets B^{-1}$
+   	\State $imin \gets 0$
+	\If {$\nexists j$ t.q. $\overline{c_{j}} < 0$} 
+        \State $\overline{c_{j}} \gets 0$
+   	\Else
+	\State $\overline{c_{j}} \gets c_{j} - c_{B}^{T}B^{-1}A_{j}$, algum $j \in In$ t.q. $\overline{c_{j}} < 0$
+    \State $u \gets invB * A_{j}$  
+    \EndIf 
+    \While{$\overline{c_{j}} < 0$}
+    	\If {$u_{l} < 0, l = 1, ... , m$}
+        	\State \Return{$-1, d(u,j)$}
+        \EndIf
+    	\State $\theta \gets \min_{u_{l} >= 0} \{\frac{x_{Ib(l)}} {u_{l}}\}, l = 1, ... , m$
+        \State $x \gets x + \theta * d(u, j)$
+        \State $x_{Ib(l)}$ sai da base \Comment{Atualiza $In$}
+        \State $x_{j}$ entra na base \Comment{Atualiza $Ib$}
+        \State Atualiza $invB$
+	    \State $\overline{c_{j}} \gets c_{j} - c_{B}^{T}B^{-1}A_{j}$, algum $j \in In$ t.q. $\overline{c_{j}} < 0$ 
+        \State $u \gets invB * A_{j}$  
+    \EndWhile
+    \State \Return {$0, x$}
+\EndFunction
+
+\end{algorithmic}
+    %colocar o exemplo ali em baixo, em resultados.%
+
+%tenta seguir o esquema que eu to fazendo lá em baixo pra não ficar mto diferente
+
+
+\section{Condições do problema}
+\label{sec:cond}
+	Durante a elaboração do algoritmo foram consideradas duas condições: existe ao menos uma solução viável básica e qualquer solução viável básica é não degenerada. Essas condições foram importantes para implementações de detalhes do código e sem elas o algoritmo não será correto.
+    
+    A existência de ao menos uma solução viável básica implica, como discutido na subseção ~\ref{subsec:svb}, que ou o custo ótimo é $- \infty$ ou existe uma solução viável básica com custo ótimo. Isso nos permite limitar nosso espaço de busca às soluções viáveis básicas, somente.
+    
+    A condição de que todas as soluções viáveis básicas são não-degeneradas tem outras aplicações. Com essa condição, é possível determinar a base da solução inicial dada. Além disso, ela garante que em todo passo em que calculamos um novo $\theta$, o mesmo será maior do que zero, póis a não degenerecência implica que $x_B(i) > 0$, evitando o problema de passar uma interação do algoritmo sem sair do ponto anterior, o que pode criar um ciclo sem fim no algoritmo.	
+    Além disso, houve uma condição não citada no enunciado que é importante para a solução do problema: o posto completo da matriz $A$. Se $posto(A) = k < n$ precisaríamos construir uma matriz $A^1$ com posto completo, para garantir sabemos escolher $k$ colunas LI de $A^1$ que formam bases para soluções viáveis básicas.
+
+
+
+
+\begin{thebibliography}{9}
+\bibitem{315book} Dimitris Bertsimas, John N. Tsitsiklis. Introduction to Linear Optimization. 1997.
+\end{thebibliography}
+\end{document}
