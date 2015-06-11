@@ -22,6 +22,7 @@ function [ind, v] = simplex(A, b, c, m, n)
     if x(n + 1 : n + m) != 0
         ind = 1;
         v = x = [];
+        printf("\n\nO problema é inviável\n");
         return;
     end
 
@@ -32,6 +33,13 @@ function [ind, v] = simplex(A, b, c, m, n)
     % Resolve problema primal, com solução encontrada
     printf("\n******************** Fase2 ********************\n\n");
     [ind, v, I, invB] = fase2(A, b, c, m, n, x, I, invB);
+
+    if ind == -1
+        printf("\n\nO custo ótimo é -infinito, com direção:\nd =\n\n");
+    else
+        printf("\n\nSolução encontrada: \nx = \n\n");
+    end
+    disp(v);
 end
 
 function [ind, v, I, invB] = fase2(A, b, c, m, n, x, I, invB)
@@ -61,10 +69,7 @@ function [ind, v, I, invB] = fase2(A, b, c, m, n, x, I, invB)
         printf("\nIteração %d:\n", it);
         printXb(x, I, m);
         printDir(u, I, m);
-        printCusto(x, c, n);
-        printf("|  => entra na base <=: x%d\n", I.n(ij)); 
-        printf("|  <=  sai da base  =>: x%d\n", I.b(imin));
-        printf("|  Teta: %f\n", teta);
+        printResto(x, c, I, ij, imin, teta);
 
         [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
     end
@@ -231,6 +236,8 @@ function d = u2d(u, j, I)
 end
 
 
+%%%%%%%%%%%%%%% FUNÇÕES DE IMPRESSÃO %%%%%%%%%%%%%%%
+
 function printXb(x, I, m)
     vb = "Var Basicas";
     vbl = length(vb);
@@ -255,15 +262,68 @@ end
 
 
 function printDir(u, I, m)
-    %% Formatar direção
-    printf("|  Direção:\n");
+    ind = "Indice var basicas";
+    indl = length(ind);
+    d = "Componente da direcao";
+    dl = length(d);
+
+    printf("|  %*s\t%*s\n|  ", indl, ind, dl, d);
+    for _ = 1 : indl
+        printf("=");
+    end
+    printf("\t");
+    for _ = 1 : dl
+        printf("=");
+    end
+    printf("\n");
+
     for i = 1 : m
-        printf("|  %d %f\n", I.b(i), u(i));
+        printf("|  %*d\t%*f\n", indl, I.b(i), dl, u(i));
     end
     printf("|  \n");
 end
 
+function printResto(x, c, I, ij, imin, teta)
+    cx = "Custo em x";
+    cxl = length(cx);
+    t = "   Teta   ";
+    tl = length(t);
+    in = "Entra na Base";
+    inl = length(in);
+    out = "Sai da Base";
+    outl = length(out);
+
+    printf("|  %*s\t%*s\t%*s\t%*s\n|  ", cxl, cx, tl, t, inl, in, outl, out);
+    for _ = 1 : cxl
+        printf("=");
+    end
+    printf("\t");
+    for _ = 1 : tl
+        printf("=");
+    end
+    printf("\t");
+    for _ = 1 : inl
+        printf("=");
+    end
+    printf("\t");
+    for _ = 1 : outl
+        printf("=");
+    end
+    printf("\n");
+
+    printf("|  %*.3f\t%*.3f\t%*s\t%*s\n", cxl, (x'*c), tl, teta, inl, ["x" num2str(I.n(ij))], outl, ["x" num2str(I.b(imin))]);
+    printf("|  \n");
+end
 
 function printCusto(x, c, n)
-    printf("|  Valor função objetivo: %f\n", x'*c);
+    cx = "Custo em x";
+    cxl = length(cx);
+
+    printf("|  %*s\n|  ", cxl, cx);
+    for _ = 1 : cxl
+        printf("=");
+    end
+    printf("\n");
+    printf("|  %*.3f\n", cxl, x'*c);
+    printf("|  \n");
 end
