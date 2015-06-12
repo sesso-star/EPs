@@ -257,12 +257,21 @@ Para descobrir esses parâmetros vamos criar um problema auxliar de programaçã
 \begin{center}
 	\begin{tabular}{r l}
 		minimizar & $\sum_{i = 1}^{m} y_i$ \\
-		sujeito a & $Ax \leq b$, \\
-		
-		& $A \in R^{m \times n}$ e $b \in \mathbb{R}^m$.
+		sujeito a & $
+					[\begin{array}{c | c}
+						A & I
+					\end{array}]
+					
+					\bigg[\begin{array}{c}
+						x \\
+						\hline
+						y
+					\end{array}\bigg]
+					
+					\leq b$, \\
+			com   &	$A \in R^{m \times n}$, $b, y \in \mathbb{R}^m$ e $I \in \mathbb{R}^{m \times m}$.
 	\end{tabular}
 \end{center}
-
 
 \newpage
 \begin{thebibliography}{9}
