@@ -195,7 +195,7 @@
     %teorema 3.1
     Seja $x^1$ uma solução viável básica e $\overline{c}$ o vetor de custos reduzidos correspondente. Sabemos que se $\overline{c} \geq 0$, então $x^1$ é ótimo. Além disso, se $x^1$ for ótimo e não degenerado, então $\overline{c} \geq 0$~\cite{315book}. Portanto, se estivermos em uma solução viável básica e $\overline{c} \geq 0$, então estamos em um ponto ótimo.
     
-    Note que ao escolhermos uma direção viável básica, o custo de um ponto $y = x^1 + \theta d_j$ é $c^{T}(x^1 + \theta d_j)$
+    Note que ao escolhermos uma direção viável básica, o custo de um ponto $y = x^1 + \theta d_j$ é $c^{T}(x^1 + \theta d_j) = c^{T}x^1 + \theta (c_j - c^{T}_{B}B^{-1}A_j) = c^{T}x^1 + \theta \overline{c}$. Portanto, podemos dizer que o custo reduzido representa a variação do custo ao percorrer uma direção básica.
 
 \subsection{Soluções Viáveis Básicas adjacentes}\label{concepts:adj_svb}
 	Seja $x^1$ uma solução viável básica com índices básicos $B(1), ..., B(m)$. Uma solução viável básica é \emph{adjacente} a $x^1$ se compartilha $m-1$ índices com $x^1$. Para achar uma solução viável básica adjacente, vamos usar as direções básicas, pois elas forçam o crescimento de uma variável $j$ não-básica, mantendo $Ax = b$ e $x \geq 0$. Veremos que para um $\theta \geq 0$, o ponto $x^1 + \theta d_j$ é solução viável básica adjacente a $x^1$, com $d_j$ como foi definido em \ref{concepts:reduced costs}. 
@@ -271,18 +271,31 @@
 %tenta seguir o esquema que eu to fazendo lá em baixo pra não ficar mto diferente
 
 
-\section{Condições do problema}
-\label{sec:cond}
-	Durante a elaboração do algoritmo foram consideradas duas condições: existe ao menos uma solução viável básica e qualquer solução viável básica é não degenerada. Essas condições foram importantes para implementações de detalhes do código e sem elas o algoritmo não será correto.
-    
-    A existência de ao menos uma solução viável básica implica, como discutido na subseção ~\ref{subsec:svb}, que ou o custo ótimo é $- \infty$ ou existe uma solução viável básica com custo ótimo. Isso nos permite limitar nosso espaço de busca às soluções viáveis básicas, somente.
-    
-    A condição de que todas as soluções viáveis básicas são não-degeneradas tem outras aplicações. Com essa condição, é possível determinar a base da solução inicial dada. Além disso, ela garante que em todo passo em que calculamos um novo $\theta$, o mesmo será maior do que zero, póis a não degenerecência implica que $x_B(i) > 0$, evitando o problema de passar uma interação do algoritmo sem sair do ponto anterior, o que pode criar um ciclo sem fim no algoritmo.	
-    Além disso, houve uma condição não citada no enunciado que é importante para a solução do problema: o posto completo da matriz $A$. Se $posto(A) = k < n$ precisaríamos construir uma matriz $A^1$ com posto completo, para garantir sabemos escolher $k$ colunas LI de $A^1$ que formam bases para soluções viáveis básicas.
+\section{Fase 1 do simplex}
+Para iniciar a fase 2 do algoritmo simplex precisamos de uma solução viável básica $x^1$, a sua base associada e a inversa da matriz básica. Nesta seção explicaremos o funcionamento da fase 1 do método simplex, responsável por descobrir estes parâmetros.
 
+Para descobrir esses parâmetros vamos criar um problema auxliar de programação linear:
 
+\begin{center}
+	\begin{tabular}{r l}
+		minimizar & $\sum_{i = 1}^{m} y_i$ \\
+		sujeito a & $
+					[\begin{array}{c | c}
+						A & I
+					\end{array}]
+					
+					\bigg[\begin{array}{c}
+						x \\
+						\hline
+						y
+					\end{array}\bigg]
+					
+					\leq b$, \\
+			com   &	$A \in R^{m \times n}$, $b, y \in \mathbb{R}^m$ e $I \in \mathbb{R}^{m \times m}$.
+	\end{tabular}
+\end{center}
 
-
+\newpage
 \begin{thebibliography}{9}
 \bibitem{315book} Dimitris Bertsimas, John N. Tsitsiklis. Introduction to Linear Optimization. 1997.
 \end{thebibliography}
