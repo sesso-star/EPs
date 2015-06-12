@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex 2015.1.30)  11 JUN 2015 16:51
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex 2015.1.31)  11 JUN 2015 18:09
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -506,55 +506,63 @@ Document Style - pseudocode environments for use with the `algorithmicx' style
 ) (/usr/share/texlive/texmf-dist/tex/latex/tools/indentfirst.sty
 Package: indentfirst 1995/11/23 v1.03 Indent first paragraph (DPC)
 )
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty
+Package: enumitem 2011/09/28 v3.5.2 Customized lists
+\labelindent=\skip50
+\enit@outerparindent=\dimen119
+\enit@toks=\toks22
+\enit@inbox=\box28
+\enitdp@description=\count118
+)
 (/usr/share/texlive/texmf-dist/tex/latex/titlesec/titlesec.sty
 Package: titlesec 2011/12/15 v2.10.0 Sectioning titles
-\ttl@box=\box28
-\beforetitleunit=\skip50
-\aftertitleunit=\skip51
-\ttl@plus=\dimen119
-\ttl@minus=\dimen120
-\ttl@toksa=\toks22
-\titlewidth=\dimen121
-\titlewidthlast=\dimen122
-\titlewidthfirst=\dimen123
+\ttl@box=\box29
+\beforetitleunit=\skip51
+\aftertitleunit=\skip52
+\ttl@plus=\dimen120
+\ttl@minus=\dimen121
+\ttl@toksa=\toks23
+\titlewidth=\dimen122
+\titlewidthlast=\dimen123
+\titlewidthfirst=\dimen124
 )
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/helvet.sty
 Package: helvet 2005/04/12 PSNFSS-v9.2a (WaS) 
 ) (./relatorio.aux)
 \openout1 = `relatorio.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Try loading font information for OT1+phv on input line 37.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Try loading font information for OT1+phv on input line 39.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1phv.fd
 File: ot1phv.fd 2001/06/04 scalable font definitions for OT1/phv.
 )
 (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count118
-\scratchdimen=\dimen124
-\scratchbox=\box29
-\nofMPsegments=\count119
-\nofMParguments=\count120
-\everyMPshowfont=\toks23
-\MPscratchCnt=\count121
-\MPscratchDim=\dimen125
-\MPnumerator=\count122
-\makeMPintoPDFobject=\count123
-\everyMPtoPDFconversion=\toks24
+\scratchcounter=\count119
+\scratchdimen=\dimen125
+\scratchbox=\box30
+\nofMPsegments=\count120
+\nofMParguments=\count121
+\everyMPshowfont=\toks24
+\MPscratchCnt=\count122
+\MPscratchDim=\dimen126
+\MPnumerator=\count123
+\makeMPintoPDFobject=\count124
+\everyMPtoPDFconversion=\toks25
 ) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
 
@@ -570,8 +578,8 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-\AtBeginShipoutBox=\box30
-Package hyperref Info: Link coloring OFF on input line 37.
+\AtBeginShipoutBox=\box31
+Package hyperref Info: Link coloring OFF on input line 39.
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
@@ -579,69 +587,69 @@ Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
-\c@section@level=\count124
+\c@section@level=\count125
 )
-LaTeX Info: Redefining \ref on input line 37.
-LaTeX Info: Redefining \pageref on input line 37.
-LaTeX Info: Redefining \nameref on input line 37.
+LaTeX Info: Redefining \ref on input line 39.
+LaTeX Info: Redefining \pageref on input line 39.
+LaTeX Info: Redefining \nameref on input line 39.
 
 (./relatorio.out) (./relatorio.out)
 \@outlinefile=\write3
 \openout3 = `relatorio.out'.
 
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 78.
+(babel)             in language  on input line 80.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 78.
+(babel)             in language  on input line 80.
  [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <20.74> not available
-(Font)              Font shape `OT1/phv/b/n' tried instead on input line 81.
+(Font)              Font shape `OT1/phv/b/n' tried instead on input line 83.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 81.
+(babel)             in language  on input line 83.
 LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/phv/b/n' tried instead on input line 85.
+(Font)              Font shape `OT1/phv/b/n' tried instead on input line 87.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 85.
-LaTeX Font Info:    Try loading font information for U+msa on input line 86.
+(babel)             in language  on input line 87.
+LaTeX Font Info:    Try loading font information for U+msa on input line 88.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 86.
+LaTeX Font Info:    Try loading font information for U+msb on input line 88.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 116.
-Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 120.
+(babel)             in language  on input line 118.
 Package babel Info: Redefining portuges shorthand "|
 (babel)             in language  on input line 122.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 122.
+(babel)             in language  on input line 124.
+Package babel Info: Redefining portuges shorthand "|
+(babel)             in language  on input line 124.
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.122 
+l.124 
        [1]
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 139.
+(babel)             in language  on input line 141.
 LaTeX Font Info:    Font shape `OT1/phv/m/it' in size <12> not available
-(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 140.
+(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 142.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 145.
-Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 153.
-Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 153.
- [2]
+(babel)             in language  on input line 147.
 Package babel Info: Redefining portuges shorthand "|
 (babel)             in language  on input line 155.
+Package babel Info: Redefining portuges shorthand "|
+(babel)             in language  on input line 155.
+ [2]
+Package babel Info: Redefining portuges shorthand "|
+(babel)             in language  on input line 157.
 
-Overfull \hbox (18.55432pt too wide) in paragraph at lines 156--157
+Overfull \hbox (18.55432pt too wide) in paragraph at lines 158--159
 []\OT1/phv/m/n/12 Se $\OML/cmm/m/it/12 x[]$ []\OT1/phv/m/n/12 e um solu[][]ao v
 i[]avel b[]asica de $\OML/cmm/m/it/12 P$\OT1/phv/m/n/12 , com []^^Pndices b[]as
 icos $\OML/cmm/m/it/12 B\OT1/cmr/m/n/12 (1)\OML/cmm/m/it/12 ; :::; B\OT1/cmr/m/
@@ -649,74 +657,83 @@ n/12 (\OML/cmm/m/it/12 m\OT1/cmr/m/n/12 )$\OT1/phv/m/n/12 .
  []
 
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 186.
+(babel)             in language  on input line 188.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 191.
+(babel)             in language  on input line 193.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 191.
+(babel)             in language  on input line 193.
 [3]
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 198.
+(babel)             in language  on input line 200.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 209.
+(babel)             in language  on input line 211.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 212.
+(babel)             in language  on input line 213.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 214.
+(babel)             in language  on input line 215.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 214.
+(babel)             in language  on input line 215.
  [4]
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 218.
+(babel)             in language  on input line 216.
 LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <12> not available
-(Font)              Font shape `OT1/phv/b/n' tried instead on input line 220.
+(Font)              Font shape `OT1/phv/b/n' tried instead on input line 229.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 242.
+(babel)             in language  on input line 234.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 242.
+(babel)             in language  on input line 240.
+Package babel Info: Redefining portuges shorthand "|
+(babel)             in language  on input line 245.
+Package babel Info: Redefining portuges shorthand "|
+(babel)             in language  on input line 245.
  [5]
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 252.
+(babel)             in language  on input line 274.
 
-Overfull \hbox (4.13293pt too wide) in paragraph at lines 254--255
+Overfull \hbox (4.13293pt too wide) in paragraph at lines 276--277
 []\OT1/phv/m/n/12 Durante a elabora[][]ao do al-go-ritmo fo-ram con-si-de-ra-da
 s duas condi[][]oes:
  []
 
 
-Overfull \hbox (54.15137pt too wide) in paragraph at lines 254--255
+Overfull \hbox (54.15137pt too wide) in paragraph at lines 276--277
 \OT1/phv/m/n/12 b[]asica []e n[]ao de-ge-ne-rada. Es-sas condi[][]oes fo-ram im
 -por-tan-tes para implementa[][]oes
  []
 
 
-Overfull \hbox (22.15651pt too wide) in paragraph at lines 258--260
+Overfull \hbox (22.15651pt too wide) in paragraph at lines 280--282
 []\OT1/phv/m/n/12 A condi[][]ao de que to-das as solu[][]oes vi[]aveis b[]asica
 s s[]ao n[]ao-degeneradas
  []
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 267.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 267.
+(babel)             in language  on input line 282.
 Package babel Info: Redefining portuges shorthand "|
-(babel)             in language  on input line 267.
+(babel)             in language  on input line 282.
 [6]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 267.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 289.
+Package babel Info: Redefining portuges shorthand "|
+(babel)             in language  on input line 289.
+Package babel Info: Redefining portuges shorthand "|
+(babel)             in language  on input line 289.
+ [7]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 289.
  (./relatorio.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 267.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 267.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 289.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 289.
 Package rerunfilecheck Info: File `relatorio.out' has not changed.
-(rerunfilecheck)             Checksum: E6A71E95141B9FE12A87D6A7D52E80AF;899.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 267.
+(rerunfilecheck)             Checksum: 68B204ECF8E3282785C8CC7D9B28364B;1033.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 289.
  ) 
 Here is how much of TeX's memory you used:
- 7728 strings out of 493105
- 109252 string characters out of 6137072
- 211696 words of memory out of 5000000
- 11051 multiletter control sequences out of 15000+600000
+ 8009 strings out of 493105
+ 113996 string characters out of 6137072
+ 217914 words of memory out of 5000000
+ 11325 multiletter control sequences out of 15000+600000
  27441 words of font info for 61 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 29i,8n,35p,849b,492s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 29i,8n,35p,849b,472s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
 e/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist
@@ -734,10 +751,10 @@ texlive/texmf-dist/fonts/type1/public/amsfonts/latxfont/linew10.pfb></usr/share
 texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts
 /type1/urw/helvetic/uhvro8a.pfb>
-Output written on relatorio.pdf (7 pages, 150080 bytes).
+Output written on relatorio.pdf (8 pages, 151864 bytes).
 PDF statistics:
- 177 PDF objects out of 1000 (max. 8388607)
- 149 compressed objects within 2 object streams
- 22 named destinations out of 1000 (max. 500000)
- 105 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 190 PDF objects out of 1000 (max. 8388607)
+ 161 compressed objects within 2 object streams
+ 25 named destinations out of 1000 (max. 500000)
+ 121 words of extra memory for PDF output out of 10000 (max. 10000000)
 

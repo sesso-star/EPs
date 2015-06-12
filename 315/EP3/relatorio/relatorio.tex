@@ -12,6 +12,8 @@
 % \usepackage[]{algorithm2e}
 \usepackage{algpseudocode}
 \usepackage{indentfirst}
+\usepackage{enumitem}
+\setlist[description]{leftmargin=\parindent,labelindent=\parindent}
 
 % cores
 \definecolor{title_color}{RGB}{60, 100, 200}
@@ -207,6 +209,26 @@
     
     
 \section{O algoritmo}
+
+\subsection{Objetivo}
+	Nossa motivação é solucionar um problema de programação linear (\emph{PL}) que consiste em minimizar uma função linear (função de custos) sujeita a restrições lineares. Agora que temos os conceitos necessários, vamos desenvolver um algoritmo para solucionar tal problema.
+
+\subsection{O que temos a princípio}
+	Dado o problema:
+    \begin{center}
+    	\begin{tabular}{r l}
+	  		minimizar & $c^Tx$ \\
+        
+        	sujeito a & $Ax = b$ \\
+            & $x \geq 0$ \\
+        \end{tabular}
+    \end{center}
+  
+	Queremos achar o $x$ que satisfaça todas as restrições e minimize $c^Tx$. Portanto temos como informação inicial: 
+	\begin{description}
+		\item[A] Matriz $m \times n$
+		\item[b] Vetor de dimensão $m$
+	\end{description}
 
 
 \subsection{Ideia do algoritmo}
