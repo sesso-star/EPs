@@ -1,4 +1,28 @@
-function [ind, v] = simplex(A, b, c, m, n)
+function [ind, x, d] = simplex(A, b, c, m, n)
+    % Recebe:
+    %   A: Matriz de restrições
+    %   b: Vetor tal que A*x = b
+    %   c: Vetor de custos
+    %   m: número de restrições
+    %   n: número de variáveis
+    %
+    % Calcula solução ótima para o PL: min c'x, S.A.: Ax = b, x >= 0
+    %
+    % Retorna:
+    %   ind: Retorna 0 se uma solução ótima foi encontrada.
+    %   x: Solução ótima encontrada
+    %   d: Vetor vazio
+    %   I: Índices básicos da solução encontrada
+    %   invB: B^-1 associada à solução encontrada
+    %   Caso o problema tiver custo ótimo -inf, retorna-se: 
+    %       ind = -1
+    %       x: Última svb utilizada
+    %       d: direção para a qual o custo vai a -inf
+    %   Caso o problema for inviável, retorna-se:
+    %       ind = 1
+    %       x = []
+    %       d = []
+    
     % Arruma restrições para que b > 0
     for i = 1 : m
         if (b < 0)
@@ -16,12 +40,13 @@ function [ind, v] = simplex(A, b, c, m, n)
 
     % Resolve problema auxiliar
     printf("\n******************** Fase1 ********************\n\n");
-    [ind, x, I, invB] = fase2(A, b, c1, m, n + m, x, I, invB);
+    [ind, x, d, I, invB] = fase2(A, b, c1, m, n + m, x, I, invB);
 
-    % Verifica se o problema primal é viável
     if x(n + 1 : n + m) != 0
+        % Problema Inviável
         ind = 1;
-        v = x = [];
+        x = [];
+        d = [];
         printf("\n\nO problema é inviável\n");
         return;
     end
@@ -32,36 +57,57 @@ function [ind, v] = simplex(A, b, c, m, n)
 
     % Resolve problema primal, com solução encontrada
     printf("\n******************** Fase2 ********************\n\n");
-    [ind, v, I, invB] = fase2(A, b, c, m, n, x, I, invB);
+    [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB);
 
     if ind == -1
         printf("\n\nO custo ótimo é -infinito, com direção:\nd =\n\n");
+        disp(d);
+        printf("A partir de:\nx = \n\n");
     else
         printf("\n\nSolução encontrada: \nx = \n\n");
     end
-    disp(v);
+    disp(x);
 end
 
-function [ind, v, I, invB] = fase2(A, b, c, m, n, x, I, invB)
+function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB)
+    % Recebe:
+    %   A: Matriz de restrições
+    %   b: Vetor tal que A*x = b
+    %   c: Vetor de custos
+    %   m: número de restrições
+    %   n: número de variáveis
+    %   x: Solução viável básica
+    %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
+    %   invB: Inversa da matriz B (colunas de A com indice básico)
     %
+    % Calcula solução ótima para o PL: min c'x, S.A.: Ax = b, x >= 0, sabendo que o problema é viável
     %
-    %
+    % Retorna:
+    %   ind: Retorna 0 se uma solução ótima foi encontrada.
+    %   x: Solução ótima encontrada
+    %   d: vetor vazio
+    %   I: Índices básicos da solução encontrada
+    %   invB: B^-1 associada à solução encontrada
+    %   Caso o problema tiver custo ótimo -inf, retorna-se: 
+    %       ind = -1
+    %       x: Última svb utilizada
+    %       d: direção para a qual o custo vai a -inf
 
     it = 0;
     printf("\nIteração %d:\n", it);
     printXb(x, I, m);
-    printCusto(x, c, n);
+    printCusto(x, c);
 
     [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
     while redc < 0                              % se essa condição falha, x é ótimo
         [imin, teta] = calculaTeta(x, u, I);
         if imin == -1                           % custo ótimo é -inf e u tem a direção
             ind = -1;
-            v = u2d(u, I.n(ij), I);
+            d = u2d(u, I.n(ij), I);
             return;
         end
 
-        % atualiza x
+        % atualiza
         x = atualizax(x, teta, u, I.n(ij), I); 
         [I, invB] = atualizaBase(I, invB, u, imin, ij, m);
 
@@ -73,8 +119,8 @@ function [ind, v, I, invB] = fase2(A, b, c, m, n, x, I, invB)
 
         [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
     end
-
-    v = x;
+    
+    d = [];
     ind = 0;
 end 
 
@@ -102,17 +148,17 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
     %
     % Esta função é O(nm)
 
-    % Calcula c_b' * B^-1 para evitar contas repetidas.   ~ O(m^2)
+    % Calcula c_b' * B^-1 para evitar contas repetidas.
     cbinvB = c(I.b)' * invB;
 
-    % itera pelos indices não básicos, procurando custo reduzido < 0.   ~ O(nm)
+    % itera pelos indices não básicos, procurando custo reduzido < 0.
     j = 1;
     while j <= n - m
         redc = c(I.n(j)) - cbinvB * A(:, I.n(j));
 
         if redc < -1e-10
             ij = j;
-            u = invB * A(:, I.n(ij)); % O(m^2)
+            u = invB * A(:, I.n(ij)); 
 
             % Retorna o primeiro custo reduzido < 0. (Regra anti-ciclagem pelo menor indice)
             return; 
@@ -128,10 +174,21 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
 end
 
 
-function [imin, teta] = calculaTeta(x, u, I) 
-    % Calcula o teta: min{ -x_b(i) / d_b(i) }, d_b(i) < 0, i em Ib. Além de retornar 
-    % teta, retorna o menor índice de Ib que minimiza a expressão acima.
+function [imin, teta] = calculaTeta(x, u, I)
+    % Recebe:
+    %   x: Solução viável básica
+    %   u: Componentes de indices básicos de uma direção viável
+    %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
+    %
+    % Calcula o teta: min{ -x_b(i) / d_b(i) }, d_b(i) < 0, i em Ib. 
+    %
+    % Retorna:
+    %   imin: indice de I.b tal que teta = x(I.b(imin)) / u(I.b(imin))
+    %   teta: Coeficiente tal que x + teta * d é uma nova svb
+    %   Caso não haja d_b(i) < 0, isto é o custo ótimo é -inf, retorna-se imin = -1, teta = inf
+    %
     % Essa função é O(m)
+
     imin = -1;
     teta = inf;
     
@@ -148,10 +205,21 @@ end
 
 
 function [I, invB] = atualizaBase(I, invB, u, imin, ij, m)
-    % Dada uma base, e dois indices imin e ij, retira da base o imin-ésimo elemento 
-    % básico (I.b(imin)) adiciona a base o ij-ésimo elemento não básico (I.n(ij)).
-    % O vetor u vale B^-1 * A(I.n(ij))
-    % Além disso atualiza a inversa da matriz básica.
+    % Recebe:
+    %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
+    %   invB: Inversa da matriz B (colunas de A com indice básico)
+    %   u: Componentes de indices básicos de uma direção viável
+    %   imin: Indice de I.b
+    %   ij: Indice de I.n
+    %   m: número de restrições
+    % 
+    % Recalcula invB e I, de forma que x(I.b(imin)) saia da base e x(I.n(ij)) entre.
+    % 
+    % Retorna:
+    %   invB: B^-1 recalculada
+    %   I: índices recalculados
+    %
+    % Essa função é O(nm)
 
     [I.b(imin), I.n(ij)] = deal(I.n(ij), I.b(imin));
     
@@ -166,7 +234,19 @@ end
 
 
 function x = atualizax (x, t, u, j, I)
-    % Dados x, theta, u e a variável j que entrou na base, atualiza o x s.v.b.
+    % Recebe:
+    %   x: Solução viável básica
+    %   teta: Coeficiente tal que x + teta * d é uma nova svb
+    %   u: Componentes de indices básicos de uma direção viável
+    %   j: Indice de x, tal que x(j) não era da base e agora entrou
+    %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
+    %
+    % Calcula nova svb x = x + teta * d
+    %
+    % Retorna:
+    %   x: Nova svb
+    %
+    % Essa função é O(n)
     
     x(I.b) -= t * u;
     x(j) = t;
@@ -174,9 +254,19 @@ end
 
 
 function I = calculaBase(x, n, m);
+    % Recebe
+    %   x: Solução viável básica
+    %   n: número de variáveis
+    %   m: número de restrições
+    %
     % Calcula indices basicos e não básicos a partir de x não-degenerado
-    % I.b é o vetor de indices básicos 
-    % I.n é o vetor de índices não-básicos
+    % 
+    % Retorna:
+    %   I: estrutura tal que:
+    %       I.b é o vetor de indices básicos 
+    %       I.n é o vetor de índices não-básicos
+    %
+    % Essa função é O(nm^2)
 
     j = 1;
     k = 1;
@@ -188,6 +278,7 @@ function I = calculaBase(x, n, m);
             I.n(k++) = i;
         end
     end
+
     % verifica se o x passado é degenerado ou não. Isso é, se x tem de fato (n - m) zeros
     assert(!(length(I.b) < m), "x é degenerado!");
     assert(length(I.b) == m, "Base não tem m elementos!");
@@ -195,8 +286,20 @@ end
 
 
 function [I, A, invB, m] = removeArtificials(A, I, invB, m, n)
-    % Dado uma base I da primeira fase do simplex, esta função remove da base os
-    % índices das variáveis artificiais. Se for necessário, deleta linhas LD de A
+    % Recebe:
+    %   A: Matriz de restrições
+    %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
+    %   invB: Inversa da matriz B (colunas de A com indice básico)
+    %   m: número de restrições
+    %   n: número de variáveis
+    %
+    % Remove da base os índices das variáveis artificiais. Se for necessário, deleta linhas LD de A
+    %
+    % Retorna:
+    %   I, A, invB, m recalculados.
+    %
+    % Essa função é O(m)
+
     
     for l = I.b(I.b > n)
         k = 1;
@@ -205,26 +308,31 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n)
         end
 
         if k > n - m
-            % Siginifica que B^-1(l, :) * Aj = 0 para todo j, isso significa que A tem
-            % suas linhas LD. Ou seja, podemos remover uma de suas linhas. Vamos remover
-            % a l-ésima linha.
+            % Siginifica que B^-1(l, :) * Aj = 0 para todo j (restrição redundante)
             m--;
             A(l, :) = [];
         else
-            % vamos trocar a base do indice l para j
+            % vamos trocar a base do indice l (artificial) para j (não artificial)
             u = invB * A(:, I.n(ij));
             [I, invB] = atualizaBase(I, invB, u, l, k, m);
         end
     end
+
+    % "Recorta" variáveis artificiais de A e I.n
     A = A(:, 1 : n);
     I.n(I.n > n) = [];
 end
 
 function d = u2d(u, j, I)
-    % Dado vetor u = -db, j e I retorna o vetor d tal que:
-    % d_j = 1;
-    % d_i = 0 se i \notin I.b
-    % d_I.b(i) = u_i para i = 1..m
+    % Recebe
+    %   u: Componentes de indices básicos de uma direção viável
+    %   j: Indice de x, tal que x(j) não era da base e agora entrou
+    %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
+    %
+    % Retorna d tal que:
+    %   d_j = 1;
+    %   d_i = 0 se i \notin I.b
+    %   d_I.b(i) = -u_i para i = 1..m
 
     d = zeros(1, length(I.b) + length(I.n));
     d(j) = 1;
@@ -239,6 +347,13 @@ end
 %%%%%%%%%%%%%%% FUNÇÕES DE IMPRESSÃO %%%%%%%%%%%%%%%
 
 function printXb(x, I, m)
+    % Recebe:
+    %   x: Solução viável básica
+    %   m: número de restrições
+    %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
+    %
+    % Imprime índices das variáveis básicas e seus respectivos valores
+
     vb = "Var Basicas";
     vbl = length(vb);
     v = "Valor";
@@ -262,6 +377,13 @@ end
 
 
 function printDir(u, I, m)
+    % Recebe:
+    %   u: Componentes de indices básicos de uma direção viável
+    %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
+    %   m: número de restrições
+    % 
+    % Imprime índices das variáveis básicas e os valores correspondentes das componentes da direção -d
+
     ind = "Indice var basicas";
     indl = length(ind);
     d = "Componente da direcao";
@@ -284,6 +406,17 @@ function printDir(u, I, m)
 end
 
 function printResto(x, c, I, ij, imin, teta)
+    % Recebe:
+    %   x: Solução viável básica
+    %   c: Vetor de custos
+    %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
+    %   ij: Indice de I.n
+    %   imin: Indice de I.b
+    %   teta: Coeficiente tal que x + teta * d é uma nova svb
+    % 
+    %
+    % Imprime o custo em x, teta, variável que entrou na base e a que saiu.
+
     cx = "Custo em x";
     cxl = length(cx);
     t = "   Teta   ";
@@ -315,7 +448,13 @@ function printResto(x, c, I, ij, imin, teta)
     printf("|  \n");
 end
 
-function printCusto(x, c, n)
+function printCusto(x, c)
+    % Recebe:
+    %   x: Solução viável básica
+    %   c: Vetor de custos
+    %
+    % Imprime o custo em x
+
     cx = "Custo em x";
     cxl = length(cx);
 
