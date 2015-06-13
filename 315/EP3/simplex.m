@@ -36,7 +36,7 @@ function [ind, x, d] = simplex(A, b, c, m, n)
     x = [zeros(n, 1); b];
     c1 = [zeros(n, 1); ones(m, 1)];
     I = struct('b', [n + 1 : n + m], 'n', [1 : n]);
-    invB = inv(A(:, I.b));
+    invB = eye(m);
 
     % Resolve problema auxiliar
     printf("\n******************** Fase1 ********************\n\n");
