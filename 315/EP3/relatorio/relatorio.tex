@@ -38,13 +38,6 @@
 
 \begin{document}
 \begin{titlepage}
-	
-    \bigskip
-    \bigskip
-    \bigskip
-    \bigskip
-    \bigskip
-    \bigskip
 
 \begin{center}
 	\begin{flushleft}
@@ -53,28 +46,12 @@
     	}
     \end{flushleft}
   
-	\bigskip
     \begin{flushleft}{
     \textcolor{text_color} {
     	\href{mailto:bsesso@gmail.com}{Bruno Sesso} 8536002\\    					      		           \href{mailto:estrela.gustavo.matos@gmail.com}{Gustavo Estrela de Matos} 8536051\\}
     }
     \end{flushleft}
-    
-	\bigskip
-    \bigskip
-    \bigskip
-    \bigskip
-    \bigskip
-    \bigskip	\bigskip
-    \bigskip
-    \bigskip
-    \bigskip
-    \bigskip
-    \bigskip	\bigskip
-    \bigskip
-    \bigskip
-    \bigskip
-    \bigskip
+   
 	\today
 \end{center}
 \end{titlepage}
@@ -238,6 +215,9 @@
     
     %o algoritmo pode parar se c >= 0 ou se u não tem componentes maiores que zero.
 \subsection{Algoritmo}
+%%%%%%%%%%%%%%%%%%%%%% TODO %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% Arrumar esse pseudo-código
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{algorithmic}
 \Function{$simplex$}{$A$, $b$, $c$, $m$, $n$, $x$}
 	\State calcula indices basicos ($Ib$) e não básicos ($In$)
@@ -264,13 +244,12 @@
     \EndWhile
     \State \Return {$0, x$}
 \EndFunction
-
 \end{algorithmic}
     %colocar o exemplo ali em baixo, em resultados.%
 
 %tenta seguir o esquema que eu to fazendo lá em baixo pra não ficar mto diferente
 
-
+\newpage
 \section{Fase 1 do simplex}
 	Para iniciar a fase 2 do algoritmo simplex precisamos de uma solução viável básica $x^1$, a sua base associada e a inversa da matriz básica. Nesta seção explicaremos o funcionamento da fase 1 do método simplex, responsável por descobrir estes parâmetros.
 
@@ -295,10 +274,52 @@ Para descobrir esses parâmetros vamos criar um problema auxiliar de programaç�
             & $x, y \geq 0$
 	\end{tabular}
 \end{center}
+Chamaremos as variáveis de $y$ aritificiais, e a matriz $[\begin{array}{c | c} A & I	\end{array}]$ de $\overline{A}$.
 
-Note que o ponto $[\overbrace{0...0}^{n}|b]$ é uma solução viável básica do problema original
+Note que o ponto $[\overbrace{0, ..., 0}^{n}|b]$ é uma solução viável básica do problema original com índices básicos $n + 1, ..., n + m$ e matrix básica $B = I$. Portanto, temos os parametros necessários para embalar a fase 2 do simplex para o problema auxiliar.
+
+
+
 \subsection{Custo ótimo do problema auxiliar e viabilidade do problema original}
-	Note que qualquer ponto viável do problema tem custo maior ou igual a zero. Além disso, se existe uma solução viável $x^1$ do problema original, o ponto $[x^1 | 0 ... 0]$ é uma solução viável com custo zero, portanto com custo ótimo. Sendo assim, temos que se o problema original possui solução viável, então o problema auxiliar tem custo ótimo igual a zero. Na contra-positiva, se acharmos uma solução ótima para o problema auxiliar com custo diferente de zero, então o problema original é inviável.
+\label{fase2:custo_otimo}
+Observe que qualquer ponto viável do problema tem custo maior ou igual a zero. Além disso, se existe uma solução viável $x^1$ do problema original, o ponto $[x^1 | 0, ..., 0]$ é uma solução viável com custo zero, portanto com custo ótimo. Sendo assim, temos que se o problema original possui solução viável, então o problema auxiliar tem custo ótimo igual a zero. Na contra-positiva, se acharmos uma solução ótima para o problema auxiliar com custo diferente de zero, então o problema original é inviável.
+
+
+\subsection{Solução do problema auxiliar}
+Como o custo do problema auxiliar é sempre maior ou igual a zero, o custo ótimo nunca será $-\infty$, portanto a fase 2 sempre descobrirá alguma solução viável básica ótima. Se o custo dessa solução for maior que zero, o problema original é inviável, como explicado na seção \ref{fase2:custo_otimo}. Se o custo for zero, a solução do problema auxiliar $[x|y] = [x | 0, ..., 0]$ também será uma solução do problema original. 
+
+Porém, mesmo que $[x | 0, ..., 0]$ seja uma solução viável básica do problema original, é possível que a base dada pela fase 2 do problema auxiliar tenha índices das variáveis artificiais, que serão eliminadas para iniciar a fase 2 para o problema original. Veremos na \hyperref[rm_artificiais]{proxima seção} como remover os índices ariticiais da base.
+
+\subsection{Remoção de índices artificiais da base}
+\label{fase2:rm_artificiais}
+Suponha que temos um índice $l > m$ aritificial que esteja na base. Queremos tirá-lo da base e adicionar um índice $j \leq m$ na base. Veremos agora, como descobrir tal índice e como mudar a base.
+
+Suponha, sem perca de generalidade, que apenas os $k < m$ primeiros indices básicos não são de variáveis artificiais. Para o índice $j$ na base, devemos garantir que $A_{j}$ é LI com $\{A_{B(1)}, ..., A_{B(k)}\}$. Suponha que a matriz básica é $B$ e que queremos remover a $l$-ésima variável da base, por ser atificial. Veja que $B^{-1}A_{B(i)} = e_i$ para $1 \leq i \leq k$, portanto, basta escolher $j$ não artificial tal que $(B^{-1}A_j)_l = A_j  \neq 0$ e teremos garantia de que estamos escolhendo uma coluna LI para formar a base.
+
+Se não ouver $j$ como descrito acima, teremos que $(B^{-1}A_j)l = 0$ para todo $1 \leq j \leq m$. Veja que se $g^T$ é a $l$-ésima linha de $B^{-1}$, então $g^TA = 0$, ou seja, $g_1a_1 + ... + g_ma_m = 0$, portanto as linhas de $A$ são LD e podemos então, eliminar a $l$-ésima linha de $A$ do nosso problema \cite{315book}.
+
+Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
+\bigskip
+
+\begin{algorithmic}
+\Function{$RemoveAritificiais$}{$A$, $I$, $B^{-1}$, $m$, $n$}
+	\ForAll{$\{ l \in \{B(1), ..., B(m)\} | l > n\}$}
+		\State $k \gets 1$;
+		\While{$k \leq n - m$ and $B^{-1}_lA_{I.n(k)}$} 
+			\State $k \gets k + 1$
+		\EndWhile
+		\If{$k > n - m$}
+			\State $m \gets m - 1$
+			\State remova $l$-ésima linha de $A$
+		\Else
+			\State bla
+		\EndIf
+	\EndFor
+\EndFunction
+\end{algorithmic}
+	
+
+	
 
 \newpage
 \begin{thebibliography}{9}

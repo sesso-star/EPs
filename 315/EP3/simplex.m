@@ -313,7 +313,7 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n)
             A(l, :) = [];
         else
             % vamos trocar a base do indice l (artificial) para j (não artificial)
-            u = invB * A(:, I.n(ij));
+            u = invB * A(:, I.n(k)); %woaaa, mistake here!
             [I, invB] = atualizaBase(I, invB, u, l, k, m);
         end
     end
