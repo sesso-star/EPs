@@ -303,7 +303,7 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n)
     
     for l = I.b(I.b > n)
         k = 1;
-        while ((k <= n - m) && abs(invB(l, :) * A(:, I.n(k))) <= 1e-10)  %% por que abs? o_O
+        while ((k <= n - m) && abs(invB(l, :) * A(:, I.n(k))) <= 1e-10)  %% por que abs? o_O  % só quero saber se é diferente de zero, mas corro o risco de não dar exatamente zero
             k++;
         end
 
