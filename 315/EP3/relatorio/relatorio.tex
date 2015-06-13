@@ -272,9 +272,9 @@
 
 
 \section{Fase 1 do simplex}
-Para iniciar a fase 2 do algoritmo simplex precisamos de uma solução viável básica $x^1$, a sua base associada e a inversa da matriz básica. Nesta seção explicaremos o funcionamento da fase 1 do método simplex, responsável por descobrir estes parâmetros.
+	Para iniciar a fase 2 do algoritmo simplex precisamos de uma solução viável básica $x^1$, a sua base associada e a inversa da matriz básica. Nesta seção explicaremos o funcionamento da fase 1 do método simplex, responsável por descobrir estes parâmetros.
 
-Para descobrir esses parâmetros vamos criar um problema auxliar de programação linear:
+Para descobrir esses parâmetros vamos criar um problema auxiliar de programação linear:
 
 \begin{center}
 	\begin{tabular}{r l}
@@ -291,12 +291,18 @@ Para descobrir esses parâmetros vamos criar um problema auxliar de programaçã
 					\end{array}\bigg]
 					
 					\leq b$, \\
-			com   &	$A \in R^{m \times n}$, $b, y \in \mathbb{R}^m$ e $I \in \mathbb{R}^{m \times m}$.
+			com   &	$A \in R^{m \times n}$; $b, y \in \mathbb{R}^m$; $I \in \mathbb{R}^{m \times m}$ \\
+            & $x, y \geq 0$
 	\end{tabular}
 \end{center}
+
+Note que o ponto $[\overbrace{0...0}^{n}|b]$ é uma solução viável básica do problema original
+\subsection{Custo ótimo do problema auxiliar e viabilidade do problema original}
+	Note que qualquer ponto viável do problema tem custo maior ou igual a zero. Além disso, se existe uma solução viável $x^1$ do problema original, o ponto $[x^1 | 0 ... 0]$ é uma solução viável com custo zero, portanto com custo ótimo. Sendo assim, temos que se o problema original possui solução viável, então o problema auxiliar tem custo ótimo igual a zero. Na contra-positiva, se acharmos uma solução ótima para o problema auxiliar com custo diferente de zero, então o problema original é inviável.
 
 \newpage
 \begin{thebibliography}{9}
 \bibitem{315book} Dimitris Bertsimas, John N. Tsitsiklis. Introduction to Linear Optimization. 1997.
 \end{thebibliography}
 \end{document}
+
