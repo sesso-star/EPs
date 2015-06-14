@@ -390,28 +390,29 @@ Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
 \Function{$Simplex$}{$A$, $b$, $c$, $m$, $n$}
 	\ForAll{$i | b_i < 0$}
 		\State $b_i \gets b_i * -1$
-		\State $A \gets [A | I]$, $I \in \mathbb{R}^{m \times m}$
-		\State $x \gets [\vec{0}, b]$, $\vec{0} \in \mathbb{R}^{n}$
-		\State $c1 \gets [\vec{0}, \vec{ac}]$, $\vec{ac} = [1, ..., 1] \in \mathbb{R}^m$
-		\State $I.b \gets [n + 1, ..., n + m]$
-		\State $I.n \gets [1, ..., n]$
-		\State $B^{-1} = I$, $I \in \mathbb{R}^{m \times m}$
-		\State $(ind, x, d, I, B^-1) = fase2(A, b, c1, m, n + m, x, I, B^{-1})$
-		\If{${c1}^{T}x > 0$}
-			\Return $(1, NIL, NIL)$
-			\Comment{Problema inviável}
-		\EndIf
-		\State $(I, A, invB, m) \gets removeArtificials (A, I, invB, m, n, b)$
-		\State $x \gets [x_1, ..., x_n]$
-		\State $(ind, x, d, I, B^-1) = fase2(A, b, c, m, n, x, I, B^{-1})$
-		\If{$ind = -1$}
-			\Return $(-1, x, d)$
-			\Comment{Custo ótimo = $-\infty$}
-		\Else
-			\Return $(0, x, d)$
-			\Comment{Solução ótima encontrada}
-		\EndIf
 	\EndFor
+	\State $A \gets [A | I]$, $I \in \mathbb{R}^{m \times m}$
+	\State $x \gets [\vec{0}, b]$, $\vec{0} \in \mathbb{R}^{n}$
+	\State $c1 \gets [\vec{0}, \vec{ac}]$, $\vec{ac} = [1, ..., 1] \in \mathbb{R}^m$
+	\State $I.b \gets [n + 1, ..., n + m]$
+	\State $I.n \gets [1, ..., n]$
+	\State $B^{-1} = I$, $I \in \mathbb{R}^{m \times m}$
+	\State $(ind, x, d, I, B^-1) = fase2(A, b, c1, m, n + m, x, I, B^{-1})$
+	\If{${c1}^{T}x > 0$}
+		\Return $(1, NIL, NIL)$
+		\Comment{Problema inviável}
+	
+	\EndIf
+	\State $(I, A, invB, m) \gets removeArtificials (A, I, invB, m, n, b)$
+	\State $x \gets [x_1, ..., x_n]$
+	\State $(ind, x, d, I, B^-1) = fase2(A, b, c, m, n, x, I, B^{-1})$
+	\If{$ind = -1$}
+		\Return $(-1, x, d)$
+		\Comment{Custo ótimo = $-\infty$}
+	\Else
+		\Return $(0, x, d)$
+		\Comment{Solução ótima encontrada}
+	\EndIf
 \EndFunction
 \end{algorithmic}
 
