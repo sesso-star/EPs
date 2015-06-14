@@ -36,7 +36,7 @@ function [ind, x, d] = simplex(A, b, c, m, n)
     x = [zeros(n, 1); b];
     c1 = [zeros(n, 1); ones(m, 1)];
     I = struct('b', [n + 1 : n + m], 'n', [1 : n]);
-    invB = inv(A(:, I.b));
+    invB = eye(m);
 
     % Resolve problema auxiliar
     printf("\n******************** Fase1 ********************\n\n");
@@ -52,8 +52,10 @@ function [ind, x, d] = simplex(A, b, c, m, n)
     end
 
     % Remove vaiáveis artificiais da base. (não altera x)
-    [I, A, invB, m] = removeArtificials(A, I, invB, m, n);
+    [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b);
+    invB = inverse(A(:, I.b));
     x = x(1 : n);
+
 
     % Resolve problema primal, com solução encontrada
     printf("\n******************** Fase2 ********************\n\n");
@@ -220,7 +222,6 @@ function [I, invB] = atualizaBase(I, invB, u, imin, ij, m)
     %   I: índices recalculados
     %
     % Essa função é O(nm)
-
     [I.b(imin), I.n(ij)] = deal(I.n(ij), I.b(imin));
     
     for i = 1 : m
@@ -285,7 +286,7 @@ function I = calculaBase(x, n, m);
 end
 
 
-function [I, A, invB, m] = removeArtificials(A, I, invB, m, n)
+function [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b)
     % Recebe:
     %   A: Matriz de restrições
     %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
@@ -299,21 +300,27 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n)
     %   I, A, invB, m recalculados.
     %
     % Essa função é O(m)
-
     
-    for l = I.b(I.b > n)
+    for l = (1 : m)(I.b > n) % indexes of I.b with content greater than n
+        
+        b_cand = (1 : n)(I.n < n);
+        x = length(b_cand);
         k = 1;
-        while ((k <= n - m) && abs(invB(l, :) * A(:, I.n(k))) <= 1e-10)  %% por que abs? o_O
-            k++;
+        while ((k <= x) && abs(invB(l, :) * A(:, I.n(b_cand(k)))) <= 1e-10)  %% por que abs? o_O  % só quero saber se é diferente de zero, mas corro o risco de não dar exatamente zero
+            k = k + 1;
         end
-
-        if k > n - m
+        
+        if k > x
             % Siginifica que B^-1(l, :) * Aj = 0 para todo j (restrição redundante)
+            I.b(l) = [];
+            invB(:, k) = [];
+            invB(k, :) = [];
             m--;
             A(l, :) = [];
+            b(l) = [];
         else
             % vamos trocar a base do indice l (artificial) para j (não artificial)
-            u = invB * A(:, I.n(ij));
+            u = invB * A(:, I.n(k)); 
             [I, invB] = atualizaBase(I, invB, u, l, k, m);
         end
     end
