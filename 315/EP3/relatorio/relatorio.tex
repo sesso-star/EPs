@@ -217,6 +217,8 @@
     
     %o algoritmo pode parar se c >= 0 ou se u não tem componentes maiores que zero.
 \subsection{Pseudocódigo da fase 2 do simplex}
+Na implementação do nosso algoritmo simplex, utilizamos uma estrutura chamada de $I$ que guarda os índices básicos e não básicos, representados respectivamente pelos vetores $I.b$ e $I.n$.
+
 \subsubsection{Função custoDirecao}
 A função custoDirecao é responsável por escolher uma direção básica $j$ com custo reduzido menor do que zero.
 \begin{algorithmic}
@@ -334,7 +336,9 @@ Para descobrir esses parâmetros vamos criar um problema auxiliar de programaç�
 \end{center}
 Chamaremos as variáveis de $y$ aritificiais, e a matriz $[\begin{array}{c | c} A & I	\end{array}]$ de $\overline{A}$.
 
-Note que o ponto $[\overbrace{0, ..., 0}^{n}|b]$ é uma solução viável básica do problema original com índices básicos $n + 1, ..., n + m$ e matrix básica $B = I$. Portanto, temos os parametros necessários para embalar a fase 2 do simplex para o problema auxiliar.
+Note que o ponto $[\overbrace{0, ..., 0}^{n}|b]$ é uma solução viável básica do problema auxiliar, assumindo $b \geq 0$, com índices básicos $n + 1, ..., n + m$ e matrix básica $B = I$. Portanto, temos os parametros necessários para embalar a fase 2 do simplex para o problema auxiliar.
+
+Assumimos no último parágrafo que $b \geq 0$. É fácil verificar que isso não implica em uma perda de generalidade, pois, se $b_i < 0$, basta multiplicar a $i$-ésima restrição por $-1$.
 
 
 
@@ -362,13 +366,17 @@ Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
 \begin{algorithmic}
 \Function{$RemoveAritificiais$}{$A$, $I$, $B^{-1}$, $m$, $n$}
 	\ForAll{$\{ l \in \{B(1), ..., B(m)\} | l > n\}$}
+		\State $candidates \gets \{i \in I.n | i< n\}$
+		\State $x \gets length(candidates)$
 		\State $k \gets 1$;
-		\While{$k \leq n - m$ and $B^{-1}_lA_{I.n(k)}$} 
+		\While{$k \leq x$ and $B^{-1}_lA_{I.n(candidates(k))}$} 
 			\State $k \gets k + 1$
 		\EndWhile
-		\If{$k > n - m$}
+		\If{$k > x$}
 			\State $m \gets m - 1$
 			\State remova $l$-ésima linha de $A$
+			\State remova a $l$-ésima entrada de $I.b$
+			\State remova a $l$-ésima entrada de $b$
 		\Else
 			\State $u \gets B^{-1}A_k$ 
 			\State $atualizaBase(I, invB, u, l, k, m)$
@@ -377,6 +385,35 @@ Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
 \EndFunction
 \end{algorithmic}
 	
+\section{Pseudocódigo do algoritmo simplex}
+\begin{algorithmic}
+\Function{$Simplex$}{$A$, $b$, $c$, $m$, $n$}
+	\ForAll{$i | b_i < 0$}
+		\State $b_i \gets b_i * -1$
+		\State $A \gets [A | I]$, $I \in \mathbb{R}^{m \times m}$
+		\State $x \gets [\vec{0}, b]$, $\vec{0} \in \mathbb{R}^{n}$
+		\State $c1 \gets [\vec{0}, \vec{ac}]$, $\vec{ac} = [1, ..., 1] \in \mathbb{R}^m$
+		\State $I.b \gets [n + 1, ..., n + m]$
+		\State $I.n \gets [1, ..., n]$
+		\State $B^{-1} = I$, $I \in \mathbb{R}^{m \times m}$
+		\State $(ind, x, d, I, B^-1) = fase2(A, b, c1, m, n + m, x, I, B^{-1})$
+		\If{${c1}^{T}x > 0$}
+			\Return $(1, NIL, NIL)$
+			\Comment{Problema inviável}
+		\EndIf
+		\State $(I, A, invB, m) \gets removeArtificials (A, I, invB, m, n, b)$
+		\State $x \gets [x_1, ..., x_n]$
+		\State $(ind, x, d, I, B^-1) = fase2(A, b, c, m, n, x, I, B^{-1})$
+		\If{$ind = -1$}
+			\Return $(-1, x, d)$
+			\Comment{Custo ótimo = $-\infty$}
+		\Else
+			\Return $(0, x, d)$
+			\Comment{Solução ótima encontrada}
+		\EndIf
+	\EndFor
+\EndFunction
+\end{algorithmic}
 
 	
 
