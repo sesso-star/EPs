@@ -53,7 +53,6 @@ function [ind, x, d] = simplex(A, b, c, m, n)
 
     % Remove vaiáveis artificiais da base. (não altera x)
     [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b);
-    invB = inverse(A(:, I.b));
     x = x(1 : n);
 
 
@@ -313,8 +312,6 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b)
         if k > x
             % Siginifica que B^-1(l, :) * Aj = 0 para todo j (restrição redundante)
             I.b(l) = [];
-            invB(:, k) = [];
-            invB(k, :) = [];
             m--;
             A(l, :) = [];
             b(l) = [];
@@ -325,6 +322,7 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b)
         end
     end
 
+    invB = inverse(A(:, I.b));
     % "Recorta" variáveis artificiais de A e I.n
     A = A(:, 1 : n);
     I.n(I.n > n) = [];
