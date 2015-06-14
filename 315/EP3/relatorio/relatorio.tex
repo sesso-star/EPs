@@ -226,9 +226,76 @@
   
 	Queremos achar o $x$ que satisfaça todas as restrições e minimize $c^Tx$. Portanto temos como informação inicial: 
 	\begin{description}
-		\item[A] Matriz $m \times n$
-		\item[b] Vetor de dimensão $m$
+		\item[$A$:] Matriz $m \times n$ de restrições
+		\item[$b$:] Vetor de dimensão $m$
+        \item[$c$:] Vetor de custos de dimensão $n$
+        \item[$m$:] Número de restrições de igualdade
+        \item[$n$:] Número de variáveis
 	\end{description}
+
+    Logo nossa função que calcula $x$ terá a seguinte forma: \\
+    \begin{center}
+    \texttt{simplex(A, b, c, m, n)}
+    \end{center}
+
+\subsection{O que recebemos no final}
+    Como já vimos antes, temos três possíveis cenários de resultados da nossa função:
+    \begin{enumerate}
+        \item O problema é inviável, portanto não existe solução ótima
+        \item Existe solução ótima, logo o custo ótimo é um valor finito
+        \item O custo ótimo é $-\infty$, e não existe solução ótima
+    \end{enumerate}
+    Logo, nossa função deve retornar informação suficiente para sabermos em qual dos três casos estamos e os valores relevantes para cada um. Com isso em mente, nossa função tem o seguinte esqueleto:
+    \begin{center}
+        \texttt{[ind x d] = simplex(A, b, c, m, n)}
+    \end{center}
+    Onde:
+    \begin{center}
+    \begin{tabular}{ c  c  c  c }
+        \textbf{Caso} & $ind$ & $x$  & $d$ \\  \hline
+        1    & 1   & vetor vazio & vetor vazio \\
+        2    & 0   & solução ótima & vetor vazio \\
+        3    & -1  & ultima svb computada & direção que vai a $-\infty$ \\
+    \end{tabular}
+    \end{center}
+
+\subsection{Pseudocódigo}
+\subsection{Algoritmo}
+\begin{algorithmic}
+\Function{$simplex$}{$A$, $b$, $c$, $m$, $n$}
+    \State multiplica restrições com $b < 0$ por -1
+    \State $A \gets [\begin{array}{c | c} A & I \end{array}]$
+    \State $x \gets \bigg [\begin{array}{c} 0 \\ \hline b \end{array} \bigg]$
+    \State $c \gets \bigg [\begin{array}{c} 0 \\ \hline 1 \end{array} \bigg]$
+    \State $B \gets \bigg [\begin{array}{c c c c} A_{B(1)} & A_{B(2)} & \dots & A_{B(m)} \end{array} \bigg ]$
+
+    \State $B \gets  A_{Ib(i)}$, i = 1, ..., m
+    \State $invB \gets B^{-1}$
+    \State $imin \gets 0$
+    \If {$\nexists j$ t.q. $\overline{c_{j}} < 0$} 
+        \State $\overline{c_{j}} \gets 0$
+    \Else
+    \State $\overline{c_{j}} \gets c_{j} - c_{B}^{T}B^{-1}A_{j}$, algum $j \in In$ t.q. $\overline{c_{j}} < 0$
+    \State $u \gets invB * A_{j}$  
+    \EndIf 
+    \While{$\overline{c_{j}} < 0$}
+        \If {$u_{l} < 0, l = 1, ... , m$}
+            \State \Return{$-1, d(u,j)$}
+        \EndIf
+        \State $\theta \gets \min_{u_{l} >= 0} \{\frac{x_{Ib(l)}} {u_{l}}\}, l = 1, ... , m$
+        \State $x \gets x + \theta * d(u, j)$
+        \State $x_{Ib(l)}$ sai da base \Comment{Atualiza $In$}
+        \State $x_{j}$ entra na base \Comment{Atualiza $Ib$}
+        \State Atualiza $invB$
+        \State $\overline{c_{j}} \gets c_{j} - c_{B}^{T}B^{-1}A_{j}$, algum $j \in In$ t.q. $\overline{c_{j}} < 0$ 
+        \State $u \gets invB * A_{j}$  
+    \EndWhile
+    \State \Return {$0, x$}
+\EndFunction
+
+\end{algorithmic}
+
+
 
 
 \subsection{Ideia do algoritmo}
