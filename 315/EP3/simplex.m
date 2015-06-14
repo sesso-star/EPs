@@ -52,8 +52,18 @@ function [ind, x, d] = simplex(A, b, c, m, n)
     end
 
     % Remove vaiáveis artificiais da base. (não altera x)
-    [I, A, invB, m] = removeArtificials(A, I, invB, m, n);
+    [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b);
     x = x(1 : n);
+
+    A
+    b
+    c
+    m
+    n
+    x
+    I
+    invB
+
 
     % Resolve problema primal, com solução encontrada
     printf("\n******************** Fase2 ********************\n\n");
@@ -220,7 +230,7 @@ function [I, invB] = atualizaBase(I, invB, u, imin, ij, m)
     %   I: índices recalculados
     %
     % Essa função é O(nm)
-
+    printf("Dentro da atualiza base, vou trocar %d por %d\n", I.b(imin), I.n(ij));
     [I.b(imin), I.n(ij)] = deal(I.n(ij), I.b(imin));
     
     for i = 1 : m
@@ -285,7 +295,7 @@ function I = calculaBase(x, n, m);
 end
 
 
-function [I, A, invB, m] = removeArtificials(A, I, invB, m, n)
+function [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b)
     % Recebe:
     %   A: Matriz de restrições
     %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
@@ -299,21 +309,34 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n)
     %   I, A, invB, m recalculados.
     %
     % Essa função é O(m)
-
     
-    for l = I.b(I.b > n)
-        k = 1;
-        while ((k <= n - m) && abs(invB(l, :) * A(:, I.n(k))) <= 1e-10)  %% por que abs? o_O  % só quero saber se é diferente de zero, mas corro o risco de não dar exatamente zero
-            k++;
-        end
+    printf("Entrei em removeArtificials com n = %d \n", n);
+    I
 
-        if k > n - m
+    for l = (1 : m)(I.b > n) % indexes of I.b with content greater than n
+        l
+        
+        b_cand = (1 : n)(I.n < n);
+        x = length(b_cand);
+        k = 1;
+        while ((k <= x) && abs(invB(l, :) * A(:, I.n(b_cand(k)))) <= 1e-10)  %% por que abs? o_O  % só quero saber se é diferente de zero, mas corro o risco de não dar exatamente zero
+            k = k + 1
+        end
+        
+        if k > x
             % Siginifica que B^-1(l, :) * Aj = 0 para todo j (restrição redundante)
+            printf("Vou remover a linha l de A\n");
+            I.b(l) = [];
+            invB(:, k) = [];
+            invB(k, :) = [];
             m--;
             A(l, :) = [];
+            b
+            b(l) = [];
         else
             % vamos trocar a base do indice l (artificial) para j (não artificial)
-            u = invB * A(:, I.n(k)); %woaaa, mistake here!
+            printf("Vou trocar na base o indice %d por %d", I.b(l), I.n(k));
+            u = invB * A(:, I.n(k)); 
             [I, invB] = atualizaBase(I, invB, u, l, k, m);
         end
     end
