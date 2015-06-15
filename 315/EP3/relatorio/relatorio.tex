@@ -251,6 +251,7 @@ Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
 		\EndWhile
 		\If{$k > x$}
 			\State $m \gets m - 1$
+			\State remova $l$-ésima linha e $l$-ésima coluna de $B$
 			\State remova $l$-ésima linha de $A$
 			\State remova a $l$-ésima entrada de $I.b$
 			\State remova a $l$-ésima entrada de $b$
@@ -345,7 +346,7 @@ Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
     \end{tabular}
     \end{center}
 
-\subsection{Pseudocódigo}
+\subsection{A função simplex}
     Nos preocupando somente com o caso onde o problema tem solução, nosso algortimo seria algo próximo do seguinte: 
 
     \begin{algorithmic}
@@ -364,10 +365,10 @@ Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
     Nota-se que o algoritmo é dividido em 3 partes:
     \begin{enumerate}
         \item Modificar problema inicial, adicionando $m$ variáveis artificiais
-        \item Encontrar solução inicial para o problema primal resolvendo o modificado
-        \item Resolver o problema primal
+        \item Encontrar solução inicial para o problema inicial resolvendo o modificado
+        \item Resolver o problema inicial
     \end{enumerate}
-    Podemos resolver os dois problemas, dado uma solução inicial, graças a função \texttt{fase2} que será explicada mais a frente. Imaginando que já temos essa função, nosso algoritmo final em octave é:
+    Podemos resolver os dois problemas, dado uma solução inicial, graças a função \texttt{fase2} que resolve problemas de programação linear a partir de uma solução viável básica inicial. Imaginando que já temos essa função, nosso algoritmo final em octave é:
 
     \begin{lstlisting}
 function [ind, x, d] = simplex(A, b, c, m, n)
@@ -380,7 +381,7 @@ function [ind, x, d] = simplex(A, b, c, m, n)
     end
 
     % Cria problema auxiliar para achar primeira solucao 
-    % para o problema primal
+    % para o problema inicial
     A = [A, eye(m)];
     x = [zeros(n, 1); b];
     c1 = [zeros(n, 1); ones(m, 1)];
@@ -400,20 +401,70 @@ function [ind, x, d] = simplex(A, b, c, m, n)
 
     % Remove vaiaveis artificiais da base. (nao altera x)
     [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b);
-    invB = inverse(A(:, I.b));
     x = x(1 : n);
 
 
-    % Resolve problema primal, com solucao encontrada
+    % Resolve problema inicial, com solucao encontrada
     [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB);
     \end{lstlisting}
 
-    Nessa implementação, é clara a correspondência entre as principais etapas vistas quando apresentamos o pseudocódigo.
+	
+	Utilizamos uma estrutura chamada de $I$ que guarda os índices básicos e não básicos, representados respectivamente pelos vetores $I.b$ e $I.n$. Nessa implementação, é fácil ver a correspondência entre as principais etapas vistas quando apresentamos o pseudocódigo. Entre as linhas \texttt{3} e \texttt{16} modificamos o problema original, nas linhas de \texttt{19} a \texttt{31} encontramos uma solução inicial e na linha \texttt{35} resolvemos o problema.
+    
+    Uma das melhorias feita para reduzir o espaço utilizado foi armazenar $A'$ e $x'$ (do pseudocódigo) em $A$ e $x$ respectivamente. Ainda assim, há certo desperdício de espaço utilizado em funções, pois o octave não envia argumentos por referência. Ou seja, quando enviamos $invB$ para \texttt{fase2}, por exemplo, ao modifica-la dentro da função, o octave cria uma cópia e então altera seus valores. Poderiamos ter feito alterações para que não haja esse tipo de desperdício, mas optamos por um código mais legível e modularizado.
+    
+    Visando melhorar nosso desempenho, passamos e retornamos alguns argumentos extras nas funções \texttt{fase2} e \texttt{removeArtificials}. Dessa forma, evitamos cálculos desnecessários de $B^{-1}$ e dos indices básicos associados à solução $x$. Nos poupar o cálculo de $B^{-1}$ é uma melhoria significativa, visto que isso tem complexidade $O(n^3)$.
 
 
+\subsection{fase2}
+	A função \texttt{fase2} vista na seção anterior, é de grande importância para nosso algoritmo. Dada uma solução viável básica inicial, essa função "anda" pelas soluções adjacentes, buscando uma na qual o custo calculado seja menor que na atual. Tendo a nova solução, voltamos a situação inicial e o algoritmo é executado novamente. Fazemos isso, tomando o cuidado para não andarmos em ciclos, até encontrar uma solução viável básica na qual todas as soluções adjacentes tem custo maior. Assim concluimos que essa solução é ótima. Tendo os conceitos da seção 2, produzimos o seguinte pseudocódigo:
 
-\subsection{Pseudocódigo da fase 2 do simplex}
-Na implementação do nosso algoritmo simplex, utilizamos uma estrutura chamada de $I$ que guarda os índices básicos e não básicos, representados respectivamente pelos vetores $I.b$ e $I.n$.
+\begin{algorithmic}
+	\Function{$fase2$}{$A$, $b$, $c$, $m$, $n$, $x$}
+		\State $\overline{c}^T \gets c^T - (c_B^T B^{-1})A_j$
+		\While{$!(\overline{c} \geq 0)$}
+			\State $j \gets j \not\in {B(1), \dots, B(m)}$, $t.q.$ $\overline{c}_j < 0$ \Comment Usando regra anti-ciclagem
+			\State $u \gets B^{-1} A_j$
+			\If{$u < 0$}
+				\Return $(-1, d)$ \Comment Custo ótimo é $-\infty$
+			\EndIf
+			\State $\theta \gets \min_{u_l \geq 0} {\frac{x_{B(l)}}{u_l}}, l = 1, \dots, m$
+			\State $x \gets x + \theta d$
+			\State $B(l) \gets j$
+			\State \Call{$atualiza$}{$invB$}
+			\State $\overline{c}^T \gets c^T - (c_B^T B^{-1})A_j$
+		\EndWhile
+		\Return $(0, x)$
+	\EndFunction	
+\end{algorithmic}
+
+	De forma muito similar, temos nosso algoritmo implementado em octave:
+	\begin{lstlisting}
+function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB)
+    [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
+    while redc < 0  % se essa condicao falha, x e otimo
+        [imin, teta] = calculaTeta(x, u, I);
+        if imin == -1  % custo otimo e -inf e u tem a direcao
+            ind = -1;
+            d = u2d(u, I.n(ij), I);
+            return;
+        end
+
+        % atualiza
+        x = atualizax(x, teta, u, I.n(ij), I); 
+        [I, invB] = atualizaBase(I, invB, u, imin, ij, m);
+
+        [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
+    end
+    
+    d = [];
+    ind = 0;
+end 
+
+    \end{lstlisting}
+
+\subsection{Complexidade}
+	A complexidade da função \texttt{simplex} depende basicamente da complexidade de \texttt{removeArtificials} e \texttt{fase2}. Primeiramente analisaremos a complexidade das funções auxiliares para então analisar as principais.
 
 \subsubsection{Função custoDirecao}
 A função custoDirecao é responsável por escolher uma direção básica $j$ com custo reduzido menor do que zero.
@@ -433,6 +484,8 @@ A função custoDirecao é responsável por escolher uma direção básica $j$ c
 \EndFunction
 \end{algorithmic}
 
+	Apesar de estar dentro do loop principal, $u \gets B^{-1}A_{I.n(ij)}$ é executada somente uma vez, pois assim que executada, logo em seguida uma chamada de retorno também é. Portanto essa linha leva $O(m^2)$, pois é multiplicação de uma matrix $m \times m$ por um vetor de dimensão $m$. Já a primeira linha de dentro do loop, leva $O(m)$, pois é produto de dois vetores de tamanho $m$. No entanto, essa linha é executada, no pior caso, $(n - m)$ vezes, isto é $O((n-m)m) = O(nm)$. Como $n > m$, a função como um todo tem complexidade $O(nm)$.
+
 \subsubsection{Função calculaTheta}
 A função calculaTheta é responsável por calcular $\theta$ como foi explicado na seção \ref{concepts:adj_svb}.
 \begin{algorithmic}
@@ -451,6 +504,8 @@ A função calculaTheta é responsável por calcular $\theta$ como foi explicado
 	\Return $(imin, teta)$
 \EndFunction
 \end{algorithmic}
+
+O loop itera $m$ vezes executando operações que levam $O(1)$, portanto \texttt{calculaTheta} tem complexidade $O(m)$.
 
 
 \subsubsection{Atualização da base}
@@ -485,24 +540,22 @@ O pseudo-código:
 \EndFunction
 \end{algorithmic}
 
+Essa função executa o loop $m$ vezes. A cada iteração, uma operação de soma de vetores de tamanho $n$ é feita. Portanto a complexidade de \texttt{atualizaBase} é $O(nm)$.
 
-\subsubsection{A função fase2}
+\subsubsection{Função atualizaX}
+Para atualizar $x$, temos que fazer $x + \theta d$. No entanto, não há a necessidade de calcular $d$ a partir de $u$:
 \begin{algorithmic}
-\Function{$fase2$}{$A$, $b$, $c$, $m$, $n$, $x$, $I$, $B^{-1}$}
-	\State $(redc, u, ij) \gets custoDirecao (A, B^{-1}, c, n, m, I)$
-    \While{$redc < 0$}
-    		\State $(imin, teta) \gets calculaTheta(x, u, I)$
-    		\If {$imin = -1$}
-    		    			\Return $(-1, u)$
-    			\Comment{custo ótimo  $ = -\infty$}
-    		\EndIf
-    		\State $x \gets atualizax(x, teta, u, I.n(ij), I)$
-    		\State $(I, B^{-1}) = atualizaBase(I, B^{-1}, u, imin, ij, m)$
-    		\State $(redc, u, ij) \gets custoDirecao (A, B^{-1}, c, n, m, I)$
-    \EndWhile
-    \Return $(0, x)$
+\Function{$atualizax$}{$x, t, u, j, I$}
+	\State $x_{I.b} \gets x_{I.b} - t * u$
+	\State $x_j \gets t$
+	\Return $x$
 \EndFunction
 \end{algorithmic}
+Claramente, por ser uma subtração de vetores de tamanho $m$, a complexidade é $O(m)$.
+
+\subsubsection{A função fase2}
+
+
 
 \newpage
 

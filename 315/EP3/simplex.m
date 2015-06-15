@@ -31,7 +31,7 @@ function [ind, x, d] = simplex(A, b, c, m, n)
         end
     end
 
-    % Cria problema auxiliar para achar primeira solução para o problema primal
+    % Cria problema auxiliar para achar primeira solução para o problema inicial
     A = [A, eye(m)];
     x = [zeros(n, 1); b];
     c1 = [zeros(n, 1); ones(m, 1)];
@@ -56,7 +56,7 @@ function [ind, x, d] = simplex(A, b, c, m, n)
     x = x(1 : n);
 
 
-    % Resolve problema primal, com solução encontrada
+    % Resolve problema inicial, com solução encontrada
     printf("\n******************** Fase2 ********************\n\n");
     [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB);
 
@@ -311,6 +311,8 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b)
         
         if k > x
             % Siginifica que B^-1(l, :) * Aj = 0 para todo j (restrição redundante)
+			invB(:,l) = [];
+			invB(l,:) = [];
             I.b(l) = [];
             m--;
             A(l, :) = [];
@@ -322,7 +324,6 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b)
         end
     end
 
-    invB = inverse(A(:, I.b));
     % "Recorta" variáveis artificiais de A e I.n
     A = A(:, 1 : n);
     I.n(I.n > n) = [];
