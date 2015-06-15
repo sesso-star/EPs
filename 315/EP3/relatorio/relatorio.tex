@@ -206,14 +206,14 @@ Para descobrir esses parâmetros vamos criar um problema auxiliar de programaç�
 						y
 					\end{array}\bigg]
 					
-					\leq b$, \\
+					= b$, \\
 			com   &	$A \in R^{m \times n}$; $b, y \in \mathbb{R}^m$; $I \in \mathbb{R}^{m \times m}$ \\
             & $x, y \geq 0$
 	\end{tabular}
 \end{center}
 Chamaremos as variáveis de $y$ aritificiais, e a matriz $[\begin{array}{c | c} A & I	\end{array}]$ de $\overline{A}$.
 
-Note que o ponto $[\overbrace{0, ..., 0}^{n}|b]$ é uma solução viável básica do problema auxiliar, assumindo $b \geq 0$, com índices básicos $n + 1, ..., n + m$ e matrix básica $B = I$. Portanto, temos os parametros necessários para embalar a fase 2 do simplex para o problema auxiliar.
+Note que o ponto $[\overbrace{0, ..., 0}^{n}|b]$ é uma solução viável básica (veja $B$ a seguir) do problema auxiliar, assumindo $b \geq 0$, com índices básicos $n + 1, ..., n + m$ e matrix básica $B = I$ (obviamente não-singular). Portanto, temos os parametros necessários para embalar a fase 2 do simplex para o problema auxiliar.
 
 Assumimos no último parágrafo que $b \geq 0$. É fácil verificar que isso não implica em uma perda de generalidade, pois, se $b_i < 0$, basta multiplicar a $i$-ésima restrição por $-1$.
 
