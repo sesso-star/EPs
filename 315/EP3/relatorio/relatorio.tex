@@ -187,6 +187,112 @@
     
     
     
+\section{Fase 1 do simplex}
+	Para iniciar a fase 2 do algoritmo simplex precisamos de uma solução viável básica $x^1$, a sua base associada e a inversa da matriz básica. Nesta seção explicaremos o funcionamento da fase 1 do método simplex, responsável por descobrir estes parâmetros.
+
+Para descobrir esses parâmetros vamos criar um problema auxiliar de programação linear:
+
+\begin{center}
+	\begin{tabular}{r l}
+		minimizar & $\sum_{i = 1}^{m} y_i$ \\
+		sujeito a & $
+					[\begin{array}{c | c}
+						A & I
+					\end{array}]
+					
+					\bigg[\begin{array}{c}
+						x \\
+						\hline
+						y
+					\end{array}\bigg]
+					
+					\leq b$, \\
+			com   &	$A \in R^{m \times n}$; $b, y \in \mathbb{R}^m$; $I \in \mathbb{R}^{m \times m}$ \\
+            & $x, y \geq 0$
+	\end{tabular}
+\end{center}
+Chamaremos as variáveis de $y$ aritificiais, e a matriz $[\begin{array}{c | c} A & I	\end{array}]$ de $\overline{A}$.
+
+Note que o ponto $[\overbrace{0, ..., 0}^{n}|b]$ é uma solução viável básica do problema auxiliar, assumindo $b \geq 0$, com índices básicos $n + 1, ..., n + m$ e matrix básica $B = I$. Portanto, temos os parametros necessários para embalar a fase 2 do simplex para o problema auxiliar.
+
+Assumimos no último parágrafo que $b \geq 0$. É fácil verificar que isso não implica em uma perda de generalidade, pois, se $b_i < 0$, basta multiplicar a $i$-ésima restrição por $-1$.
+
+
+
+\subsection{Custo ótimo do problema auxiliar e viabilidade do problema original}
+\label{fase2:custo_otimo}
+Observe que qualquer ponto viável do problema tem custo maior ou igual a zero. Além disso, se existe uma solução viável $x^1$ do problema original, o ponto $[x^1 | 0, ..., 0]$ é uma solução viável com custo zero, portanto com custo ótimo. Sendo assim, temos que se o problema original possui solução viável, então o problema auxiliar tem custo ótimo igual a zero. Na contra-positiva, se acharmos uma solução ótima para o problema auxiliar com custo diferente de zero, então o problema original é inviável.
+
+
+\subsection{Solução do problema auxiliar}
+Como o custo do problema auxiliar é sempre maior ou igual a zero, o custo ótimo nunca será $-\infty$, portanto a fase 2 sempre descobrirá alguma solução viável básica ótima. Se o custo dessa solução for maior que zero, o problema original é inviável, como explicado na seção \ref{fase2:custo_otimo}. Se o custo for zero, a solução do problema auxiliar $[x|y] = [x | 0, ..., 0]$ também será uma solução do problema original. 
+
+Porém, mesmo que $[x | 0, ..., 0]$ seja uma solução viável básica do problema original, é possível que a base dada pela fase 2 do problema auxiliar tenha índices das variáveis artificiais, que serão eliminadas para iniciar a fase 2 para o problema original. Veremos na \hyperref[rm_artificiais]{proxima seção} como remover os índices ariticiais da base.
+
+\subsection{Remoção de índices artificiais da base}
+\label{fase2:rm_artificiais}
+Suponha que temos um índice $l > m$ aritificial que esteja na base. Queremos tirá-lo da base e adicionar um índice $j \leq m$ na base. Veremos agora, como descobrir tal índice e como mudar a base.
+
+Suponha, sem perca de generalidade, que apenas os $k < m$ primeiros indices básicos não são de variáveis artificiais. Para o índice $j$ na base, devemos garantir que $A_{j}$ é LI com $\{A_{B(1)}, ..., A_{B(k)}\}$. Suponha que a matriz básica é $B$ e que queremos remover a $l$-ésima variável da base, por ser atificial. Veja que $B^{-1}A_{B(i)} = e_i$ para $1 \leq i \leq k$, portanto, basta escolher $j$ não artificial tal que $(B^{-1}A_j)_l = A_j  \neq 0$ e teremos garantia de que estamos escolhendo uma coluna LI para formar a base.
+
+Se não ouver $j$ como descrito acima, teremos que $(B^{-1}A_j)l = 0$ para todo $1 \leq j \leq m$. Veja que se $g^T$ é a $l$-ésima linha de $B^{-1}$, então $g^TA = 0$, ou seja, $g_1a_1 + ... + g_ma_m = 0$, portanto as linhas de $A$ são LD e podemos então, eliminar a $l$-ésima linha de $A$ do nosso problema \cite{315book}.
+
+Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
+\bigskip
+
+\begin{algorithmic}
+\Function{$RemoveAritificiais$}{$A$, $I$, $B^{-1}$, $m$, $n$}
+	\ForAll{$\{ l \in \{B(1), ..., B(m)\} | l > n\}$}
+		\State $candidates \gets \{i \in I.n | i< n\}$
+		\State $x \gets length(candidates)$
+		\State $k \gets 1$;
+		\While{$k \leq x$ and $B^{-1}_lA_{I.n(candidates(k))}$} 
+			\State $k \gets k + 1$
+		\EndWhile
+		\If{$k > x$}
+			\State $m \gets m - 1$
+			\State remova $l$-ésima linha de $A$
+			\State remova a $l$-ésima entrada de $I.b$
+			\State remova a $l$-ésima entrada de $b$
+		\Else
+			\State $u \gets B^{-1}A_k$ 
+			\State $atualizaBase(I, invB, u, l, k, m)$
+		\EndIf 
+	\EndFor
+\EndFunction
+\end{algorithmic}
+	
+\section{Pseudocódigo do algoritmo simplex}
+\begin{algorithmic}
+\Function{$Simplex$}{$A$, $b$, $c$, $m$, $n$}
+	\ForAll{$i | b_i < 0$}
+		\State $b_i \gets b_i * -1$
+	\EndFor
+	\State $A \gets [A | I]$, $I \in \mathbb{R}^{m \times m}$
+	\State $x \gets [\vec{0}, b]$, $\vec{0} \in \mathbb{R}^{n}$
+	\State $c1 \gets [\vec{0}, \vec{ac}]$, $\vec{ac} = [1, ..., 1] \in \mathbb{R}^m$
+	\State $I.b \gets [n + 1, ..., n + m]$
+	\State $I.n \gets [1, ..., n]$
+	\State $B^{-1} = I$, $I \in \mathbb{R}^{m \times m}$
+	\State $(ind, x, d, I, B^-1) = fase2(A, b, c1, m, n + m, x, I, B^{-1})$
+	\If{${c1}^{T}x > 0$}
+		\Return $(1, NIL, NIL)$
+		\Comment{Problema inviável}
+	
+	\EndIf
+	\State $(I, A, invB, m) \gets removeArtificials (A, I, invB, m, n, b)$
+	\State $x \gets [x_1, ..., x_n]$
+	\State $(ind, x, d, I, B^-1) = fase2(A, b, c, m, n, x, I, B^{-1})$
+	\If{$ind = -1$}
+		\Return $(-1, x, d)$
+		\Comment{Custo ótimo = $-\infty$}
+	\Else
+		\Return $(0, x, d)$
+		\Comment{Solução ótima encontrada}
+	\EndIf
+\EndFunction
+\end{algorithmic}
+
 \section{O algoritmo}
 
 \subsection{Objetivo}
@@ -399,111 +505,7 @@ O pseudo-código:
 \end{algorithmic}
 
 \newpage
-\section{Fase 1 do simplex}
-	Para iniciar a fase 2 do algoritmo simplex precisamos de uma solução viável básica $x^1$, a sua base associada e a inversa da matriz básica. Nesta seção explicaremos o funcionamento da fase 1 do método simplex, responsável por descobrir estes parâmetros.
 
-Para descobrir esses parâmetros vamos criar um problema auxiliar de programação linear:
-
-\begin{center}
-	\begin{tabular}{r l}
-		minimizar & $\sum_{i = 1}^{m} y_i$ \\
-		sujeito a & $
-					[\begin{array}{c | c}
-						A & I
-					\end{array}]
-					
-					\bigg[\begin{array}{c}
-						x \\
-						\hline
-						y
-					\end{array}\bigg]
-					
-					\leq b$, \\
-			com   &	$A \in R^{m \times n}$; $b, y \in \mathbb{R}^m$; $I \in \mathbb{R}^{m \times m}$ \\
-            & $x, y \geq 0$
-	\end{tabular}
-\end{center}
-Chamaremos as variáveis de $y$ aritificiais, e a matriz $[\begin{array}{c | c} A & I	\end{array}]$ de $\overline{A}$.
-
-Note que o ponto $[\overbrace{0, ..., 0}^{n}|b]$ é uma solução viável básica do problema auxiliar, assumindo $b \geq 0$, com índices básicos $n + 1, ..., n + m$ e matrix básica $B = I$. Portanto, temos os parametros necessários para embalar a fase 2 do simplex para o problema auxiliar.
-
-Assumimos no último parágrafo que $b \geq 0$. É fácil verificar que isso não implica em uma perda de generalidade, pois, se $b_i < 0$, basta multiplicar a $i$-ésima restrição por $-1$.
-
-
-
-\subsection{Custo ótimo do problema auxiliar e viabilidade do problema original}
-\label{fase2:custo_otimo}
-Observe que qualquer ponto viável do problema tem custo maior ou igual a zero. Além disso, se existe uma solução viável $x^1$ do problema original, o ponto $[x^1 | 0, ..., 0]$ é uma solução viável com custo zero, portanto com custo ótimo. Sendo assim, temos que se o problema original possui solução viável, então o problema auxiliar tem custo ótimo igual a zero. Na contra-positiva, se acharmos uma solução ótima para o problema auxiliar com custo diferente de zero, então o problema original é inviável.
-
-
-\subsection{Solução do problema auxiliar}
-Como o custo do problema auxiliar é sempre maior ou igual a zero, o custo ótimo nunca será $-\infty$, portanto a fase 2 sempre descobrirá alguma solução viável básica ótima. Se o custo dessa solução for maior que zero, o problema original é inviável, como explicado na seção \ref{fase2:custo_otimo}. Se o custo for zero, a solução do problema auxiliar $[x|y] = [x | 0, ..., 0]$ também será uma solução do problema original. 
-
-Porém, mesmo que $[x | 0, ..., 0]$ seja uma solução viável básica do problema original, é possível que a base dada pela fase 2 do problema auxiliar tenha índices das variáveis artificiais, que serão eliminadas para iniciar a fase 2 para o problema original. Veremos na \hyperref[rm_artificiais]{proxima seção} como remover os índices ariticiais da base.
-
-\subsection{Remoção de índices artificiais da base}
-\label{fase2:rm_artificiais}
-Suponha que temos um índice $l > m$ aritificial que esteja na base. Queremos tirá-lo da base e adicionar um índice $j \leq m$ na base. Veremos agora, como descobrir tal índice e como mudar a base.
-
-Suponha, sem perca de generalidade, que apenas os $k < m$ primeiros indices básicos não são de variáveis artificiais. Para o índice $j$ na base, devemos garantir que $A_{j}$ é LI com $\{A_{B(1)}, ..., A_{B(k)}\}$. Suponha que a matriz básica é $B$ e que queremos remover a $l$-ésima variável da base, por ser atificial. Veja que $B^{-1}A_{B(i)} = e_i$ para $1 \leq i \leq k$, portanto, basta escolher $j$ não artificial tal que $(B^{-1}A_j)_l = A_j  \neq 0$ e teremos garantia de que estamos escolhendo uma coluna LI para formar a base.
-
-Se não ouver $j$ como descrito acima, teremos que $(B^{-1}A_j)l = 0$ para todo $1 \leq j \leq m$. Veja que se $g^T$ é a $l$-ésima linha de $B^{-1}$, então $g^TA = 0$, ou seja, $g_1a_1 + ... + g_ma_m = 0$, portanto as linhas de $A$ são LD e podemos então, eliminar a $l$-ésima linha de $A$ do nosso problema \cite{315book}.
-
-Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
-\bigskip
-
-\begin{algorithmic}
-\Function{$RemoveAritificiais$}{$A$, $I$, $B^{-1}$, $m$, $n$}
-	\ForAll{$\{ l \in \{B(1), ..., B(m)\} | l > n\}$}
-		\State $candidates \gets \{i \in I.n | i< n\}$
-		\State $x \gets length(candidates)$
-		\State $k \gets 1$;
-		\While{$k \leq x$ and $B^{-1}_lA_{I.n(candidates(k))}$} 
-			\State $k \gets k + 1$
-		\EndWhile
-		\If{$k > x$}
-			\State $m \gets m - 1$
-			\State remova $l$-ésima linha de $A$
-			\State remova a $l$-ésima entrada de $I.b$
-			\State remova a $l$-ésima entrada de $b$
-		\Else
-			\State $u \gets B^{-1}A_k$ 
-			\State $atualizaBase(I, invB, u, l, k, m)$
-		\EndIf 
-	\EndFor
-\EndFunction
-\end{algorithmic}
-	
-\section{Pseudocódigo do algoritmo simplex}
-\begin{algorithmic}
-\Function{$Simplex$}{$A$, $b$, $c$, $m$, $n$}
-	\ForAll{$i | b_i < 0$}
-		\State $b_i \gets b_i * -1$
-	\EndFor
-	\State $A \gets [A | I]$, $I \in \mathbb{R}^{m \times m}$
-	\State $x \gets [\vec{0}, b]$, $\vec{0} \in \mathbb{R}^{n}$
-	\State $c1 \gets [\vec{0}, \vec{ac}]$, $\vec{ac} = [1, ..., 1] \in \mathbb{R}^m$
-	\State $I.b \gets [n + 1, ..., n + m]$
-	\State $I.n \gets [1, ..., n]$
-	\State $B^{-1} = I$, $I \in \mathbb{R}^{m \times m}$
-	\State $(ind, x, d, I, B^-1) = fase2(A, b, c1, m, n + m, x, I, B^{-1})$
-	\If{${c1}^{T}x > 0$}
-		\Return $(1, NIL, NIL)$
-		\Comment{Problema inviável}
-	
-	\EndIf
-	\State $(I, A, invB, m) \gets removeArtificials (A, I, invB, m, n, b)$
-	\State $x \gets [x_1, ..., x_n]$
-	\State $(ind, x, d, I, B^-1) = fase2(A, b, c, m, n, x, I, B^{-1})$
-	\If{$ind = -1$}
-		\Return $(-1, x, d)$
-		\Comment{Custo ótimo = $-\infty$}
-	\Else
-		\Return $(0, x, d)$
-		\Comment{Solução ótima encontrada}
-	\EndIf
-\EndFunction
-\end{algorithmic}
 
 	
 
