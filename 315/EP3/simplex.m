@@ -301,8 +301,7 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b)
     % Essa função é O(m)
     
     for l = (1 : m)(I.b > n) % indexes of I.b with content greater than n
-        
-        b_cand = (1 : n)(I.n < n);
+        b_cand = (1 : n)(I.n <= n);
         x = length(b_cand);
         k = 1;
         while ((k <= x) && abs(invB(l, :) * A(:, I.n(b_cand(k)))) <= 1e-10)  %% por que abs? o_O  % só quero saber se é diferente de zero, mas corro o risco de não dar exatamente zero
@@ -317,8 +316,8 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b)
             b(l) = [];
         else
             % vamos trocar a base do indice l (artificial) para j (não artificial)
-            u = invB * A(:, I.n(k)); 
-            [I, invB] = atualizaBase(I, invB, u, l, k, m);
+            u = invB * A(:, I.n(b_cand(k))); 
+            [I, invB] = atualizaBase(I, invB, u, l, b_cand(k), m);
         end
     end
 
