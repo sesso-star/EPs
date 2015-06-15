@@ -235,7 +235,9 @@ Suponha que temos um índice $l > m$ aritificial que esteja na base. Queremos ti
 
 Suponha, sem perca de generalidade, que apenas os $k < m$ primeiros indices básicos não são de variáveis artificiais. Para o índice $j$ na base, devemos garantir que $A_{j}$ é LI com $\{A_{B(1)}, ..., A_{B(k)}\}$. Suponha que a matriz básica é $B$ e que queremos remover a $l$-ésima variável da base, por ser atificial. Veja que $B^{-1}A_{B(i)} = e_i$ para $1 \leq i \leq k$, portanto, basta escolher $j$ não artificial tal que $(B^{-1}A_j)_l = A_j  \neq 0$ e teremos garantia de que estamos escolhendo uma coluna LI para formar a base.
 
-Se não ouver $j$ como descrito acima, teremos que $(B^{-1}A_j)l = 0$ para todo $1 \leq j \leq m$. Veja que se $g^T$ é a $l$-ésima linha de $B^{-1}$, então $g^TA = 0$, ou seja, $g_1a_1 + ... + g_ma_m = 0$, portanto as linhas de $A$ são LD e podemos então, eliminar a $l$-ésima linha de $A$ do nosso problema \cite{315book}.
+Se não ouver $j$ como descrito acima, teremos que $(B^{-1}A_j)l = 0$ para todo $1 \leq j \leq m$. Veja que se $g^T$ é a $l$-ésima linha de $B^{-1}$, então $g^TA = 0$, ou seja, $g_1a_1 + ... + g_ma_m = 0$, portanto as linhas de $A$ são LD e podemos então, eliminar a $l$-ésima linha de $A$ do nosso problema \cite{315book}. 
+
+Quando removemos uma restrição, o nosso $m$ diminui, portanto a matriz $B^{-1}$ deixa de ser uma matriz básica do nosso problema. Para atualizar a $B^{-1}$, quado se remove a $l$-ésima restrição, basta remover sua $l$-ésima linha e coluna. Veremos porque isso é correto em \ref{fase1:rem_res_b_update}.
 
 Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
 \bigskip
@@ -262,6 +264,31 @@ Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
 	\EndFor
 \EndFunction
 \end{algorithmic}
+
+\subsection{Atualização de $B^{-1}$ na remoção de restrições}
+\label{fase1:rem_res_b_update}
+Seja $B$ a nossa matriz básica e $l$ a restrição a ser removida.
+
+\begin{center}
+	$\sum_{k = 1}^{m} B_{ik} B^{-1}_{kj} = I_{ij}$ para $i, j = 1, ..., m$
+\end{center}
+Se ignorarmos $i$ e $j$ quando valem $l$, temos que continua valendo a somatória. Puxando o termo com $k = l$ para fora do somatório, temos:
+\begin{center}
+	$B_{il}B^{-1}_{lj} + \sum_{{k = 1, k \neq l}}^{m} B_{ik} B^{-1}_{kj} = I_{ij}$ para $i, j = 1, l-1, l+1, ..., m$
+\end{center}
+
+Sabemos que a $l$-ésima coluna de $B$ corresponde a um índice de uma variável artificial, e vamos supor que uma variável artificial sai da base na fase 1 ela não precisa voltar mais, então temos que $B(l)$ é a $l$-ésima variável artificial, portanto $B_(l) = e_l$, ou seja: $B_{il}$ vale 1 se $i = l$ e 0 caso contrário. Portanto:
+\begin{center}
+	$\sum_{{k = 1, k \neq l}}^{m} B_{ik} B^{-1}_{kj} = I_{ij}$ para $i, j = 1, l-1, l+1, ..., m$
+\end{center}
+
+E esse somatório é exatamente o produto das matrizes $B$ e $B^{-1}$ ignorando a $l$-ésima linha e coluna. Portanto provamos que a atualização da $B^{-1}$ está correta. Falta agora, mostrar que quando uma variável artificial sai da base na fase 1 ela não volta mais.
+
+O objetivo da fase 1 do simplex é achar uma base viável para o problema original e utilizamos variáveis artificiais no problema auxiliar porque facilita essa tarefa. Portanto, quando retiramos uma variável artificial da base, conseguimos uma base do PL auxiliar que não usa essa variável, logo podemos removê-la do problema e teremos um problema equivalente sem essa variável.
+
+
+	
+	
 	
 \section{Pseudocódigo do algoritmo simplex}
 \begin{algorithmic}
