@@ -40,7 +40,7 @@ function [ind, x, d] = simplex(A, b, c, m, n)
 
     % Resolve problema auxiliar
     printf("\n******************** Fase1 ********************\n\n");
-    [ind, x, d, I, invB] = fase2(A, b, c1, m, n + m, x, I, invB);
+    [ind, x, d, I, invB] = fase2(A, b, c1, m, n + m, x, I, invB, n);
 
     if x(n + 1 : n + m) != 0
         % Problema Inviável
@@ -58,7 +58,7 @@ function [ind, x, d] = simplex(A, b, c, m, n)
 
     % Resolve problema inicial, com solução encontrada
     printf("\n******************** Fase2 ********************\n\n");
-    [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB);
+    [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB, n);
 
     if ind == -1
         printf("\n\nO custo ótimo é -infinito, com direção:\nd =\n\n");
@@ -70,7 +70,7 @@ function [ind, x, d] = simplex(A, b, c, m, n)
     disp(x);
 end
 
-function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB)
+function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB, maxbasic)
     % Recebe:
     %   A: Matriz de restrições
     %   b: Vetor tal que A*x = b
@@ -80,6 +80,7 @@ function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB)
     %   x: Solução viável básica
     %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
     %   invB: Inversa da matriz B (colunas de A com indice básico)
+    %   maxbasic: Indice máximo que pode entrar na base
     %
     % Calcula solução ótima para o PL: min c'x, S.A.: Ax = b, x >= 0, sabendo que o problema é viável
     %
@@ -99,7 +100,7 @@ function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB)
     printXb(x, I, m);
     printCusto(x, c);
 
-    [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
+    [redc, u, ij] = custoDirecao(A, invB, c, n, m, I, maxbasic);
     while redc < 0                              % se essa condição falha, x é ótimo
         [imin, teta] = calculaTeta(x, u, I);
         if imin == -1                           % custo ótimo é -inf e u tem a direção
@@ -118,7 +119,7 @@ function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB)
         printDir(u, I, m);
         printResto(x, c, I, ij, imin, teta);
 
-        [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
+        [redc, u, ij] = custoDirecao(A, invB, c, n, m, I, maxbasic);
     end
     
     d = [];
@@ -128,7 +129,7 @@ end
 
 %%%%%%%%%%%%%%% FUNÇÕES AUXILIARES %%%%%%%%%%%%%%%
 
-function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
+function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I, maxbasic)
     % Recebe:
     %   A: Matriz de restrições
     %   invB: Inversa da matriz B (colunas de A com indice básico)
@@ -157,7 +158,7 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
     while j <= n - m
         redc = c(I.n(j)) - cbinvB * A(:, I.n(j));
 
-        if redc < -1e-10
+        if (redc < -1e-10) && (I.n(j) <= maxbasic)
             ij = j;
             u = invB * A(:, I.n(ij)); 
 
