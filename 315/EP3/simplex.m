@@ -41,14 +41,16 @@ function [ind, x, d] = simplex(A, b, c, m, n)
     % Resolve problema auxiliar
     printf("\n******************** Fase1 ********************\n\n");
     [ind, x, d, I, invB] = fase2(A, b, c1, m, n + m, x, I, invB, n);
-
-    if x(n + 1 : n + m) != 0
-        % Problema Inviável
-        ind = 1;
-        x = [];
-        d = [];
-        printf("\n\nO problema é inviável\n");
-        return;
+	
+    for artific = n + 1 : n + m
+		if abs(x(artific)) > 1e-10
+			% Problema Inviável
+			ind = 1;
+			x = [];
+			d = [];
+			printf("\n\nO problema é inviável\n");
+			return;
+		end
     end
 
     % Remove vaiáveis artificiais da base. (não altera x)

@@ -104,7 +104,7 @@
 \subsection{Objetivos do trabalho}
 	Neste trabalho, temos o objetivo de desenvolver, na linguagem Octave, o algoritmo simplex para resolver problemas de Programação Linear.
 
-
+\newpage
 \section{Conceitos fundamentais}
 	Antes de introduzirmos o funcionamento do nosso algoritmo, precisamos definir alguns conceitos que são fundamentais para garantir sua corretude.
 
@@ -193,7 +193,7 @@
     Se $\theta \in \mathbb{R}$, como $d_i = 0$ $\forall{i \in \{B(1), ..., B(m)\}, i \neq j}$, temos que para essas mesmas componentes $x^2$ é nulo. Logo, temos $n - 1$ restrições ativas LI em $x^2$. Suponha que para $l \in \{1,..,m\}$ vale que $\theta =  x_{B(l)} / u_l$, então $x^2_{B(l)} = x^1_{B(l)} + (-x^1_B(l)/d_{B(l)}) * d_{B(l)} = 0$ (diremos que $B(l)$ sai da base), logo existem $n$ restrições ativas LI em $x^2$. Além disso, por construção, vale que $Ax = b$ e $x \geq 0$ para variáveis não básicas e para $x_B(l)$. Para $B(k)$ básico diferente de $B(l)$, temos que $x^2_B(k) \geq x^1_{B(k)} + (-x^1_B(k)/d_{B(k)}) * d_{B(k)} = 0$. Portanto $x^2$ é solução viável básica adjacente a $x^1$ e, como a base de $x^2$ é $\{B(1), ..., B(l - 1), j, B(l + 1), ..., B(m)\}$, $x^2$ é adjacente a $x^1$.
     
     
-    
+\newpage
 \section{Fase 1 do simplex}
 	Para iniciar a fase 2 do algoritmo simplex precisamos de uma solução viável básica $x^1$, a sua base associada e a inversa da matriz básica. Nesta seção explicaremos o funcionamento da fase 1 do método simplex, responsável por descobrir estes parâmetros.
 
@@ -270,37 +270,8 @@ Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
 \EndFunction
 \end{algorithmic}
 	
-\section{Pseudocódigo do algoritmo simplex}
-\begin{algorithmic}
-\Function{$Simplex$}{$A$, $b$, $c$, $m$, $n$}
-	\ForAll{$i | b_i < 0$}
-		\State $b_i \gets b_i * -1$
-	\EndFor
-	\State $A \gets [A | I]$, $I \in \mathbb{R}^{m \times m}$
-	\State $x \gets [\vec{0}, b]$, $\vec{0} \in \mathbb{R}^{n}$
-	\State $c1 \gets [\vec{0}, \vec{ac}]$, $\vec{ac} = [1, ..., 1] \in \mathbb{R}^m$
-	\State $I.b \gets [n + 1, ..., n + m]$
-	\State $I.n \gets [1, ..., n]$
-	\State $B^{-1} = I$, $I \in \mathbb{R}^{m \times m}$
-	\State $(ind, x, d, I, B^-1) = fase2(A, b, c1, m, n + m, x, I, B^{-1})$
-	\If{${c1}^{T}x > 0$}
-		\Return $(1, NIL, NIL)$
-		\Comment{Problema inviável}
-	
-	\EndIf
-	\State $(I, A, invB, m) \gets removeArtificials (A, I, invB, m, n, b)$
-	\State $x \gets [x_1, ..., x_n]$
-	\State $(ind, x, d, I, B^-1) = fase2(A, b, c, m, n, x, I, B^{-1})$
-	\If{$ind = -1$}
-		\Return $(-1, x, d)$
-		\Comment{Custo ótimo = $-\infty$}
-	\Else
-		\Return $(0, x, d)$
-		\Comment{Solução ótima encontrada}
-	\EndIf
-\EndFunction
-\end{algorithmic}
 
+\newpage
 \section{O algoritmo}
 
 \subsection{Objetivo}
@@ -398,12 +369,15 @@ function [ind, x, d] = simplex(A, b, c, m, n)
     % Resolve problema auxiliar
     [ind, x, d, I, invB] = fase2(A, b, c1, m, n + m, x, I, invB);
 
-    if x(n + 1 : n + m) != 0
-        % Problema Inviavel
-        ind = 1;
-        x = [];
-        d = [];
-        return;
+    for artific = n + 1 : n + m
+		if abs(x(artific)) > 1e-10
+			% Problema Inviavel
+			ind = 1;
+			x = [];
+			d = [];
+			printf("\n\nO problema e inviavel\n");
+			return;
+		end
     end
 
     % Remove vaiaveis artificiais da base. (nao altera x)
@@ -432,10 +406,10 @@ function [ind, x, d] = simplex(A, b, c, m, n)
 		\While{$!(\overline{c} \geq 0)$}
 			\State $j \gets j \not\in {B(1), \dots, B(m)}$, $t.q.$ $\overline{c}_j < 0$ \Comment Usando regra anti-ciclagem
 			\State $u \gets B^{-1} A_j$
-			\If{$u < 0$}
+			\If{$u \leq 0$}
 				\Return $(-1, d)$ \Comment Custo ótimo é $-\infty$
 			\EndIf
-			\State $\theta \gets \min_{u_l \geq 0} {\frac{x_{B(l)}}{u_l}}, l = 1, \dots, m$
+			\State $\theta \gets \min_{u_l > 0} {\frac{x_{B(l)}}{u_l}}, l = 1, \dots, m$
 			\State $x \gets x + \theta d$
 			\State $B(l) \gets j$
 			\State \Call{$atualiza$}{$invB$}
@@ -718,7 +692,7 @@ x =
 	   
 	\begin{itemize}
 	\item $A = \begin{pmatrix}
-    1 & 1 & 0 & 0
+    1 & 1 & 0 
     \end{pmatrix}$
     
 	\item $b = \begin{pmatrix}
@@ -726,7 +700,7 @@ x =
     \end{pmatrix} $
     
     \item $c = \begin{pmatrix}
-    -1 & 0 & -1 & 0
+    -1 & 0 & -1 
     \end{pmatrix}$
     
     \item $m = 1$
@@ -801,7 +775,84 @@ x =
    0
 
 	\end{lstlisting}
-	O problema começa 
+	O problema começa com o $x$ que calculamos na fase anterior. O $j$ escolhido é 3, pois $\overline{c}_3 = -1 + 0 = -1$. No entanto, $u = B^-1 * A_j = A_1^-1 * A_3 = 1 * 0 = 0$. Portanto não existe $u > 0$, logo podemos escolher $\theta$ tão grande quanto queiramos e nosso custo será cada vez menor. A direção que leva a $-\infty$ é tal que $d_3$ = 1, e como já vimos, $u = 0$. Portanto $d = (0, 0, 1)^T$.
+	
+	\subsection{Inviável}
+	Suponha o problema:
+	\begin{center}	
+    	\begin{tabular}{r l}
+	  		minimizar & $-x_1 - x_2 - x_3$ \\
+        
+        	sujeito a & $x_1 = 1$ \\
+        	& $2x_1 = 1$ \\
+            & $x \geq 0$ \\
+        \end{tabular}
+    \end{center}
+    
+        Para esse problema, temos: 
+	   
+	\begin{itemize}
+	\item $A = \begin{pmatrix}
+    1 & 0 & 0 \\
+    1 & 0 & 0 \\    
+    \end{pmatrix}$
+    
+	\item $b = \begin{pmatrix}
+    1 \\
+    1
+    \end{pmatrix} $
+    
+    \item $c = \begin{pmatrix}
+    -1 & -1 & -1 
+    \end{pmatrix}$
+    
+    \item $m = 2$
+    
+    \item $n = 3$
+	\end{itemize}
+
+	\lstset {firstnumber=1}	
+	
+	Esse problema é obviamente inviável, pois $x_1$ não pode ser ao mesmo tempo $1$ e $0.5$. 
+	\begin{lstlisting}[style=term]
+octave:1> simplex(A,b,c,m,n)
+
+******************** Fase1 ********************
+
+
+Iteracao 0:
+|  Var Basicas	     Valor
+|  ===========	==========
+|           x4	  1.000000
+|           x5	  1.000000
+|  
+|  Custo em x
+|  ==========
+|       2.000
+|  
+
+Iteracao 1:
+|  Var Basicas	     Valor
+|  ===========	==========
+|           x4	  0.500000
+|           x1	  0.500000
+|  
+|  Indice var basicas	Componente da direcao
+|  ==================	=====================
+|                   4	            -1.000000
+|                   1	            -2.000000
+|  
+|  Custo em x	   Teta   	Entra na Base	Sai da Base
+|  ==========	==========	=============	===========
+|       0.500	     0.500	           x1	         x5
+|  
+
+
+O problema e inviavel
+
+
+	\end{lstlisting}
+	Vemos que o problema começa com as duas variáveis artificiais $x_4$ e $x_5$ na base, pois $m = 2$. Em 1 iteração achamos a solução ótima para o problema auxiliar. No entanto como pode-se ver, $x_4$ está entre as variáveis básicas, portanto o problema principal é inviável.
 
     
 
