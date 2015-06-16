@@ -12,6 +12,13 @@
 % \usepackage[]{algorithm2e}
 \usepackage{algpseudocode}
 \usepackage[numbered, framed]{mcode}
+\usepackage{listings}
+\lstdefinestyle{term}
+{
+    backgroundcolor=\color{black},
+    basicstyle=\footnotesize\color{white}\ttfamily
+}
+
 \algrenewcommand\Return{\State \algorithmicreturn{} } % tirar os returns da mesma linha nos pseudocodigos 
 \usepackage{indentfirst}
 \usepackage{enumitem}
@@ -554,13 +561,249 @@ Para atualizar $x$, temos que fazer $x + \theta d$. No entanto, não há a neces
 Claramente, por ser uma subtração de vetores de tamanho $m$, a complexidade é $O(m)$.
 
 \subsubsection{A função fase2}
+Finalmente podemos analisar uma das funções que determinam a complexidade da função \texttt{simplex}. A cada iteração do loop principal dessa função, temos chamadas às seguintes funções: \texttt{calculaTeta}, \texttt{atualizax}, \texttt{atualizaBase} e \texttt{custoDirecao}. As duas primeiras são lineares, $O(m)$. Já as duas últimas, são $O(nm)$. Portanto cada iteração da \texttt{fase2}, temos uma complexidade $O(mn)$.
+
+\subsubsection{A função removeArtificials}
+Para a função \texttt{removeArtificials}, a cada iteração do loop principal, temos uma possível chamada de \texttt{atuzliaBase}, que é $O(nm)$. Logo no pior caso, ela é chamada em todas as iterações e no melhor ela nunca é chamada. O loop principal depende de quantas variáveis artificiais existem na base. Podem haver no máximo $m$ dessas variáveis. Logo o pior dos cenários é quando temos $m$ variáveis artificiais e atualizamos a base para todas elas. Nesse caso o algoritmo leva $O(nm^2)$. No melhor dos casos, não há variáveis artificiais dentro da base e isso leva $O(1)$.
+
+\subsubsection{Conclusão da complexidade}
+Seja $\alpha$ o número de iterações da primeira chamada de \texttt{fase2} em \texttt{simplex} e $\beta$ o da segunda chamada. Então na primeira delas, temos complexidade $O(\alpha n m)$ e na outra $O(\beta n m)$. Se $\alpha + \beta > m$, então as duas juntas são $\Omega(nm^2)$ e nesse caso essa é a complexidade do \texttt{simplex}. Caso contrário, \texttt{removeArtificials} continuará sendo $O(nm^2)$ e a função \texttt{simplex} também será.
 
 
 
 \newpage
-
-
+\section{Exemplos}
+	Nessa seção apresentaremos 3 exemplos do algoritmo implementado em octave sendo executado. 
 	
+	\subsection{Solução Ótima}
+		Consideremos o seguinte problema:
+	\begin{center}	
+    	\begin{tabular}{r l}
+	  		minimizar & $x_1 + x_2 + x_3$ \\
+        
+        	sujeito a & $x_1 + x_2 + x_3 \leq 1$ \\
+            & $x \geq 0$ \\
+        \end{tabular}
+    \end{center}
+    
+	Podemos visualizar o problema com a seguinte imagem, onde a região viável está representada abaixo do plano desenhado e acima dos eixos:
+	\begin{center}
+	\includegraphics[scale=0.8]{xyz}	
+	\end{center}
+
+	Como esse problema não está no formato padrão, temos que reformulá-lo adicionando uma variável de folga:
+	\begin{center}	
+    	\begin{tabular}{r l}
+	  		minimizar & $x_1 + x_2 + x_3$ \\
+        
+        	sujeito a & $x_1 + x_2 + x_3 + x_4 = 1$ \\
+            & $x \geq 0$ \\
+        \end{tabular}
+    \end{center}
+    
+    Para esse problema, temos: 
+	   
+	\begin{itemize}
+	\item $A = \begin{pmatrix}
+    1 & 1 & 1 & 1
+    \end{pmatrix}$
+    
+	\item $b = \begin{pmatrix}
+    1 
+    \end{pmatrix} $
+    
+    \item $c = \begin{pmatrix}
+    1 & 1 & 1 & 0
+    \end{pmatrix}$
+    
+    \item $m = 1$
+    
+    \item $n = 4$
+	\end{itemize}
+	
+	Portanto, podemos aplicar nosso algoritmo:
+	\begin{lstlisting}[style=term]
+octave:1> simplex(A,b,c,m,n)
+
+******************** Fase1 ********************
+
+
+Iteracao 0:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x5    1.000000
+|  
+|  Custo em x
+|  ==========
+|       1.000
+|  
+
+Iteracao 1:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x1    1.000000
+|  
+|  Indice var basicas   Componente da direcao
+|  ==================   =====================
+|                   1               -1.000000
+|  
+|  Custo em x      Teta         Entra na Base   Sai da Base
+|  ==========   ==========      =============   ===========
+|       0.000        1.000                 x1            x5
+|  
+	\end{lstlisting}
+	
+	A fase 1 consiste em achar uma solução para o problema principal através de um problema auxiliar. Nesse caso o problema auxiliar tem somente uma variável a mais ($x_5$), pois $m = 1$. Por esse motivo, na Iteração 0, $x_5$ está na base e vale $b = 1$. Nessa situação, $c^Tx = x_5  = 1$. Como essa não é uma solução ótima, foi encontrada uma direção em que o custo reduzido é menor que 0. Vemos na Iteração 1: que essa direção é onde $j = 1$. Verificamos que $\overline{c}_j = c_j - c_B^TB^{-1}A_j = 0 - 1*1*1 = -1$. $x + \theta d$ é calculado resultando em $x_5 = 0$ e $x_1 = 1$. Nesse novo ponto, o custo vale 0. Nesse ponto, todos os custos reduzidos são maiores ou iguais a 0, e essa é a solução ótima. Como $x_1$ não é uma variável artificial, essa já é a solução inicial para o problema inicial. 
+	
+	\lstset {firstnumber=29}
+	\begin{lstlisting}[style=term]
+
+******************** Fase2 ********************
+
+
+Iteracao 0:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x1    1.000000
+|  
+|  Custo em x
+|  ==========
+|       1.000
+|  
+
+Iteracao 1:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x4    1.000000
+|  
+|  Indice var basicas   Componente da direcao
+|  ==================   =====================
+|                   4               -1.000000
+|  
+|  Custo em x      Teta         Entra na Base   Sai da Base
+|  ==========   ==========      =============   ===========
+|       0.000        1.000                 x4            x1
+|  
+
+
+Solucao encontrada: 
+x = 
+
+   0
+   0
+   0
+   1
+	\end{lstlisting}
+	
+	A Iteração 0 da fase 2 começa com $x_1 = 1$, pois foi a solução inicial encontrada na Fase 1. A figura a seguir ilustra a situação:
+	
+	\begin{center}
+	\includegraphics[scale=0.6]{xyz2}	
+	\end{center}
+	
+	Na Iteração 1, a direção $j = 4$ é escolhida por ter custo reduzido menor que 0. Assim, $x_4$ entra na base e $x_1$ a deixa. No novo ponto onde $x_4 = 1$ e as demais componentes de x são 0, não há custo reduzido menor que 0, portanto essa é a solução ótima para nosso problema.
+	
+	\subsection{Custo ótimo $-\infty$}
+	Suponha o problema:
+	\begin{center}	
+    	\begin{tabular}{r l}
+	  		minimizar & $-x_1 - x_3$ \\
+        
+        	sujeito a & $x_1 + x_2 = 1$ \\
+            & $x \geq 0$ \\
+        \end{tabular}
+    \end{center}
+    
+        Para esse problema, temos: 
+	   
+	\begin{itemize}
+	\item $A = \begin{pmatrix}
+    1 & 1 & 0 & 0
+    \end{pmatrix}$
+    
+	\item $b = \begin{pmatrix}
+    1 
+    \end{pmatrix} $
+    
+    \item $c = \begin{pmatrix}
+    -1 & 0 & -1 & 0
+    \end{pmatrix}$
+    
+    \item $m = 1$
+    
+    \item $n = 3$
+	\end{itemize}
+
+	\lstset {firstnumber=1}	
+	
+	É fácil ver que como a unica restrição em $x_3$ é $x_3 > 0$, e temos que minimizar $-x_1 - x_3$, $x_3$ pode ser tão grande quanto queiramos e portanto o custo ótimo será $-\infty$.
+	\begin{lstlisting}[style=term]
+octave:1> simplex(A,b,c,m,n)
+
+******************** Fase1 ********************
+
+
+Iteracao 0:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x4    1.000000
+|  
+|  Custo em x
+|  ==========
+|       1.000
+|  
+
+Iteracao 1:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x1    1.000000
+|  
+|  Indice var basicas   Componente da direcao
+|  ==================   =====================
+|                   1               -1.000000
+|  
+|  Custo em x      Teta         Entra na Base   Sai da Base
+|  ==========   ==========      =============   ===========
+|       0.000        1.000                 x1            x4
+|  
+
+	\end{lstlisting}
+	Como $m = 1$, a unica variável artificial será $x_4$, por isso na Iteração 0 da Fase 1, ela é a unica variável na base. No entanto na direção $j = 1$, o custo reduzido é menor que 0, portanto a variável $x_4$ sai da base e a $x_1$ entra. Nesse novo ponto, os custos reduzidos são maiores ou iguais a zero e não há variáveis artificiais na base. Assim, $x = (1, 0, 0, 0)^T$ é solução inicial do problema.
+	
+	\lstset {firstnumber=29}
+	\begin{lstlisting}[style=term]
+
+******************** Fase2 ********************
+
+
+Iteracao 0:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x1    1.000000
+|  
+|  Custo em x
+|  ==========
+|      -1.000
+|  
+
+
+O custo otimo e -infinito, com direcao:
+d =
+
+  -0
+   0
+   1
+A partir de:
+x = 
+
+   1
+   0
+   0
+
+	\end{lstlisting}
+	O problema começa 
+
+    
 
 \newpage
 \begin{thebibliography}{9}
