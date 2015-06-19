@@ -1,0 +1,7 @@
+A função simplex pedida no enunciado, encontra-se no arquivo simplex.m
+
+Além disso nos arquivos ex_.m temos alguns testes que carregam as variáveis A, b, c, m, n. Por exemplo:
+>>> ex1
+>>> simplex(A,b,c,m,n)
+>>> ex2
+>>> simplex(A,b,c,m,n)
