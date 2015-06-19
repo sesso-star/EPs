@@ -12,6 +12,13 @@
 % \usepackage[]{algorithm2e}
 \usepackage{algpseudocode}
 \usepackage[numbered, framed]{mcode}
+\usepackage{listings}
+\lstdefinestyle{term}
+{
+    backgroundcolor=\color{black},
+    basicstyle=\footnotesize\color{white}\ttfamily
+}
+
 \algrenewcommand\Return{\State \algorithmicreturn{} } % tirar os returns da mesma linha nos pseudocodigos 
 \usepackage{indentfirst}
 \usepackage{enumitem}
@@ -97,7 +104,7 @@
 \subsection{Objetivos do trabalho}
 	Neste trabalho, temos o objetivo de desenvolver, na linguagem Octave, o algoritmo simplex para resolver problemas de Programação Linear.
 
-
+\newpage
 \section{Conceitos fundamentais}
 	Antes de introduzirmos o funcionamento do nosso algoritmo, precisamos definir alguns conceitos que são fundamentais para garantir sua corretude.
 
@@ -186,218 +193,6 @@
     Se $\theta \in \mathbb{R}$, como $d_i = 0$ $\forall{i \in \{B(1), ..., B(m)\}, i \neq j}$, temos que para essas mesmas componentes $x^2$ é nulo. Logo, temos $n - 1$ restrições ativas LI em $x^2$. Suponha que para $l \in \{1,..,m\}$ vale que $\theta =  x_{B(l)} / u_l$, então $x^2_{B(l)} = x^1_{B(l)} + (-x^1_B(l)/d_{B(l)}) * d_{B(l)} = 0$ (diremos que $B(l)$ sai da base), logo existem $n$ restrições ativas LI em $x^2$. Além disso, por construção, vale que $Ax = b$ e $x \geq 0$ para variáveis não básicas e para $x_B(l)$. Para $B(k)$ básico diferente de $B(l)$, temos que $x^2_B(k) \geq x^1_{B(k)} + (-x^1_B(k)/d_{B(k)}) * d_{B(k)} = 0$. Portanto $x^2$ é solução viável básica adjacente a $x^1$ e, como a base de $x^2$ é $\{B(1), ..., B(l - 1), j, B(l + 1), ..., B(m)\}$, $x^2$ é adjacente a $x^1$.
     
     
-    
-\section{O algoritmo}
-
-\subsection{Objetivo}
-	Nossa motivação é solucionar um problema de programação linear (\emph{PL}) que consiste em minimizar uma função linear (função de custos) sujeita a restrições lineares. Agora que temos os conceitos necessários, vamos desenvolver um algoritmo para solucionar tal problema.
-
-\subsection{O que temos a princípio}
-\label{fase2:args}
-	Dado o problema:
-    \begin{center}
-    	\begin{tabular}{r l}
-	  		minimizar & $c^Tx$ \\
-        
-        	sujeito a & $Ax = b$ \\
-            & $x \geq 0$ \\
-        \end{tabular}
-    \end{center}
-  
-	Queremos achar o $x$ que satisfaça todas as restrições e minimize $c^Tx$. Portanto temos como informação inicial: 
-	\begin{description}
-		\item[$A$:] Matriz $m \times n$ de restrições
-		\item[$b$:] Vetor de dimensão $m$
-        \item[$c$:] Vetor de custos de dimensão $n$
-        \item[$m$:] Número de restrições de igualdade
-        \item[$n$:] Número de variáveis
-	\end{description}
-
-    Logo nossa função que calcula $x$ terá a seguinte forma: \\
-    \begin{center}
-    \texttt{simplex(A, b, c, m, n)}
-    \end{center}
-
-\subsection{O que recebemos no final}
-    Como já vimos antes, temos três possíveis cenários de resultados da nossa função:
-    \begin{enumerate}
-        \item O problema é inviável, portanto não existe solução ótima
-        \item Existe solução ótima, logo o custo ótimo é um valor finito
-        \item O custo ótimo é $-\infty$, e não existe solução ótima
-    \end{enumerate}
-    Logo, nossa função deve retornar informação suficiente para sabermos em qual dos três casos estamos e os valores relevantes para cada um. Com isso em mente, nossa função tem o seguinte esqueleto:
-    \begin{center}
-        \texttt{[ind x d] = simplex(A, b, c, m, n)}
-    \end{center}
-    Onde:
-    \begin{center}
-    \begin{tabular}{ c  c  c  c }
-        \textbf{Caso} & $ind$ & $x$  & $d$ \\  \hline
-        1    & 1   & vetor vazio & vetor vazio \\
-        2    & 0   & solução ótima & vetor vazio \\
-        3    & -1  & ultima svb computada & direção que vai a $-\infty$ \\
-    \end{tabular}
-    \end{center}
-
-\subsection{Pseudocódigo}
-    Nos preocupando somente com o caso onde o problema tem solução, nosso algortimo seria algo próximo do seguinte: 
-
-    \begin{algorithmic}
-    \Function{$simplex$}{$A$, $b$, $c$, $m$, $n$}
-        \State \texttt{multiplica restrições com $b < 0$ por -1}
-        \State $A' \gets [\begin{array}{c | c} A & I \end{array}]$
-        \State $x' \gets \bigg [\begin{array}{c} 0 \\ \hline b \end{array} \bigg]$
-        \State $c' \gets \bigg [\begin{array}{c} 0 \\ \hline 1 \end{array} \bigg]$
-        \State $B \gets \bigg [\begin{array}{c c c c} A_{B(1)} & A_{B(2)} & \dots & A_{B(m)} \end{array} \bigg ]$ \\
-        \State $x$ $\gets$ \texttt{fase2}$(A', b, c', m, m + n, x')$ \\
-        \State $x$ $\gets$ \texttt{fase2}$(A, b, c, m, n, x)$ 
-        \Return{$x$}
-    \EndFunction
-    \end{algorithmic}
-
-    Nota-se que o algoritmo é dividido em 3 partes:
-    \begin{enumerate}
-        \item Modificar problema inicial, adicionando $m$ variáveis artificiais
-        \item Encontrar solução inicial para o problema primal resolvendo o modificado
-        \item Resolver o problema primal
-    \end{enumerate}
-    Podemos resolver os dois problemas, dado uma solução inicial, graças a função \texttt{fase2} que será explicada mais a frente. Imaginando que já temos essa função, nosso algoritmo final em octave é:
-
-    \begin{lstlisting}
-function [ind, x, d] = simplex(A, b, c, m, n)
-    % Arruma restricoes para que b > 0
-    for i = 1 : m
-        if (b < 0)
-            b *= -1;
-            A(i, :)  *= -1;
-        end
-    end
-
-    % Cria problema auxiliar para achar primeira solucao 
-    % para o problema primal
-    A = [A, eye(m)];
-    x = [zeros(n, 1); b];
-    c1 = [zeros(n, 1); ones(m, 1)];
-    I = struct('b', [n + 1 : n + m], 'n', [1 : n]);
-    invB = eye(m);
-
-    % Resolve problema auxiliar
-    [ind, x, d, I, invB] = fase2(A, b, c1, m, n + m, x, I, invB);
-
-    if x(n + 1 : n + m) != 0
-        % Problema Inviavel
-        ind = 1;
-        x = [];
-        d = [];
-        return;
-    end
-
-    % Remove vaiaveis artificiais da base. (nao altera x)
-    [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b);
-    invB = inverse(A(:, I.b));
-    x = x(1 : n);
-
-
-    % Resolve problema primal, com solucao encontrada
-    [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB);
-    \end{lstlisting}
-
-    Nessa implementação, é clara a correspondência entre as principais etapas vistas quando apresentamos o pseudocódigo.
-
-
-
-\subsection{Pseudocódigo da fase 2 do simplex}
-Na implementação do nosso algoritmo simplex, utilizamos uma estrutura chamada de $I$ que guarda os índices básicos e não básicos, representados respectivamente pelos vetores $I.b$ e $I.n$.
-
-\subsubsection{Função custoDirecao}
-A função custoDirecao é responsável por escolher uma direção básica $j$ com custo reduzido menor do que zero.
-\begin{algorithmic}
-\Function{$custoDirecao$}{$A, B^{-1}, c, n, m, I$}
-	\State $j \gets 1$
-	\While{$j \leq n - m$}
-		\State $redc = c(I.n(j)) - c^T_BA_{I.n(j)}$
-		\If{$redc < 0$}
-			\State $ij \gets j$
-			\State $u \gets B^{-1}A_{I.n(ij)}$
-			\Return $(redc, u, ij)$
-		\EndIf
-		\State $j \gets j + 1$		
-	\EndWhile
-	\Return $(0, -1, NIL)$
-\EndFunction
-\end{algorithmic}
-
-\subsubsection{Função calculaTheta}
-A função calculaTheta é responsável por calcular $\theta$ como foi explicado na seção \ref{concepts:adj_svb}.
-\begin{algorithmic}
-\Function{$calculaTheta$}{$x, u, I$}
-	\State $imin = -1$
-	\State $theta = \infty$
-	\For{$i = 1$ to $m$}
-		\If{$u_i > 0$}
-			\State $t = x_{I.b(i)} / u_i$
-			\If{$t < theta$}
-				\State $theta = t$
-				\State $imin = i$
-			\EndIf
-		\EndIf
-	\EndFor
-	\Return $(imin, teta)$
-\EndFunction
-\end{algorithmic}
-
-
-\subsubsection{Atualização da base}
-Atualizações nas bases ocorrem quando tiramos um índice da base e adicionamos outro. Esta operação ocorre tanto na fase 1 quanto na fase 2 do método simplex.
-
-O cálculo da inversa de uma matriz é uma operação muito cara, portanto devemos investigar uma maneira de atualizar a inversa de $B$ ao invés de recalculá-la a todo momento. Seja $B$ uma base, e $\overline{B}$ a base depois de uma atualização, tirando o $l$-ésimo indice básico e adicionando o índice $j$ a base. Note que:
-\begin{center}
-$$
-B^{-1}\overline{B} =
-\begin{pmatrix}
-B^{-1}A_{B(1)}  & \cdots & B^{-1}A_{B(l - 1)} & B^{-1}A_j & \cdots & B^{-1}A_{B(m)} \\    
-\end{pmatrix}
-$$
-$$
-=\begin{pmatrix}
-e_1  & \cdots & e_{l-1} & u & \cdots & e_m \\    
-\end{pmatrix}
-$$
-\end{center}
-Portanto, se pré-multiplicarmos $B^{-1}$ por matrizes fazendo com que, no lado direito da equação, $u$ se torne $e_l$, teremos que $B^{-1}$ pré-multiplicada pelas mesmas matrizes será igual a $\overline{B^{-1}}$.
-
-O pseudo-código:
-\begin{algorithmic}
-\Function{$atualizaBase$}{$I, B^-1, u, imin, ij, m$} 
-\State $(I.b(imin), I.b(ij)) \gets (I.n(ij), I.b(imin))$
-\For {$i = 1$ to $m$}
-	\If{$i \neq imin$}
-		\State $B^{-1}_{i, j} \gets B^{-1}_{i, j} - (u_i / u_{imin}) * B^{-1}_{imin, j}$ for $j = 1, ..., n$
-	\EndIf
-\EndFor
-\State $B^{-1}_{i, j} \gets B^{-1}_{i, j} / u(imin)$ for $j = 1, ..., n$
-\EndFunction
-\end{algorithmic}
-
-
-\subsubsection{A função fase2}
-\begin{algorithmic}
-\Function{$fase2$}{$A$, $b$, $c$, $m$, $n$, $x$, $I$, $B^{-1}$}
-	\State $(redc, u, ij) \gets custoDirecao (A, B^{-1}, c, n, m, I)$
-    \While{$redc < 0$}
-    		\State $(imin, teta) \gets calculaTheta(x, u, I)$
-    		\If {$imin = -1$}
-    		    			\Return $(-1, u)$
-    			\Comment{custo ótimo  $ = -\infty$}
-    		\EndIf
-    		\State $x \gets atualizax(x, teta, u, I.n(ij), I)$
-    		\State $(I, B^{-1}) = atualizaBase(I, B^{-1}, u, imin, ij, m)$
-    		\State $(redc, u, ij) \gets custoDirecao (A, B^{-1}, c, n, m, I)$
-    \EndWhile
-    \Return $(0, x)$
-\EndFunction
-\end{algorithmic}
-
 \newpage
 \section{Fase 1 do simplex}
 	Para iniciar a fase 2 do algoritmo simplex precisamos de uma solução viável básica $x^1$, a sua base associada e a inversa da matriz básica. Nesta seção explicaremos o funcionamento da fase 1 do método simplex, responsável por descobrir estes parâmetros.
@@ -463,6 +258,7 @@ Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
 		\EndWhile
 		\If{$k > x$}
 			\State $m \gets m - 1$
+			\State remova $l$-ésima linha e $l$-ésima coluna de $B$
 			\State remova $l$-ésima linha de $A$
 			\State remova a $l$-ésima entrada de $I.b$
 			\State remova a $l$-ésima entrada de $b$
@@ -474,38 +270,591 @@ Veja abaixo o pseudocódigo para remoção de índices artificiais da base:
 \EndFunction
 \end{algorithmic}
 	
-\section{Pseudocódigo do algoritmo simplex}
-\begin{algorithmic}
-\Function{$Simplex$}{$A$, $b$, $c$, $m$, $n$}
-	\ForAll{$i | b_i < 0$}
-		\State $b_i \gets b_i * -1$
-	\EndFor
-	\State $A \gets [A | I]$, $I \in \mathbb{R}^{m \times m}$
-	\State $x \gets [\vec{0}, b]$, $\vec{0} \in \mathbb{R}^{n}$
-	\State $c1 \gets [\vec{0}, \vec{ac}]$, $\vec{ac} = [1, ..., 1] \in \mathbb{R}^m$
-	\State $I.b \gets [n + 1, ..., n + m]$
-	\State $I.n \gets [1, ..., n]$
-	\State $B^{-1} = I$, $I \in \mathbb{R}^{m \times m}$
-	\State $(ind, x, d, I, B^-1) = fase2(A, b, c1, m, n + m, x, I, B^{-1})$
-	\If{${c1}^{T}x > 0$}
-		\Return $(1, NIL, NIL)$
-		\Comment{Problema inviável}
+
+\newpage
+\section{O algoritmo}
+
+\subsection{Objetivo}
+	Nossa motivação é solucionar um problema de programação linear (\emph{PL}) que consiste em minimizar uma função linear (função de custos) sujeita a restrições lineares. Agora que temos os conceitos necessários, vamos desenvolver um algoritmo para solucionar tal problema.
+
+\subsection{O que temos a princípio}
+\label{fase2:args}
+	Dado o problema:
+    \begin{center}
+    	\begin{tabular}{r l}
+	  		minimizar & $c^Tx$ \\
+        
+        	sujeito a & $Ax = b$ \\
+            & $x \geq 0$ \\
+        \end{tabular}
+    \end{center}
+  
+	Queremos achar o $x$ que satisfaça todas as restrições e minimize $c^Tx$. Portanto temos como informação inicial: 
+	\begin{description}
+		\item[$A$:] Matriz $m \times n$ de restrições
+		\item[$b$:] Vetor de dimensão $m$
+        \item[$c$:] Vetor de custos de dimensão $n$
+        \item[$m$:] Número de restrições de igualdade
+        \item[$n$:] Número de variáveis
+	\end{description}
+
+    Logo nossa função que calcula $x$ terá a seguinte forma: \\
+    \begin{center}
+    \texttt{simplex(A, b, c, m, n)}
+    \end{center}
+
+\subsection{O que recebemos no final}
+    Como já vimos antes, temos três possíveis cenários de resultados da nossa função:
+    \begin{enumerate}
+        \item O problema é inviável, portanto não existe solução ótima
+        \item Existe solução ótima, logo o custo ótimo é um valor finito
+        \item O custo ótimo é $-\infty$, e não existe solução ótima
+    \end{enumerate}
+    Logo, nossa função deve retornar informação suficiente para sabermos em qual dos três casos estamos e os valores relevantes para cada um. Com isso em mente, nossa função tem o seguinte esqueleto:
+    \begin{center}
+        \texttt{[ind x d] = simplex(A, b, c, m, n)}
+    \end{center}
+    Onde:
+    \begin{center}
+    \begin{tabular}{ c  c  c  c }
+        \textbf{Caso} & $ind$ & $x$  & $d$ \\  \hline
+        1    & 1   & vetor vazio & vetor vazio \\
+        2    & 0   & solução ótima & vetor vazio \\
+        3    & -1  & ultima svb computada & direção que vai a $-\infty$ \\
+    \end{tabular}
+    \end{center}
+
+\subsection{A função simplex}
+    Nos preocupando somente com o caso onde o problema tem solução, nosso algortimo seria algo próximo do seguinte: 
+
+    \begin{algorithmic}
+    \Function{$simplex$}{$A$, $b$, $c$, $m$, $n$}
+        \State \texttt{multiplica restrições com $b < 0$ por -1}
+        \State $A' \gets [\begin{array}{c | c} A & I \end{array}]$
+        \State $x' \gets \bigg [\begin{array}{c} 0 \\ \hline b \end{array} \bigg]$
+        \State $c' \gets \bigg [\begin{array}{c} 0 \\ \hline 1 \end{array} \bigg]$
+        \State $B \gets \bigg [\begin{array}{c c c c} A_{B(1)} & A_{B(2)} & \dots & A_{B(m)} \end{array} \bigg ]$ \\
+        \State $x$ $\gets$ \texttt{fase2}$(A', b, c', m, m + n, x')$ \\
+        \State $x$ $\gets$ \texttt{fase2}$(A, b, c, m, n, x)$ 
+        \Return{$x$}
+    \EndFunction
+    \end{algorithmic}
+
+    Nota-se que o algoritmo é dividido em 3 partes:
+    \begin{enumerate}
+        \item Modificar problema inicial, adicionando $m$ variáveis artificiais
+        \item Encontrar solução inicial para o problema inicial resolvendo o modificado
+        \item Resolver o problema inicial
+    \end{enumerate}
+    Podemos resolver os dois problemas, dado uma solução inicial, graças a função \texttt{fase2} que resolve problemas de programação linear a partir de uma solução viável básica inicial. Imaginando que já temos essa função, nosso algoritmo final em octave é:
+
+    \begin{lstlisting}
+function [ind, x, d] = simplex(A, b, c, m, n)
+    % Arruma restricoes para que b > 0
+    for i = 1 : m
+        if (b < 0)
+            b *= -1;
+            A(i, :)  *= -1;
+        end
+    end
+
+    % Cria problema auxiliar para achar primeira solucao 
+    % para o problema inicial
+    A = [A, eye(m)];
+    x = [zeros(n, 1); b];
+    c1 = [zeros(n, 1); ones(m, 1)];
+    I = struct('b', [n + 1 : n + m], 'n', [1 : n]);
+    invB = eye(m);
+
+    % Resolve problema auxiliar
+    [ind, x, d, I, invB] = fase2(A, b, c1, m, n + m, x, I, invB);
+
+    for artific = n + 1 : n + m
+		if abs(x(artific)) > 1e-10
+			% Problema Inviavel
+			ind = 1;
+			x = [];
+			d = [];
+			printf("\n\nO problema e inviavel\n");
+			return;
+		end
+    end
+
+    % Remove vaiaveis artificiais da base. (nao altera x)
+    [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b);
+    x = x(1 : n);
+
+
+    % Resolve problema inicial, com solucao encontrada
+    [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB);
+    \end{lstlisting}
+
 	
-	\EndIf
-	\State $(I, A, invB, m) \gets removeArtificials (A, I, invB, m, n, b)$
-	\State $x \gets [x_1, ..., x_n]$
-	\State $(ind, x, d, I, B^-1) = fase2(A, b, c, m, n, x, I, B^{-1})$
-	\If{$ind = -1$}
-		\Return $(-1, x, d)$
-		\Comment{Custo ótimo = $-\infty$}
-	\Else
-		\Return $(0, x, d)$
-		\Comment{Solução ótima encontrada}
-	\EndIf
+	Utilizamos uma estrutura chamada de $I$ que guarda os índices básicos e não básicos, representados respectivamente pelos vetores $I.b$ e $I.n$. Nessa implementação, é fácil ver a correspondência entre as principais etapas vistas quando apresentamos o pseudocódigo. Entre as linhas \texttt{3} e \texttt{16} modificamos o problema original, nas linhas de \texttt{19} a \texttt{31} encontramos uma solução inicial e na linha \texttt{35} resolvemos o problema.
+    
+    Uma das melhorias feita para reduzir o espaço utilizado foi armazenar $A'$ e $x'$ (do pseudocódigo) em $A$ e $x$ respectivamente. Ainda assim, há certo desperdício de espaço utilizado em funções, pois o octave não envia argumentos por referência. Ou seja, quando enviamos $invB$ para \texttt{fase2}, por exemplo, ao modifica-la dentro da função, o octave cria uma cópia e então altera seus valores. Poderiamos ter feito alterações para que não haja esse tipo de desperdício, mas optamos por um código mais legível e modularizado.
+    
+    Visando melhorar nosso desempenho, passamos e retornamos alguns argumentos extras nas funções \texttt{fase2} e \texttt{removeArtificials}. Dessa forma, evitamos cálculos desnecessários de $B^{-1}$ e dos indices básicos associados à solução $x$. Nos poupar o cálculo de $B^{-1}$ é uma melhoria significativa, visto que isso tem complexidade $O(n^3)$.
+
+
+\subsection{fase2}
+	A função \texttt{fase2} vista na seção anterior, é de grande importância para nosso algoritmo. Dada uma solução viável básica inicial, essa função "anda" pelas soluções adjacentes, buscando uma na qual o custo calculado seja menor que na atual. Tendo a nova solução, voltamos a situação inicial e o algoritmo é executado novamente. Fazemos isso, tomando o cuidado para não andarmos em ciclos, até encontrar uma solução viável básica na qual todas as soluções adjacentes tem custo maior. Assim concluimos que essa solução é ótima. Tendo os conceitos da seção 2, produzimos o seguinte pseudocódigo:
+
+\begin{algorithmic}
+	\Function{$fase2$}{$A$, $b$, $c$, $m$, $n$, $x$}
+		\State $\overline{c}^T \gets c^T - (c_B^T B^{-1})A_j$
+		\While{$!(\overline{c} \geq 0)$}
+			\State $j \gets j \not\in {B(1), \dots, B(m)}$, $t.q.$ $\overline{c}_j < 0$ \Comment Usando regra anti-ciclagem
+			\State $u \gets B^{-1} A_j$
+			\If{$u \leq 0$}
+				\Return $(-1, d)$ \Comment Custo ótimo é $-\infty$
+			\EndIf
+			\State $\theta \gets \min_{u_l > 0} {\frac{x_{B(l)}}{u_l}}, l = 1, \dots, m$
+			\State $x \gets x + \theta d$
+			\State $B(l) \gets j$
+			\State \Call{$atualiza$}{$invB$}
+			\State $\overline{c}^T \gets c^T - (c_B^T B^{-1})A_j$
+		\EndWhile
+		\Return $(0, x)$
+	\EndFunction	
+\end{algorithmic}
+
+	De forma muito similar, temos nosso algoritmo implementado em octave:
+	\begin{lstlisting}
+function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB)
+    [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
+    while redc < 0  % se essa condicao falha, x e otimo
+        [imin, teta] = calculaTeta(x, u, I);
+        if imin == -1  % custo otimo e -inf e u tem a direcao
+            ind = -1;
+            d = u2d(u, I.n(ij), I);
+            return;
+        end
+
+        % atualiza
+        x = atualizax(x, teta, u, I.n(ij), I); 
+        [I, invB] = atualizaBase(I, invB, u, imin, ij, m);
+
+        [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
+    end
+    
+    d = [];
+    ind = 0;
+end 
+
+    \end{lstlisting}
+
+\subsection{Complexidade}
+	A complexidade da função \texttt{simplex} depende basicamente da complexidade de \texttt{removeArtificials} e \texttt{fase2}. Primeiramente analisaremos a complexidade das funções auxiliares para então analisar as principais.
+
+\subsubsection{Função custoDirecao}
+A função custoDirecao é responsável por escolher uma direção básica $j$ com custo reduzido menor do que zero.
+\begin{algorithmic}
+\Function{$custoDirecao$}{$A, B^{-1}, c, n, m, I$}
+	\State $j \gets 1$
+	\While{$j \leq n - m$}
+		\State $redc = c(I.n(j)) - c^T_BA_{I.n(j)}$
+		\If{$redc < 0$}
+			\State $ij \gets j$
+			\State $u \gets B^{-1}A_{I.n(ij)}$
+			\Return $(redc, u, ij)$
+		\EndIf
+		\State $j \gets j + 1$		
+	\EndWhile
+	\Return $(0, -1, NIL)$
 \EndFunction
 \end{algorithmic}
 
+	Apesar de estar dentro do loop principal, $u \gets B^{-1}A_{I.n(ij)}$ é executada somente uma vez, pois assim que executada, logo em seguida uma chamada de retorno também é. Portanto essa linha leva $O(m^2)$, pois é multiplicação de uma matrix $m \times m$ por um vetor de dimensão $m$. Já a primeira linha de dentro do loop, leva $O(m)$, pois é produto de dois vetores de tamanho $m$. No entanto, essa linha é executada, no pior caso, $(n - m)$ vezes, isto é $O((n-m)m) = O(nm)$. Como $n > m$, a função como um todo tem complexidade $O(nm)$.
+
+\subsubsection{Função calculaTheta}
+A função calculaTheta é responsável por calcular $\theta$ como foi explicado na seção \ref{concepts:adj_svb}.
+\begin{algorithmic}
+\Function{$calculaTheta$}{$x, u, I$}
+	\State $imin = -1$
+	\State $theta = \infty$
+	\For{$i = 1$ to $m$}
+		\If{$u_i > 0$}
+			\State $t = x_{I.b(i)} / u_i$
+			\If{$t < theta$}
+				\State $theta = t$
+				\State $imin = i$
+			\EndIf
+		\EndIf
+	\EndFor
+	\Return $(imin, teta)$
+\EndFunction
+\end{algorithmic}
+
+O loop itera $m$ vezes executando operações que levam $O(1)$, portanto \texttt{calculaTheta} tem complexidade $O(m)$.
+
+
+\subsubsection{Atualização da base}
+Atualizações nas bases ocorrem quando tiramos um índice da base e adicionamos outro. Esta operação ocorre tanto na fase 1 quanto na fase 2 do método simplex.
+
+O cálculo da inversa de uma matriz é uma operação muito cara, portanto devemos investigar uma maneira de atualizar a inversa de $B$ ao invés de recalculá-la a todo momento. Seja $B$ uma base, e $\overline{B}$ a base depois de uma atualização, tirando o $l$-ésimo indice básico e adicionando o índice $j$ a base. Note que:
+\begin{center}
+$$
+B^{-1}\overline{B} =
+\begin{pmatrix}
+B^{-1}A_{B(1)}  & \cdots & B^{-1}A_{B(l - 1)} & B^{-1}A_j & \cdots & B^{-1}A_{B(m)} \\    
+\end{pmatrix}
+$$
+$$
+=\begin{pmatrix}
+e_1  & \cdots & e_{l-1} & u & \cdots & e_m \\    
+\end{pmatrix}
+$$
+\end{center}
+Portanto, se pré-multiplicarmos $B^{-1}$ por matrizes fazendo com que, no lado direito da equação, $u$ se torne $e_l$, teremos que $B^{-1}$ pré-multiplicada pelas mesmas matrizes será igual a $\overline{B^{-1}}$.
+
+O pseudo-código:
+\begin{algorithmic}
+\Function{$atualizaBase$}{$I, B^-1, u, imin, ij, m$} 
+\State $(I.b(imin), I.b(ij)) \gets (I.n(ij), I.b(imin))$
+\For {$i = 1$ to $m$}
+	\If{$i \neq imin$}
+		\State $B^{-1}_{i, j} \gets B^{-1}_{i, j} - (u_i / u_{imin}) * B^{-1}_{imin, j}$ for $j = 1, ..., n$
+	\EndIf
+\EndFor
+\State $B^{-1}_{i, j} \gets B^{-1}_{i, j} / u(imin)$ for $j = 1, ..., n$
+\EndFunction
+\end{algorithmic}
+
+Essa função executa o loop $m$ vezes. A cada iteração, uma operação de soma de vetores de tamanho $n$ é feita. Portanto a complexidade de \texttt{atualizaBase} é $O(nm)$.
+
+\subsubsection{Função atualizaX}
+Para atualizar $x$, temos que fazer $x + \theta d$. No entanto, não há a necessidade de calcular $d$ a partir de $u$:
+\begin{algorithmic}
+\Function{$atualizax$}{$x, t, u, j, I$}
+	\State $x_{I.b} \gets x_{I.b} - t * u$
+	\State $x_j \gets t$
+	\Return $x$
+\EndFunction
+\end{algorithmic}
+Claramente, por ser uma subtração de vetores de tamanho $m$, a complexidade é $O(m)$.
+
+\subsubsection{A função fase2}
+Finalmente podemos analisar uma das funções que determinam a complexidade da função \texttt{simplex}. A cada iteração do loop principal dessa função, temos chamadas às seguintes funções: \texttt{calculaTeta}, \texttt{atualizax}, \texttt{atualizaBase} e \texttt{custoDirecao}. As duas primeiras são lineares, $O(m)$. Já as duas últimas, são $O(nm)$. Portanto cada iteração da \texttt{fase2}, temos uma complexidade $O(mn)$.
+
+\subsubsection{A função removeArtificials}
+Para a função \texttt{removeArtificials}, a cada iteração do loop principal, temos uma possível chamada de \texttt{atuzliaBase}, que é $O(nm)$. Logo no pior caso, ela é chamada em todas as iterações e no melhor ela nunca é chamada. O loop principal depende de quantas variáveis artificiais existem na base. Podem haver no máximo $m$ dessas variáveis. Logo o pior dos cenários é quando temos $m$ variáveis artificiais e atualizamos a base para todas elas. Nesse caso o algoritmo leva $O(nm^2)$. No melhor dos casos, não há variáveis artificiais dentro da base e isso leva $O(1)$.
+
+\subsubsection{Conclusão da complexidade}
+Seja $\alpha$ o número de iterações da primeira chamada de \texttt{fase2} em \texttt{simplex} e $\beta$ o da segunda chamada. Então na primeira delas, temos complexidade $O(\alpha n m)$ e na outra $O(\beta n m)$. Se $\alpha + \beta > m$, então as duas juntas são $\Omega(nm^2)$ e nesse caso essa é a complexidade do \texttt{simplex}. Caso contrário, \texttt{removeArtificials} continuará sendo $O(nm^2)$ e a função \texttt{simplex} também será.
+
+
+
+\newpage
+\section{Exemplos}
+	Nessa seção apresentaremos 3 exemplos do algoritmo implementado em octave sendo executado. 
 	
+	\subsection{Solução Ótima}
+		Consideremos o seguinte problema:
+	\begin{center}	
+    	\begin{tabular}{r l}
+	  		minimizar & $x_1 + x_2 + x_3$ \\
+        
+        	sujeito a & $x_1 + x_2 + x_3 \leq 1$ \\
+            & $x \geq 0$ \\
+        \end{tabular}
+    \end{center}
+    
+	Podemos visualizar o problema com a seguinte imagem, onde a região viável está representada abaixo do plano desenhado e acima dos eixos:
+	\begin{center}
+	\includegraphics[scale=0.8]{xyz}	
+	\end{center}
+
+	Como esse problema não está no formato padrão, temos que reformulá-lo adicionando uma variável de folga:
+	\begin{center}	
+    	\begin{tabular}{r l}
+	  		minimizar & $x_1 + x_2 + x_3$ \\
+        
+        	sujeito a & $x_1 + x_2 + x_3 + x_4 = 1$ \\
+            & $x \geq 0$ \\
+        \end{tabular}
+    \end{center}
+    
+    Para esse problema, temos: 
+	   
+	\begin{itemize}
+	\item $A = \begin{pmatrix}
+    1 & 1 & 1 & 1
+    \end{pmatrix}$
+    
+	\item $b = \begin{pmatrix}
+    1 
+    \end{pmatrix} $
+    
+    \item $c = \begin{pmatrix}
+    1 & 1 & 1 & 0
+    \end{pmatrix}$
+    
+    \item $m = 1$
+    
+    \item $n = 4$
+	\end{itemize}
+	
+	Portanto, podemos aplicar nosso algoritmo:
+	\begin{lstlisting}[style=term]
+octave:1> simplex(A,b,c,m,n)
+
+******************** Fase1 ********************
+
+
+Iteracao 0:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x5    1.000000
+|  
+|  Custo em x
+|  ==========
+|       1.000
+|  
+
+Iteracao 1:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x1    1.000000
+|  
+|  Indice var basicas   Componente da direcao
+|  ==================   =====================
+|                   1               -1.000000
+|  
+|  Custo em x      Teta         Entra na Base   Sai da Base
+|  ==========   ==========      =============   ===========
+|       0.000        1.000                 x1            x5
+|  
+	\end{lstlisting}
+	
+	A fase 1 consiste em achar uma solução para o problema principal através de um problema auxiliar. Nesse caso o problema auxiliar tem somente uma variável a mais ($x_5$), pois $m = 1$. Por esse motivo, na Iteração 0, $x_5$ está na base e vale $b = 1$. Nessa situação, $c^Tx = x_5  = 1$. Como essa não é uma solução ótima, foi encontrada uma direção em que o custo reduzido é menor que 0. Vemos na Iteração 1: que essa direção é onde $j = 1$. Verificamos que $\overline{c}_j = c_j - c_B^TB^{-1}A_j = 0 - 1*1*1 = -1$. $x + \theta d$ é calculado resultando em $x_5 = 0$ e $x_1 = 1$. Nesse novo ponto, o custo vale 0. Nesse ponto, todos os custos reduzidos são maiores ou iguais a 0, e essa é a solução ótima. Como $x_1$ não é uma variável artificial, essa já é a solução inicial para o problema inicial. 
+	
+	\lstset {firstnumber=29}
+	\begin{lstlisting}[style=term]
+
+******************** Fase2 ********************
+
+
+Iteracao 0:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x1    1.000000
+|  
+|  Custo em x
+|  ==========
+|       1.000
+|  
+
+Iteracao 1:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x4    1.000000
+|  
+|  Indice var basicas   Componente da direcao
+|  ==================   =====================
+|                   4               -1.000000
+|  
+|  Custo em x      Teta         Entra na Base   Sai da Base
+|  ==========   ==========      =============   ===========
+|       0.000        1.000                 x4            x1
+|  
+
+
+Solucao encontrada: 
+x = 
+
+   0
+   0
+   0
+   1
+	\end{lstlisting}
+	
+	A Iteração 0 da fase 2 começa com $x_1 = 1$, pois foi a solução inicial encontrada na Fase 1. A figura a seguir ilustra a situação:
+	
+	\begin{center}
+	\includegraphics[scale=0.6]{xyz2}	
+	\end{center}
+	
+	Na Iteração 1, a direção $j = 4$ é escolhida por ter custo reduzido menor que 0. Assim, $x_4$ entra na base e $x_1$ a deixa. No novo ponto onde $x_4 = 1$ e as demais componentes de x são 0, não há custo reduzido menor que 0, portanto essa é a solução ótima para nosso problema.
+	
+	\subsection{Custo ótimo $-\infty$}
+	Suponha o problema:
+	\begin{center}	
+    	\begin{tabular}{r l}
+	  		minimizar & $-x_1 - x_3$ \\
+        
+        	sujeito a & $x_1 + x_2 = 1$ \\
+            & $x \geq 0$ \\
+        \end{tabular}
+    \end{center}
+    
+        Para esse problema, temos: 
+	   
+	\begin{itemize}
+	\item $A = \begin{pmatrix}
+    1 & 1 & 0 
+    \end{pmatrix}$
+    
+	\item $b = \begin{pmatrix}
+    1 
+    \end{pmatrix} $
+    
+    \item $c = \begin{pmatrix}
+    -1 & 0 & -1 
+    \end{pmatrix}$
+    
+    \item $m = 1$
+    
+    \item $n = 3$
+	\end{itemize}
+
+	\lstset {firstnumber=1}	
+	
+	É fácil ver que como a unica restrição em $x_3$ é $x_3 > 0$, e temos que minimizar $-x_1 - x_3$, $x_3$ pode ser tão grande quanto queiramos e portanto o custo ótimo será $-\infty$.
+	\begin{lstlisting}[style=term]
+octave:1> simplex(A,b,c,m,n)
+
+******************** Fase1 ********************
+
+
+Iteracao 0:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x4    1.000000
+|  
+|  Custo em x
+|  ==========
+|       1.000
+|  
+
+Iteracao 1:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x1    1.000000
+|  
+|  Indice var basicas   Componente da direcao
+|  ==================   =====================
+|                   1               -1.000000
+|  
+|  Custo em x      Teta         Entra na Base   Sai da Base
+|  ==========   ==========      =============   ===========
+|       0.000        1.000                 x1            x4
+|  
+
+	\end{lstlisting}
+	Como $m = 1$, a unica variável artificial será $x_4$, por isso na Iteração 0 da Fase 1, ela é a unica variável na base. No entanto na direção $j = 1$, o custo reduzido é menor que 0, portanto a variável $x_4$ sai da base e a $x_1$ entra. Nesse novo ponto, os custos reduzidos são maiores ou iguais a zero e não há variáveis artificiais na base. Assim, $x = (1, 0, 0, 0)^T$ é solução inicial do problema.
+	
+	\lstset {firstnumber=29}
+	\begin{lstlisting}[style=term]
+
+******************** Fase2 ********************
+
+
+Iteracao 0:
+|  Var Basicas       Valor
+|  ===========  ==========
+|           x1    1.000000
+|  
+|  Custo em x
+|  ==========
+|      -1.000
+|  
+
+
+O custo otimo e -infinito, com direcao:
+d =
+
+  -0
+   0
+   1
+A partir de:
+x = 
+
+   1
+   0
+   0
+
+	\end{lstlisting}
+	O problema começa com o $x$ que calculamos na fase anterior. O $j$ escolhido é 3, pois $\overline{c}_3 = -1 + 0 = -1$. No entanto, $u = B^-1 * A_j = A_1^-1 * A_3 = 1 * 0 = 0$. Portanto não existe $u > 0$, logo podemos escolher $\theta$ tão grande quanto queiramos e nosso custo será cada vez menor. A direção que leva a $-\infty$ é tal que $d_3$ = 1, e como já vimos, $u = 0$. Portanto $d = (0, 0, 1)^T$.
+	
+	\subsection{Inviável}
+	Suponha o problema:
+	\begin{center}	
+    	\begin{tabular}{r l}
+	  		minimizar & $-x_1 - x_2 - x_3$ \\
+        
+        	sujeito a & $x_1 = 1$ \\
+        	& $2x_1 = 1$ \\
+            & $x \geq 0$ \\
+        \end{tabular}
+    \end{center}
+    
+        Para esse problema, temos: 
+	   
+	\begin{itemize}
+	\item $A = \begin{pmatrix}
+    1 & 0 & 0 \\
+    1 & 0 & 0 \\    
+    \end{pmatrix}$
+    
+	\item $b = \begin{pmatrix}
+    1 \\
+    1
+    \end{pmatrix} $
+    
+    \item $c = \begin{pmatrix}
+    -1 & -1 & -1 
+    \end{pmatrix}$
+    
+    \item $m = 2$
+    
+    \item $n = 3$
+	\end{itemize}
+
+	\lstset {firstnumber=1}	
+	
+	Esse problema é obviamente inviável, pois $x_1$ não pode ser ao mesmo tempo $1$ e $0.5$. 
+	\begin{lstlisting}[style=term]
+octave:1> simplex(A,b,c,m,n)
+
+******************** Fase1 ********************
+
+
+Iteracao 0:
+|  Var Basicas	     Valor
+|  ===========	==========
+|           x4	  1.000000
+|           x5	  1.000000
+|  
+|  Custo em x
+|  ==========
+|       2.000
+|  
+
+Iteracao 1:
+|  Var Basicas	     Valor
+|  ===========	==========
+|           x4	  0.500000
+|           x1	  0.500000
+|  
+|  Indice var basicas	Componente da direcao
+|  ==================	=====================
+|                   4	            -1.000000
+|                   1	            -2.000000
+|  
+|  Custo em x	   Teta   	Entra na Base	Sai da Base
+|  ==========	==========	=============	===========
+|       0.500	     0.500	           x1	         x5
+|  
+
+
+O problema e inviavel
+
+
+	\end{lstlisting}
+	Vemos que o problema começa com as duas variáveis artificiais $x_4$ e $x_5$ na base, pois $m = 2$. Em 1 iteração achamos a solução ótima para o problema auxiliar. No entanto como pode-se ver, $x_4$ está entre as variáveis básicas, portanto o problema principal é inviável.
+
+    
 
 \newpage
 \begin{thebibliography}{9}

@@ -31,7 +31,7 @@ function [ind, x, d] = simplex(A, b, c, m, n)
         end
     end
 
-    % Cria problema auxiliar para achar primeira solução para o problema primal
+    % Cria problema auxiliar para achar primeira solução para o problema inicial
     A = [A, eye(m)];
     x = [zeros(n, 1); b];
     c1 = [zeros(n, 1); ones(m, 1)];
@@ -40,15 +40,17 @@ function [ind, x, d] = simplex(A, b, c, m, n)
 
     % Resolve problema auxiliar
     printf("\n******************** Fase1 ********************\n\n");
-    [ind, x, d, I, invB] = fase2(A, b, c1, m, n + m, x, I, invB);
-
-    if x(n + 1 : n + m) != 0
-        % Problema Inviável
-        ind = 1;
-        x = [];
-        d = [];
-        printf("\n\nO problema é inviável\n");
-        return;
+    [ind, x, d, I, invB] = fase2(A, b, c1, m, n + m, x, I, invB, n);
+	
+    for artific = n + 1 : n + m
+		if abs(x(artific)) > 1e-10
+			% Problema Inviável
+			ind = 1;
+			x = [];
+			d = [];
+			printf("\n\nO problema é inviável\n");
+			return;
+		end
     end
 
     % Remove vaiáveis artificiais da base. (não altera x)
@@ -56,9 +58,9 @@ function [ind, x, d] = simplex(A, b, c, m, n)
     x = x(1 : n);
 
 
-    % Resolve problema primal, com solução encontrada
+    % Resolve problema inicial, com solução encontrada
     printf("\n******************** Fase2 ********************\n\n");
-    [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB);
+    [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB, n);
 
     if ind == -1
         printf("\n\nO custo ótimo é -infinito, com direção:\nd =\n\n");
@@ -70,7 +72,7 @@ function [ind, x, d] = simplex(A, b, c, m, n)
     disp(x);
 end
 
-function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB)
+function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB, maxbasic)
     % Recebe:
     %   A: Matriz de restrições
     %   b: Vetor tal que A*x = b
@@ -80,6 +82,7 @@ function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB)
     %   x: Solução viável básica
     %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
     %   invB: Inversa da matriz B (colunas de A com indice básico)
+    %   maxbasic: Indice máximo que pode entrar na base
     %
     % Calcula solução ótima para o PL: min c'x, S.A.: Ax = b, x >= 0, sabendo que o problema é viável
     %
@@ -99,7 +102,7 @@ function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB)
     printXb(x, I, m);
     printCusto(x, c);
 
-    [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
+    [redc, u, ij] = custoDirecao(A, invB, c, n, m, I, maxbasic);
     while redc < 0                              % se essa condição falha, x é ótimo
         [imin, teta] = calculaTeta(x, u, I);
         if imin == -1                           % custo ótimo é -inf e u tem a direção
@@ -118,7 +121,7 @@ function [ind, x, d, I, invB] = fase2(A, b, c, m, n, x, I, invB)
         printDir(u, I, m);
         printResto(x, c, I, ij, imin, teta);
 
-        [redc, u, ij] = custoDirecao(A, invB, c, n, m, I);
+        [redc, u, ij] = custoDirecao(A, invB, c, n, m, I, maxbasic);
     end
     
     d = [];
@@ -128,7 +131,7 @@ end
 
 %%%%%%%%%%%%%%% FUNÇÕES AUXILIARES %%%%%%%%%%%%%%%
 
-function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
+function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I, maxbasic)
     % Recebe:
     %   A: Matriz de restrições
     %   invB: Inversa da matriz B (colunas de A com indice básico)
@@ -157,7 +160,7 @@ function [redc, u, ij] = custoDirecao(A, invB, c, n, m, I)
     while j <= n - m
         redc = c(I.n(j)) - cbinvB * A(:, I.n(j));
 
-        if redc < -1e-10
+        if (redc < -1e-10) && (I.n(j) <= maxbasic)
             ij = j;
             u = invB * A(:, I.n(ij)); 
 
@@ -301,8 +304,7 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b)
     % Essa função é O(m)
     
     for l = (1 : m)(I.b > n) % indexes of I.b with content greater than n
-        
-        b_cand = (1 : n)(I.n < n);
+        b_cand = (1 : n)(I.n <= n);
         x = length(b_cand);
         k = 1;
         while ((k <= x) && abs(invB(l, :) * A(:, I.n(b_cand(k)))) <= 1e-10)  %% por que abs? o_O  % só quero saber se é diferente de zero, mas corro o risco de não dar exatamente zero
@@ -311,18 +313,19 @@ function [I, A, invB, m] = removeArtificials(A, I, invB, m, n, b)
         
         if k > x
             % Siginifica que B^-1(l, :) * Aj = 0 para todo j (restrição redundante)
+			invB(:,l) = [];
+			invB(l,:) = [];
             I.b(l) = [];
             m--;
             A(l, :) = [];
             b(l) = [];
         else
             % vamos trocar a base do indice l (artificial) para j (não artificial)
-            u = invB * A(:, I.n(k)); 
-            [I, invB] = atualizaBase(I, invB, u, l, k, m);
+            u = invB * A(:, I.n(b_cand(k))); 
+            [I, invB] = atualizaBase(I, invB, u, l, b_cand(k), m);
         end
     end
 
-    invB = inverse(A(:, I.b));
     % "Recorta" variáveis artificiais de A e I.n
     A = A(:, 1 : n);
     I.n(I.n > n) = [];
@@ -387,7 +390,7 @@ function printDir(u, I, m)
     %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
     %   m: número de restrições
     % 
-    % Imprime índices das variáveis básicas e os valores correspondentes das componentes da direção -d
+    % Imprime índices das variáveis básicas e os valores correspondentes das componentes da direção d
 
     ind = "Indice var basicas";
     indl = length(ind);
@@ -405,7 +408,7 @@ function printDir(u, I, m)
     printf("\n");
 
     for i = 1 : m
-        printf("|  %*d\t%*f\n", indl, I.b(i), dl, u(i));
+        printf("|  %*d\t%*f\n", indl, I.b(i), dl, -u(i));
     end
     printf("|  \n");
 end
@@ -421,7 +424,6 @@ function printResto(x, c, I, ij, imin, teta)
     % 
     %
     % Imprime o custo em x, teta, variável que entrou na base e a que saiu.
-
     cx = "Custo em x";
     cxl = length(cx);
     t = "   Teta   ";
@@ -449,7 +451,7 @@ function printResto(x, c, I, ij, imin, teta)
     end
     printf("\n");
 
-    printf("|  %*.3f\t%*.3f\t%*s\t%*s\n", cxl, (x'*c), tl, teta, inl, ["x" num2str(I.n(ij))], outl, ["x" num2str(I.b(imin))]);
+    printf("|  %*.3f\t%*.3f\t%*s\t%*s\n", cxl, (x'*c), tl, teta, inl, ["x" num2str(I.b(imin))], outl, ["x" num2str(I.n(ij))]);
     printf("|  \n");
 end
 
