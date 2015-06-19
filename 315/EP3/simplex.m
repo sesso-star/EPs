@@ -41,14 +41,16 @@ function [ind, x, d] = simplex(A, b, c, m, n)
     % Resolve problema auxiliar
     printf("\n******************** Fase1 ********************\n\n");
     [ind, x, d, I, invB] = fase2(A, b, c1, m, n + m, x, I, invB, n);
-
-    if x(n + 1 : n + m) != 0
-        % Problema Inviável
-        ind = 1;
-        x = [];
-        d = [];
-        printf("\n\nO problema é inviável\n");
-        return;
+	
+    for artific = n + 1 : n + m
+		if abs(x(artific)) > 1e-10
+			% Problema Inviável
+			ind = 1;
+			x = [];
+			d = [];
+			printf("\n\nO problema é inviável\n");
+			return;
+		end
     end
 
     % Remove vaiáveis artificiais da base. (não altera x)
@@ -388,7 +390,7 @@ function printDir(u, I, m)
     %   I: estrutura de indices básicos (I.b) e não básicos (I.n)
     %   m: número de restrições
     % 
-    % Imprime índices das variáveis básicas e os valores correspondentes das componentes da direção -d
+    % Imprime índices das variáveis básicas e os valores correspondentes das componentes da direção d
 
     ind = "Indice var basicas";
     indl = length(ind);
@@ -406,7 +408,7 @@ function printDir(u, I, m)
     printf("\n");
 
     for i = 1 : m
-        printf("|  %*d\t%*f\n", indl, I.b(i), dl, u(i));
+        printf("|  %*d\t%*f\n", indl, I.b(i), dl, -u(i));
     end
     printf("|  \n");
 end
@@ -422,7 +424,6 @@ function printResto(x, c, I, ij, imin, teta)
     % 
     %
     % Imprime o custo em x, teta, variável que entrou na base e a que saiu.
-
     cx = "Custo em x";
     cxl = length(cx);
     t = "   Teta   ";
@@ -450,7 +451,7 @@ function printResto(x, c, I, ij, imin, teta)
     end
     printf("\n");
 
-    printf("|  %*.3f\t%*.3f\t%*s\t%*s\n", cxl, (x'*c), tl, teta, inl, ["x" num2str(I.n(ij))], outl, ["x" num2str(I.b(imin))]);
+    printf("|  %*.3f\t%*.3f\t%*s\t%*s\n", cxl, (x'*c), tl, teta, inl, ["x" num2str(I.b(imin))], outl, ["x" num2str(I.n(ij))]);
     printf("|  \n");
 end
 
