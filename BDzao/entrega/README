@@ -1,5 +1,13 @@
 Cada pasta possui uma parte do projeto.
 Em Logico, encontra-se o modelo lógico feito no BRmodelo e uma imagem.
 Em Conceitual, encontra-se o modelo Conceitual feito no BRmodelo e uma imagem.
-Em Fisico, eocntontra-se um arquivo .sql que cria uma database chamada "projeto_bd" e cria todas as tabelas.
+Em Fisico, eocntontra-se o arquivo projeto_fisico.sql que cria uma database chamada "projeto_bd" e cria todas as tabelas nela.
 Em Popular, temos um arquivo chamado "populate.sql" que se executado no "projeto_bd" criado, ele popula com diversos valores as tabelas. Também encontra-se um arquivo projeto.sql contendo um mysqldump feito apos a população. Alem disso ainda há um arquivo chamado consultas.sql contendo alguns exemplos de consultas interessantes.
+
+Exemplo de uso recomendado:
+./$ cd Fisico
+./Fisico/$ mysql -u root -p < projeto_fisico.sql
+./Fisico/$ cd ../Popular/
+./Popular/$ mysql -u root -p projeto_bd < populate.sql
+
+Nesse ponto o banco está populado e as consultas sugeridas podem ser testadas.
